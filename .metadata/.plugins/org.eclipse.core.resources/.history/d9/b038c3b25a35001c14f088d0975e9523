@@ -1,0 +1,17 @@
+#include "headfile.h"
+
+extern uint16 L_cross_entry;
+extern uint16 L_crossroad;
+extern uint16 R_cross_entry;
+extern uint16 R_crossroad;
+extern uint16 R_L_lose;
+extern uint16 shizhiflag;
+extern uint8 left_no_line;
+extern uint8 right_no_line;
+extern uint16 RR_cro_point_fir;
+extern uint16 L_cro_point_fir;
+void  crossroad_find();
+void crossroad_deal();
+void PreWhitePoint();
+void crosstest1();
+void  Double_no_line();

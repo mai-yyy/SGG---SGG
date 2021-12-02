@@ -1,0 +1,1264 @@
+#include "headfile.h"
+int16 leftline[Row]={0};
+int16 rightline[Row]={0};
+int16 midline[Row]={0};
+int16 endline=0;
+uint8 low_endline_count=0;
+uint8 out_flag=0;
+uint8 c_shizhiflag=0;
+uint8 b_c_start=4;   //5
+int16 final_Optimalpoint_get=0;
+uint8 s_to_b_1=0;
+uint8 s_to_b_2=0;
+uint8 kt=0;
+uint8 bend_count_R=0;
+uint8 bend_count_L=0;
+uint8 bend_count=0;
+uint8 straightFlag=0;
+uint8 bendFlag=0;
+uint8 midbend=0;
+uint8 differ_C=0;
+float td=0;
+uint8 tdflag=0;
+float LastAverageCenter=80;
+float WeightSum=0;
+float MidSum=0;
+float MidValue=0;
+float differ=0;
+float last_differ=0;
+int16 error[Row]={0};
+uint8 left_min=0;
+uint8 right_min=0;
+uint8 box_right=99;
+uint8 box_left=99;
+
+
+float strai[60]={   //正常路线权值   需调
+        0,0,0,0,0,0,0,0,0,0,                //0-9行，基本用不到
+
+        0,0,0,0,0,0,0,0,0,0,           //0-19行，基本用不到
+
+        0,0,0,0,0,0,0,0,1,1,            //20-29行
+
+                     1,1,1,5,5,5,5,5,5,5,              //30-39行
+
+                     10,10,10,10,10,10,10,10,10,5,            //40-49行
+
+                     1,1,0,0,0,0,0,0,0,0       //最近十行
+
+                  };
+//float weight[60]={   //正常路线权值   需调
+//                    0,0,0,0,0,0,0,0,0,0,              //0-9行，基本用不到
+//
+//                     0,0,0,0,0,0,0,0,1,1,             //0-19行，基本用不到
+//
+//                     1,1,2.5,2.5,2.5,5,5,5,10,10,            //20-29行
+//
+//                     10,10,10,10,5,5,5,5,5,5,              //30-39行
+//
+//                     5,5,5,5,5,1,1,1,1,1,            //40-49行
+//
+//                     0,0,0,0,0,0,0,0,0,0       //最近十行
+//
+//                  };
+
+//float weight[60]={   //正常路线权值   需调
+//                    1,1,1,1,1,2.5,2.5,2.5,10,10,              //0-9行，基本用不到
+//
+//                     10,10,10,10,10,10,15,15,20,20,             //0-19行，基本用不到
+//
+//                     25,25,20,20,10,10,10,5,5,5,            //20-29行
+//
+//                     5,5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,2.5,              //30-39行
+//
+//                     1,1,1,1,1,1,1,0,0,0,            //40-49行
+//
+//                     0,0,0,0,0,0,0,0,0,0       //最近十行
+//
+//                  };
+float weight[60]={
+        0,0,0,0,0,0,0,0,0,0,              //0-9行，基本用不到
+
+        0,1,1,1,1,5,5,5,5,5,              //0-19行，基本用不到
+
+         10,10,10,10,10,10,15,15,15,15,            //20-29行
+
+         15,15,10,10,10,5,5,5,1,1,              //30-39行
+
+         1,1,1,1,1,1,1,0,0,0,            //40-49行
+
+         0,0,0,0,0,0,0,0,0,0       //最近十行
+
+      };
+
+int16 Width[Row]={
+        43,47,50,54,58,64,66,69,73,77,
+
+        80,84,88,92,96,100,104,108,113,116,
+
+        120,123,127,131,135,140,143,146,151,156,
+
+        158,160,160,160,160,160,160,160,160,160,
+
+        160,160,160,160,160,160,160,160,160,160,
+
+        160,160,160,160,160,160,160,160,160,160
+                };//实际路宽
+
+uint8  search_add[60]={
+                  25,25,25,25,25,20,20,20,20,20,
+
+                  20,20,20,20,20,20,20,20,20,20,
+
+                  20,20,20,20,15,15,15,15,15,15,
+
+                  15,15,15,15,15,15,15,15,15,15,
+
+                  15,15,15,10,10,10,10,10,10,10,
+
+                  10,10,10,10,10,10,10,10,10,10
+                };//追踪搜边线补偿行数      基于上一行边线加上一个值
+
+uint8 R_out_bustart=0;
+uint8 L_out_bustart=0;
+
+void get_bottom_line()     //搜索第一行边线务必准确    决定其他行边线走向
+{
+for(uint8 hang=0 ; hang<60 ; hang++)     //边线中线赋初值
+  {
+    leftline[hang]=0;
+    rightline[hang]=158;
+    midline[hang]=79;
+   
+  }
+  
+for(uint8 j=0;j<=6;j++) 
+{  
+  for(uint8 i=25+20*j;i<159;i++)     //先搜右边线   从25列开始搜
+  {
+    if(image_data[59][i]&&!image_data[59][i+1])  //白黑跳变
+    {
+      rightline[59]=i;
+      break;
+    }
+    else if(i==158)       //未搜到则是最右边
+    {
+       rightline[59]=158;
+
+    }
+  }
+  
+for(uint8 i=rightline[59];i>0;i--)       //从右边线开始搜左边线
+  {
+    if(image_data[59][i]&&!image_data[59][i-1])
+    {
+      leftline[59]=i;
+      break;
+    }
+    else if(i==1)
+    {
+      leftline[59]=0;
+
+    }
+    
+  }
+  
+if((rightline[59]-leftline[59])>40)  //判断搜线是否出错，否则需重新搜线   极有可能在右弯、坡道发生         25
+{
+  break;      //搜线正常   跳出循环
+}
+
+}
+
+}
+
+
+void get_rest_line()
+{
+int16 right_to_left=0;     
+int16 left_to_right=0;
+box_right=99;
+box_left=99;
+
+  //搜左边线
+for(int8 i=58;i>=endline;i--)    
+{
+ right_to_left=leftline[i+1]+search_add[i];   //边线搜索开始列
+ if(right_to_left>158)    //搜索越界
+  {
+    right_to_left=158;
+  }
+ else if(leftline[i+1]==0)   //上一行丢线
+{
+for(uint8 k=0;k<=158;k++)
+{
+if(k<=130)        //争对左弯
+{
+  if(!image_data[i+1][k])
+  {
+    right_to_left=k-15;
+    if(right_to_left<1)
+    {
+      right_to_left=1;
+    }
+    break;
+  }
+}
+else
+{
+right_to_left=80+search_add[i];
+break;
+}
+}
+//right_to_left=80+search_add[i];
+}
+else if(!image_data[i][right_to_left]&&right_to_left<100)      //搜线起始点为黑   往右移
+{
+   right_to_left=right_to_left+10;
+ if(!image_data[i][right_to_left])      //仍为黑   继续往右移
+   {
+    right_to_left=right_to_left+15;
+   }
+ if(!image_data[i][right_to_left])      //仍为黑   继续往右移
+   {
+    right_to_left=right_to_left+15;
+   }
+}
+
+for(uint8 j=right_to_left;j>0;j--)
+{
+  if(image_data[i][j]&&!image_data[i][j-1])
+  {
+    leftline[i]=j;
+    break;
+  }
+  else if(j==1)
+  {
+    leftline[i]=0;
+
+    if(box_left>=i&&i>endline+1)
+        box_left=i;
+  }
+}
+  
+}
+
+
+
+  //搜右边线
+for(int8 i=58;i>=endline;i--)    
+{
+  left_to_right=rightline[i+1]-search_add[i];   //边线搜索开始列
+if(left_to_right<0)    //搜索越界
+  {
+    left_to_right=0;
+  }
+else if(rightline[i+1]>=158)   //上一行丢线   changed
+  {
+ for(uint8 k=158;k>0;k--)
+{
+if(k>=30)        //争对右弯
+{
+  if(!image_data[i+1][k])
+  {
+    left_to_right=k+15;
+    if(left_to_right>158)
+    {
+      left_to_right=158;
+    }
+    break;
+  }
+}
+else
+{
+left_to_right=80-search_add[i];
+break;
+}
+}  
+
+}
+else if(!image_data[i][left_to_right]&&left_to_right>60)      //搜线起始点为黑   往右移
+{
+   left_to_right=left_to_right-10;
+ if(!image_data[i][left_to_right])      //仍为黑   继续往右移
+   {
+    left_to_right=left_to_right-20;
+   }
+ if(!image_data[i][left_to_right])      //仍为黑   继续往右移
+   {
+    left_to_right=left_to_right-15;
+   }
+}
+
+
+
+for(uint8 j=left_to_right;j<=158;j++)
+{
+  if(image_data[i][j]&&!image_data[i][j+1])
+  {
+    rightline[i]=j;
+    break;
+  }
+  else if(j>=156)
+  {
+      if(j>157)
+      {
+    rightline[i]=158;
+
+      }
+    if(box_right>=i&&i>endline+1)
+        box_right=i;
+  }
+}
+
+}
+
+
+}
+
+void  get_endline_R()    //查找21列   较精确寻找截止行
+{
+uint8  hang_end[21]={0};
+uint8  endline_min=0;
+low_endline_count=0;
+zero_endline_count=0;
+//if(huan_L_flag!=3)
+//{
+for(uint8 j=0;j<=20;j++)
+{
+  for(uint8 i=59;i>=1;i--)
+    {
+
+    if(j<20)
+      {
+      if(!image_data[i][8*j]&&!image_data[i-1][8*j])    //同一列连续两行为黑     黑-0    白-1
+      {
+        hang_end[j]=i;
+        break;
+      }
+      else
+      {
+        hang_end[j]=0;           //若搜不到   则截止行直接给0
+      }
+      }
+    else
+      {
+        if(!image_data[i][159]&&!image_data[i-1][159])    //同一列连续两行为黑    159列
+      {
+        hang_end[j]=i;
+        break;
+      }
+      else
+      {
+        hang_end[j]=0;           //若搜不到   则截止行直接给0
+      }
+
+      }
+    }
+ }
+
+
+for(uint8 i=0;i<=20;i++)
+{
+ if(hang_end[i]<=10&&hang_end[i]!=0)
+ {
+     low_endline_count++;
+ }
+ else if(hang_end[i]==0)
+ {
+     zero_endline_count++;
+ }
+}
+
+endline_min=hang_end[0];       //查找截止行
+for(uint8 i=1;i<=20;i++)
+{
+ if(hang_end[i]<endline_min)
+ {
+     endline_min=hang_end[i];     //最小截止行，图像上方
+ }
+}
+   endline=endline_min;       //得出截止行
+//}
+}
+void Optimalpoint()
+{
+   int16  Optimalpoint_row=endline;
+   uint8 left_Optimalpoint_get=0;
+   uint8 left_Optimalpoint_over=0;
+   uint8 right_Optimalpoint_get=158;
+   uint8 right_Optimalpoint_over=0;
+  for(uint8 i=0;i<158;i++)
+  {
+      if(image_data[Optimalpoint_row][i]&&image_data[Optimalpoint_row+1][i]&&!left_Optimalpoint_over)//左边
+      {
+          left_Optimalpoint_get=i;
+          right_Optimalpoint_over=0;
+          left_Optimalpoint_over=1;
+      }
+      else if(right_Optimalpoint_over&&left_Optimalpoint_over)
+      {break;}
+      else if(image_data[Optimalpoint_row][i]&&image_data[Optimalpoint_row+1][i]&&left_Optimalpoint_over&&!image_data[Optimalpoint_row][i+1])
+      {
+          right_Optimalpoint_get=i;
+          right_Optimalpoint_over=1;
+      }//右边未丢线situation
+      else if(!image_data[Optimalpoint_row][i]&&image_data[Optimalpoint_row][i-1]&&left_Optimalpoint_over)
+           {
+               right_Optimalpoint_get=i-1;
+               right_Optimalpoint_over=1;
+           }//左右相同 即只有一个点
+      else if(i==157)
+          {
+              if(image_data[Optimalpoint_row][157]&&image_data[Optimalpoint_row][156]&&image_data[Optimalpoint_row+1][157]&&left_Optimalpoint_over)
+              {right_Optimalpoint_get=157;right_Optimalpoint_over=1;}
+          }//右边丢线situation
+
+  }
+  final_Optimalpoint_get=(left_Optimalpoint_get+right_Optimalpoint_get)>>1;
+}
+
+//Maiy_2_dimensional optimal_v20_get(Maiy_characteristic_point *temporarily_char)
+void optimal_v20_get(Maiy_characteristic_point *temporarily_char)     //其实无需Maiy_2_dimensional类型的返回值，直接调用real_char即可
+{
+    Maiy_2_dimensional temp_ReturnPoint = {0, 0};
+     int16 Y;
+     int16 X;
+     Maiy_2_dimensional my_left_to_right = {0, 0}; /*用来临时保存从左往右找的最优点*/
+     Maiy_2_dimensional my_right_to_left = {0, 0}; /*用来临时保存从右往左找的最优点*/
+
+     temporarily_char->my_final_tOptimalPoint.my_x=0;
+     temporarily_char->my_final_tOptimalPoint.my_y=0;
+     temporarily_char->my_left_LOptimalPoint.my_x=0;
+     temporarily_char->my_left_LOptimalPoint.my_y=0;
+     temporarily_char->my_right_OptimalPoint.my_x=0;
+     temporarily_char->my_right_OptimalPoint.my_y=0;
+     temporarily_char->m_stCenterLinePoint.my_x = 0; //中线对应的的白行的最大高度  ,没用
+     temporarily_char->m_stCenterLinePoint.my_y = 0;
+     temporarily_char->m_u32LAllArea = 0;
+     temporarily_char->m_u32RAllArea = 0;
+
+     memset(temporarily_char->mylinest, 0, sizeof(temporarily_char->mylinest));
+
+     X = MT9V032_W-2;
+     while ((--X) + 1)
+     {
+         Y = MT9V032_H - 2;
+         while (Y > (MT9V032_H / 2) && ((1 == image_data[Y][X]) || (0 == image_data[Y + 1][X])))
+         {
+             (temporarily_char->mylinest[X])++;
+             Y--;
+         }
+         while (Y && (1 == image_data[Y][X]))
+         {
+             (temporarily_char->mylinest[X])++;
+             Y--;
+         }
+     }
+
+
+     X = MT9V032_W - 2;
+     while (X--)
+     {
+         if (temporarily_char->mylinest[X] >= my_right_to_left.my_y)
+         {
+             my_right_to_left.my_y = temporarily_char->mylinest[X];
+             my_right_to_left.my_x=X;
+         }
+         if (X < MT9V032_W / 2 && temporarily_char->mylinest[X] >= temporarily_char->my_left_LOptimalPoint.my_y)
+         {
+             temporarily_char->my_left_LOptimalPoint.my_y = temporarily_char->mylinest[X];
+             temporarily_char->my_left_LOptimalPoint.my_x = X;
+         }
+         if (X < MT9V032_W / 2)
+             temporarily_char->m_u32LAllArea += temporarily_char->mylinest[X];
+     }
+     X = 0;
+     while ((++X) < MT9V032_W - 2)
+     {
+         if (temporarily_char->mylinest[X - 1] >= my_left_to_right.my_y)
+         {
+             my_left_to_right.my_y = temporarily_char->mylinest[X - 1];
+             my_left_to_right.my_x = X;
+         }
+         if (X > MT9V032_W / 2 && temporarily_char->mylinest[X] >= temporarily_char->my_right_OptimalPoint.my_y)
+         {
+             temporarily_char->my_right_OptimalPoint.my_y = temporarily_char->mylinest[X];
+             temporarily_char->my_right_OptimalPoint.my_x = X;
+         }
+         if (X > MT9V032_W / 2)
+             temporarily_char->m_u32RAllArea += temporarily_char->mylinest[X];
+     }
+
+
+     if (my_left_to_right.my_x != 0 && my_right_to_left.my_x != 0)
+     {
+         temp_ReturnPoint.my_x = (int16)((my_left_to_right.my_x + my_right_to_left.my_x) * 0.5f);
+         temp_ReturnPoint.my_y = (int16)(MT9V032_H - temporarily_char->mylinest[temp_ReturnPoint.my_x]);
+     }
+     if (abs(my_right_to_left.my_x - my_left_to_right.my_x) > MT9V032_H * 2)
+     {
+         if (temporarily_char->m_u32LAllArea < temporarily_char->m_u32RAllArea)
+         {
+             temp_ReturnPoint.my_x = (int16)((temp_ReturnPoint.my_x + my_left_to_right.my_x) * 0.5f);
+             temp_ReturnPoint.my_y = (int16)(MT9V032_H - temporarily_char->mylinest[temp_ReturnPoint.my_x]);
+         }
+         if (temporarily_char->m_u32LAllArea > temporarily_char->m_u32RAllArea)
+         {
+             temp_ReturnPoint.my_x = (int16)((temp_ReturnPoint.my_x + my_right_to_left.my_x) * 0.5f);
+             temp_ReturnPoint.my_y = (int16)(MT9V032_H - temporarily_char->mylinest[temp_ReturnPoint.my_x]);
+         }
+     }
+     temporarily_char->my_final_tOptimalPoint = temp_ReturnPoint; //将最优点返回直接赋值到p_stBorder结构体中,实际函数也返回了这个变量,在调用的地方使用函数有一个ST_2D_INT_POINT_INFO类型的变量来接也可以
+     temporarily_char->m_stCenterLinePoint.my_x = MT9V032_W >> 1;
+     temporarily_char->m_stCenterLinePoint.my_y = MT9V032_H - temporarily_char->mylinest[temporarily_char->m_stCenterLinePoint.my_x];
+//     return temp_ReturnPoint; //返回实际计算出的最优点
+ }
+
+void get_middle(Maiy_characteristic_point * deal_2_way)       //获取中线
+{
+    int ssu=0;
+    int get_m=0;
+    uint16 end_lose_line=59;
+    uint8 end_lose_line_flag=0;
+    int buxianlv=0;
+    int x_dey=0;
+    uint8 y_dey=0;
+    uint8 first_step_flag=0;
+    int dee_F_L=0;
+    int dee_R_F=0;
+//    uint8 right_flag=0;
+//    uint8 left_flag=0;
+    ssu=0;
+    c_shizhiflag=0;
+ for(int8 i=59;i>=endline;i--)
+  {
+ midline[i]=(leftline[i] + rightline[i])>>1;
+//
+// ssu+=midline[i];
+
+
+
+ if(ABS(midline[i]-79)>2&&!end_lose_line_flag)
+ {
+     end_lose_line_flag=1;
+     end_lose_line=i;
+ }
+
+ //**************************************************************add to
+ midline[i]=Middle_Err_Filter(midline[i]);
+ LastAverageCenter=midline[i];
+ //*****************************************************************add to
+  }
+// get_m=ssu/(59-endline+1);
+// ips200_showint16(30,11,get_m);
+ if(0)
+//  if(real_char.Road_type==Cross)
+ {
+     first_step_flag=0;
+dee_F_L=deal_2_way->my_final_tOptimalPoint.my_x-deal_2_way->my_left_LOptimalPoint.my_x;
+dee_R_F=deal_2_way->my_right_OptimalPoint.my_x-deal_2_way->my_final_tOptimalPoint.my_x;
+
+  //  x_dey=deal_2_way->my_final_tOptimalPoint.my_x-79;
+    if(dee_F_L>=7&&dee_R_F>=7)
+    {
+        c_shizhiflag=1;
+        x_dey=deal_2_way->my_final_tOptimalPoint.my_x-79;
+    }
+    else if(dee_R_F<7&&dee_F_L>7){x_dey=deal_2_way->my_right_OptimalPoint.my_x-79;c_shizhiflag=0;}
+
+     else if(dee_F_L<7&&dee_R_F>7){x_dey=deal_2_way->my_left_LOptimalPoint.my_x-79;c_shizhiflag=0;}
+
+     y_dey=(end_lose_line-deal_2_way->my_final_tOptimalPoint.my_y);
+     buxianlv=(int)(x_dey/y_dey);
+     if(x_dey<0){  buxianlv=(buxianlv<=-1) ? buxianlv:-1;}
+     else{  buxianlv=(buxianlv>=1) ? buxianlv:1;}
+
+     for(int16 i=deal_2_way->my_final_tOptimalPoint.my_y;i<end_lose_line;i++)
+     {
+         if(!first_step_flag)
+         {
+             midline[i+1]=deal_2_way->my_final_tOptimalPoint.my_x-buxianlv;
+         first_step_flag=1;
+         }
+         else{
+         midline[i+1]=midline[i]-buxianlv;
+         if(midline[i+1]>=midline[end_lose_line]&&x_dey<0)
+         {midline[i+1]=midline[end_lose_line];}
+         else if(x_dey>0&&midline[i+1]<=midline[end_lose_line])
+                {midline[i+1]=midline[end_lose_line];}
+         }
+     }
+ }
+}
+
+float Middle_Err_Filter(float middle_err)
+{
+    float Middle_Err_Fltered;
+    Middle_Err_Fltered = middle_err*0.8 + LastAverageCenter*0.2;
+    return Middle_Err_Fltered;
+}
+void get_differ(void)
+{
+  WeightSum=0;
+  MidSum=0;
+  last_differ=differ;
+  int hang=0;
+if(chuku_flag)
+{
+    if(direction)
+    {
+        differ=50;
+    }
+    if(!direction)
+    {
+        differ=-50;
+    }
+}
+//else if(shizhiflag)
+//{
+////differ=((differ>30) ? 30:differ);
+////differ=((differ<-30) ? -30:differ);
+//    if(differ>30)
+//        differ=30;
+//    else if(differ<-30)
+//    {differ=-30;}
+//
+//}
+else if(podao_flag)
+{
+    for(hang=Row-1 ; hang>30 ; hang--)  //基础求偏差
+        {
+          WeightSum += weight[hang];
+          error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+          MidSum += midline[hang]*weight[hang];
+        }
+    MidValue = MidSum/WeightSum;
+    differ = MidValue - basic;
+}
+else if(shizhiflag)
+{
+    for(hang=real_char.my_final_tOptimalPoint.my_y+4; hang<=59 ; hang++)  //基础求偏差
+           {
+             WeightSum += weight[hang];
+             error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+             MidSum += midline[hang]*weight[hang];
+           }
+       MidValue = MidSum/WeightSum;
+       differ = MidValue - basic;
+}
+else if(huan_L_flag==1||huan_R_flag==1)
+{
+    for(hang=Row-1 ; hang>endline+1 ; hang--)  //基础求偏差
+        {
+          WeightSum += weight[hang];
+          error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+          MidSum += midline[hang]*weight[hang];
+        }
+    MidValue = MidSum/WeightSum;
+    differ = MidValue - basic;
+}
+else if(huan_L_flag==3)
+  {
+    differ=midline[20]-180;
+  }
+
+else if(huan_L_flag==5)    //环内固定打角行
+{
+  differ=midline[20]-155;
+}
+else if(huan_R_flag==5)
+{
+    differ=midline[20]+60;
+//    if(differ<20)
+//    {
+//        differ=20;
+//    }
+}
+else if(huan_R_flag==3)
+{
+//    differ=midline[20]-80;
+    differ=midline[20]+110;
+//    if(differ<20)
+//    {
+//        differ=20;
+//    }
+}
+else if(huan_L_flag==4||huan_R_flag==4)
+{
+//    if(endline>2)
+//    {
+    for(hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+        {
+          WeightSum += weight[hang];
+          error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+          MidSum += midline[hang]*weight[hang];
+        }
+//    }
+//    else if(endline<=2){
+//        for(hang=59 ; hang>29 ; hang--)  //基础求偏差
+//                {
+//                  WeightSum += weight[hang];
+//                  error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//                  MidSum += midline[hang]*weight[hang];
+//                }
+//    }
+    MidValue = MidSum/WeightSum;
+    differ = MidValue - basic;
+//    if(differ>0&&differ<20)     //限幅
+//    {
+//        differ=20;
+//    }
+//    else if(differ<0&&differ>-20)
+//    {
+//        differ=-20;
+//    }
+}
+//else if(huan_L_flag==1||huan_R_flag==1)
+//{
+//    for(hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+//        {
+//          WeightSum += weight[hang];
+//          error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//          MidSum += midline[hang]*weight[hang];
+//        }
+//    MidValue = MidSum/WeightSum;
+//    differ = MidValue - basic;
+//    if(differ>0&&differ<20)     //限幅
+//    {
+//        differ=20;
+//    }
+//    else if(differ<0&&differ>-20)
+//    {
+//        differ=-20;
+//    }
+//}
+//else if(qipao_flag==1&&qipao_time==0)       //第一次识别起跑线
+//{
+//    for(hang=13 ; hang>endline ; hang--)  //基础求偏差
+//        {
+//          WeightSum += weight[hang];
+//          error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//          MidSum += midline[hang]*weight[hang];
+//        }
+//    MidValue = MidSum/WeightSum;
+//    differ = MidValue - basic;
+//}
+else if(qipao_flag==1&&qipao_time==0)
+{
+if(ku_R==1)
+{
+    differ=80;
+
+   // differ=0;
+}
+else if(ku_R==2)
+{
+    differ=80;
+}
+else if(ku_L==1)
+{
+    differ=-80;
+    //differ=0;
+}
+else if(ku_L==2)
+{
+    differ=-80;
+}
+}
+else
+{if(endline>1)
+{
+for(hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+    {
+      WeightSum += weight[hang];
+      error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+      MidSum += midline[hang]*weight[hang];
+    }
+}
+else if(endline<=1){
+    for(hang=59 ; hang>29 ; hang--)  //基础求偏差
+            {
+              WeightSum += weight[hang];
+              error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+              MidSum += midline[hang]*weight[hang];
+            }
+}
+MidValue = MidSum/WeightSum;
+differ = MidValue - basic;
+if(differ<=-50)
+{
+    differ*=0.9;}
+//if(differ<-0)
+//{
+//    differ*=0.9;
+//}
+//if(differ>=0)
+//{
+//    differ*=1.2;
+//}
+}
+}
+
+
+void chujie()
+{
+//if(!stopcar_flag&&!ku_L&&!ku_R)
+//  {
+ if(!image_data[59][110]&&!image_data[59][120]&&!image_data[59][130]&&!image_data[59][140]&&!image_data[59][150]&&!image_data[59][75]&&!image_data[59][74]&&!image_data[59][10]&&!image_data[59][20]&&!image_data[59][30]&&!image_data[59][40]&&!image_data[59][50]&&!image_data[59][60])
+ {
+   //buzzer(1);
+   out_flag++;
+
+ }
+ if(endline>=40)
+ {
+     out_flag++;
+ }
+//  }
+}
+
+void  road_type(Maiy_characteristic_point *tptp)
+{
+uint8 i=0;
+bend_count_L=0;
+bend_count_R=0;
+bend_count=0;
+midbend=0;
+for(i=endline+1;i<=59;i++)
+{
+  if(ABS(error[i])>=15)
+  {
+    midbend++;
+  }
+}
+//ips200_showint16(50,8,midbend);
+if(midbend<=9)    //right not acute
+{
+    tptp->Road_type=Straight;
+            straightFlag=1;
+    bendFlag=0;
+}
+else
+{
+    tptp->Road_type=Bend;
+
+    straightFlag=0;
+    bendFlag=1;
+}
+ for(i=endline+1;i<=59;i++)   //直入弯使用
+ {
+   if(error[i]>=20)     //右弯          20
+   {
+     bend_count_R++;
+   }
+   else
+   {
+     break;
+   }
+
+ }
+  for(i=endline+1;i<=59;i++)   //直入弯使用
+ {
+   if(error[i]<=-20)     //左弯     -20
+   {
+     bend_count_L++;
+   }
+   else
+   {
+     break;
+   }
+
+ }
+if(bend_count_L>0)
+{
+  differ_C=ABS(rightline[endline+1]-rightline[endline+5]);
+  bend_count=bend_count_L;
+}
+else if(bend_count_R>0)
+{
+   bend_count=bend_count_R;
+   differ_C=ABS(leftline[endline+1]-leftline[endline+5]);
+}
+//  ips200_showstr(0,14,"be_R");
+//            ips200_showuint8(90,14,bend_count_R);
+////        //    ips200_showstr(0,14,"differ_C");
+//////            ips200_showuint8(90,14,differ_C);
+//
+//            ips200_showstr(0,15,"bet_L");
+//            ips200_showuint16(90,15,bend_count_L);
+
+if(!chuku_flag&&!s_to_b_1&&!huan_L_flag&&!huan_R_flag&&!podao_flag&&!qipao_flag&&!ku_L&&!ku_R&&!L_crossroad&&!R_crossroad)   //判直入弯
+{
+if(ABS(differ)<=16)//&&ABS(error[59])<=10&&ABS(error[55])<=10&&ABS(error[54])<=10)    15
+ {
+
+ if(((bend_count_L<=17&&bend_count_L>=b_c_start+2&&ABS(rightline[endline+1]-rightline[endline+5])>=20)||(bend_count_R<=16&&bend_count_R>=b_c_start+1&&ABS(leftline[endline+1]-leftline[endline+5])>=20))&&endline>=0&&(leftline[endline+1]>=80||rightline[endline+1]<=80))    //1      3          20
+  {
+   if(bend_count_L<=17&&bend_count_L>=b_c_start+2)
+   {
+     bend_count=bend_count_L;
+     differ_C=ABS(rightline[endline+1]-rightline[endline+5]);
+   }
+   else if(bend_count_R<=16&&bend_count_R>=b_c_start+1)
+   {
+      bend_count=bend_count_R;
+     differ_C=ABS(leftline[endline+1]-leftline[endline+5]);
+
+   }
+
+  // buzzer(1);
+   s_to_b_1=1;//直入弯标志位
+   s_to_b_2=1;
+ // buzzer(1);
+  }
+ }
+}
+
+
+if(s_to_b_1)
+{
+  if(ABS(differ)>20)//||s_to_b_time>=30)//25               //22
+  {
+  // buzzer(0);
+ s_to_b_2=0;
+ s_to_b_1=0;
+
+  }
+}
+
+
+
+
+}
+
+//需要补线的地方    环岛    十字
+void bu_xian()
+{
+
+//if(huan_L_flag==2)             //左环第一标志位补线
+//{
+//  for(int8 i=59;i>=0;i--)
+//  {
+//    leftline[i]=rightline[i]-Width[i];
+//    if(leftline[i]<0)
+//    {
+//      leftline[i]=0;
+//    }
+//
+//  }
+//
+//}
+ if(huan_L_flag==3)  //入左环补线
+{
+for(uint8 i=huanin_L_point+1;i<60;i++)
+{
+  rightline[i]=rightline[i-1]+2;
+  if(rightline[i]>159)
+  {
+    rightline[i]=158;
+  }
+  leftline[i]=0;
+ }
+}
+else if(huan_L_flag==5)  //出左环补线
+{
+
+for(int8 i=59;i>=0;i--)
+  {
+    rightline[i]=leftline[i]+115;    //  108   116
+    if(rightline[i]>159)
+    {
+      rightline[i]=159;
+    }
+
+  }
+}
+
+else if(huan_L_flag==6)
+{
+
+for(uint8 i=endline+1;i<50;i++)
+    {
+        if(leftline[i]!=0&&leftline[i-1]!=0&&leftline[i+2]==0&&(leftline[i]-leftline[i+2])>=10)
+        {
+              L_out_bustart=i-1;
+
+              break;
+        }
+
+    }
+
+
+for(uint8 i=L_out_bustart+1;i<60;i++)               //沿着右边线走
+  {
+    leftline[i]=leftline[i-1]-2;
+    if(leftline[i]<0)
+    {
+      leftline[i]=0;
+    }
+
+  }
+
+}
+
+//else if(huan_L_flag==6)
+//{
+////for(uint8 i=0;i<=59;i++)
+////{
+////  leftline[i]=rightline[i]-Width[i];
+////  if(leftline[i]<0)
+////  {
+////    leftline[i]=0;
+////  }
+////}
+//
+//for(int8 i=59;i>=0;i--)               //沿着右边线走
+//  {
+//    leftline[i]=rightline[i]-variable_3;   //100
+//    if(leftline[i]<0)
+//    {
+//      leftline[i]=0;
+//    }
+//
+//  }
+//
+//}
+//else if(huan_R_flag==2)             //右环第一标志位补线
+//{
+//  for(int8 i=59;i>=0;i--)
+//  {
+//    rightline[i]=leftline[i]+Width[i];
+//    if(rightline[i]>159)
+//    {
+//      rightline[i]=159;
+//    }
+//
+//  }
+//
+//}
+else if(huan_R_flag==3)  //入左环补线
+{
+for(uint8 i=huanin_R_point+1;i<60;i++)
+{
+  leftline[i]=leftline[i-1]-2;
+  if(leftline[i]<0)
+  {
+    leftline[i]=0;
+  }
+  rightline[i]=159;
+ }
+}
+else if(huan_R_flag==5)  //出右环补线
+{
+// endline=13;    //此时截止行赋定值
+//for(int8 i=huanout_R_point-1;i>=endline;i--)
+//{
+//  leftline[i]=leftline[i+1]+huanout_L_basic;
+//  if(leftline[i]>=159)
+//  {
+//    leftline[i]=159;
+////    if(i>endline)      //此时截止行应往下拉
+////    {
+////    endline=i+1;
+////    }
+//    break;
+//  }
+// }
+
+for(int8 i=59;i>=0;i--)
+  {
+    leftline[i]=rightline[i]-100;    //100
+    if(leftline[i]<0)
+    {
+      leftline[i]=0;
+    }
+
+  }
+}
+
+else if(huan_R_flag==6)
+{
+for(uint8 i=endline+1;i<50;i++)
+    {
+if(rightline[i]!=158&&rightline[i-1]!=158&&rightline[i+2]==158&&(rightline[i+2]-rightline[i])>=10)
+        {
+              R_out_bustart=i-1;
+              break;
+        }
+
+    }
+
+
+  for(uint8 i=R_out_bustart+1;i<60;i++)
+  {
+    rightline[i]=rightline[i-1]+2;    //75
+    if(rightline[i]>159)
+    {
+      rightline[i]=159;
+    }
+
+  }
+
+}
+//else if(huan_R_flag==6)
+//{
+////for(uint8 i=0;i<=59;i++)
+////{
+////  rightline[i]=leftline[i]+Width[i];
+////  if(rightline[i]>159)
+////  {
+////    rightline[i]=159;
+////  }
+////}
+//
+//  for(int8 i=59;i>=0;i--)
+//  {
+//    rightline[i]=leftline[i]+100;    //75
+//    if(rightline[i]>159)
+//    {
+//      rightline[i]=159;
+//    }
+//
+//  }
+//
+//}
+//else if(L_crossroad||R_crossroad)
+//else if(line_wan_flag)
+//{
+//    buzzer(1);
+//    uint16 cyc;
+//    uint16 add_get=0;
+//if(rightline[10]+leftline[10]>160)//右转 左边线偏移动
+//{
+//    add_get=rightline[real_turn]-158;
+//    for(cyc=59;cyc>=endline;cyc--)
+//    {
+//        leftline[cyc]-=add_get;
+//        if( leftline[cyc]<= rightline[cyc])
+//        {
+//            leftline[cyc]+= add_get;
+//        }
+//    }
+//
+////  add_get=rightline[real_turn-3]-rightline[real_turn];
+////  for(cyc=real_turn+1;cyc<=58;cyc++)
+////  {
+////      rightline[cyc+1]=rightline[cyc]+add_get;
+////      if( rightline[cyc+1]>=158)
+////      {
+////          rightline[cyc+1]=158;
+////      }
+////  }
+//}
+//else if(rightline[10]+leftline[10]<160)
+//{
+//    add_get=leftline[real_turn];
+//      for(cyc=59;cyc>=endline;cyc--)
+//      {
+//          rightline[cyc]-=add_get;
+//          if( rightline[cyc]<=leftline[cyc])
+//                {
+//              rightline[cyc]+=add_get;
+//                }
+//      }
+//}
+//}
+else if(0)
+{
+   // crossroad_find();
+crossroad_deal();
+}
+else if((chalu_flag==1||chalu_flag==3)&&chalu_dirction==0)      //右拐
+{
+    leftline[0]=84;      //80
+    for(uint8 i=1;i<60;i++)
+    {
+      leftline[i]=leftline[i-1]-2;
+      if(leftline[i]<0)
+      {
+          leftline[0]=0;
+      }
+      rightline[i]=159;
+    }
+}
+else if((chalu_flag==1||chalu_flag==3)&&chalu_dirction==1)   //左拐
+{
+    rightline[0]=81;      //78      72
+    for(uint8 i=1;i<60;i++)
+    {
+        rightline[i]=rightline[i-1]+2;
+        if(rightline[i]>159)
+        {
+            rightline[i]=159;
+        }
+        leftline[i]=0;
+    }
+}
+else if(qipao_flag==1&&qipao_time==0)       //第一次识别起跑线
+{
+    for(uint8 i=4;i<59;i++)
+    {
+        rightline[i+1]=rightline[i]+2;
+        if(rightline[i+1]>159)
+        {
+            rightline[i+1]=159;
+        }
+        leftline[i+1]=leftline[i]-2;
+        if(leftline[i+1]<0)
+        {
+            leftline[i+1]=0;
+        }
+    }
+}
+
+}
+
+void get_td()//拟合直线找俩点判断入弯
+{
+    td=0;
+    for(int i=5;i<8;i++)
+    {
+     td+=ABS((midline[endline+i]-midline[endline+15+i]));
+    if(td>80)
+    td=40;
+    }
+    td/=3;
+    if(td<15)
+        tdflag=1;
+    else
+        tdflag=0;
+}
+
+
+float variance, variance_acc;  //方差
+void Straightacc_Test(void) {
+//  int sum = 0;
+//
+//  for (uint8 Ysite = 57; Ysite > endline + 1; Ysite--) {
+//    sum = sum + (midline[Ysite] - 79) *
+//                    (ImageDeal[Ysite].Center - ImageStatus.MiddleLine);
+//  }
+//  variance_acc = (float)sum / (54 - ImageStatus.OFFLine);
+//
+//  if (variance_acc < ImageStatus.variance_acc && ImageStatus.OFFLine <= 4 &&
+//      ImageStatus.Road_type != Ramp) {
+//    ImageStatus.straight_acc = 1;
+//  } else
+//    ImageStatus.straight_acc = 0;
+}
+void Straight_Test_2(void) {
+//  float midd_k, sum;
+//  midd_k = (ImageDeal[55].Center - ImageDeal[ImageStatus.OFFLine + 1].Center) /
+//           (float)(55 - ImageStatus.OFFLine - 1);
+//  for (Ysite = 55; Ysite > ImageStatus.OFFLine + 1; Ysite--) {
+//    ImageDeal[Ysite].mid_temp =
+//        ImageDeal[55].Center - midd_k * (55 - Ysite) + 0.5;
+//    sum += pow(ImageDeal[Ysite].Center - ImageDeal[Ysite].mid_temp, 2);
+//  }
+//
+//  variance = sum / (54 - ImageStatus.OFFLine);
+//  if (variance < ImageStatus.variance && ImageStatus.OFFLine <= 9 ) {
+//    ImageStatus.Road_type = Straight;
+//  }
+}
