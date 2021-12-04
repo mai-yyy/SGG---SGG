@@ -20,19 +20,29 @@ uint16 show_time=0;
 uint8 show_time_flag=0;
     IFX_INTERRUPT(cc60_pit_ch0_isr, 0, CCU6_0_CH0_ISR_PRIORITY)
     {
+
         enableInterrupts();
         PIT_CLEAR_FLAG(CCU6_0, PIT_CH0);
 
-        realspeed=get_speed_L();
-        realspeed_l=get_speed();    //获取速度
+        realspeed_l=get_speed_L();
+        realspeed=get_speed();    //获取速度
                     teo_wheel_sp=(realspeed+realspeed_l)/2;
                     if(huan_L_flag==6||huan_R_flag==6)
                     dt_code+=teo_wheel_sp;
+
+
+
+
+
 #if   MASTERDEBUG>0
                     real_hope_speed=(debug_speed);//
                     hopessp=debug_speed;//
-                    Delta_PID(teo_wheel_sp,debug_speed);
+                    CSRDelta_PID(realspeed,debug_speed);
+                   CSLDelta_PID(realspeed_l,debug_speed);
+//                    Delta_PID(teo_wheel_sp,debug_speed);
 #endif
+
+
 
                     if(my_start_carrr)     //根据赛道类型来选择是否使用
                     {
@@ -103,9 +113,9 @@ uint8 show_time_flag=0;
                           {
                           huan_L_flag1_time++;
                           }
-             if(huan_L_flag1_time>400)
-             {huan_L_flag=0;
-             huan_L_flag1_time=0;}
+//             if(huan_L_flag1_time>400)
+//             {huan_L_flag=0;
+//             huan_L_flag1_time=0;}
              if(Island_flag==3)
              {
                  Island_time++;
@@ -130,14 +140,14 @@ uint8 show_time_flag=0;
 //                          {huan_R_flag=0;
 //                          huan_R_flag1_time=0;}
 
-              if(huan_R_flag==6)
-                                                    {
-                  huan_R_flag6_time++;
-                                                    }
-                           if(huan_R_flag6_time>300)
-                                       {huan_R_flag=0;
-                                       huan_R_flag6_time=0;
-                                       }
+//              if(huan_R_flag==6)
+//                                                    {
+//                  huan_R_flag6_time++;
+//                                                    }
+//                           if(huan_R_flag6_time>300)
+//                                       {huan_R_flag=0;
+//                                       huan_R_flag6_time=0;
+//                                       }
     //
     //             if(ku_R==1||ku_L==1)
     //             {
@@ -163,11 +173,13 @@ uint8 show_time_flag=0;
     //         car_time_1s++;
     //        }
 
-    }
+                    }
+
     IFX_INTERRUPT(cc60_pit_ch1_isr, 0, CCU6_0_CH1_ISR_PRIORITY)
     {
         enableInterrupts();//开启中断嵌套
 //        differ=0;
+//        differ=45;
         ServoPDSet(differ);
 
         ServoControlDiffer(differ);    //不要删，不然会有bug

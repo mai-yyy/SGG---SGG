@@ -1,0 +1,329 @@
+#include "phone_BL.h"
+
+
+Blueteeth_Uart_Rx_buff_t Blueteeth_buff;
+
+TxPack my_TxPack;
+RxPack my_RxPack;
+
+/*!
+ *  @brief      将数据包发送至手机
+ *  @param      my_TxPack 发送包地址
+ */
+short temp=-28;
+float asd=0;
+void my_pack_send_phone()
+{
+
+//    my_TxPack.shorts[0] = dj;
+    my_TxPack.integers[0]=teo_wheel_sp;
+
+//    my_TxPack.floats[1]=teo_wheel_sp;
+//    my_TxPack.floats[2]=teo_wheel_sp;
+//    my_TxPack.integers[0]=250;
+  //bools
+   /* my_TxPack.floats[0]=differ;
+    my_TxPack.floats[1]=servoKp;
+    my_TxPack.floats[2]=(float)get_djj;
+    */
+//    my_TxPack.floats[0]=(float)Island_inflexion_row;
+  //bytes
+	
+  //shorts
+
+  //integers
+
+//    my_TxPack.integers[0]=debug_speed;
+//    my_TxPack.integers[0]=huan_R_flag;
+//    my_TxPack.integers[1]=huan_L_flag;
+//    my_TxPack.integers[2]=shizhiflag;
+//    my_TxPack.floats[1]=cos(asd);
+//    asd+=0.1;
+//		my_TxPack.integers[0]=Pitch_motor.angle;
+
+  //floats
+//	my_TxPack.floats[3]=user_value.y;
+//	my_TxPack.floats[4]=user_value.yaw;
+//	my_TxPack.floats[5]=user_value.yaw;
+  my_pack_to_phone(&my_TxPack);
+}
+/*!
+ *  @brief      将接受到的数据包复制为参数
+ *  @param      i_RxPack 接受包地址
+ */
+void put_date(RxPack *i_RxPack)
+{
+  //bool
+
+  //byte
+  
+  //short
+    debug_speed=i_RxPack->integers[0];
+    deb_delt_p=i_RxPack->floats[0];
+    deb_delt_i=i_RxPack->floats[1];
+  //integers
+//    debug_speed;
+
+  //float
+
+
+
+
+
+}
+/**
+
+* @brief	 中断处理函数，适用于无DMA的串口通讯，放入接收中断即可
+* @param		bit  本次接受到的数据
+						analysis 1->在中断中处理接受到的数据
+										 0->不在中断中处理，需自定义外部处理函数，如：
+																				if(Blueteeth_buff.pre)
+																				{
+																						my_pack_come_phone(!Blueteeth_buff.buf_num);
+																				}
+														建议扫描频率>200Hz
+
+* @retval			无
+* @par     糯米香
+
+**/
+void my_pack_come_phone_uart_handle(uint8_t bit,_Bool analysis)
+{
+	Blueteeth_buff.buff[Blueteeth_buff.buf_num][Blueteeth_buff.num++]=bit;
+	if(Blueteeth_buff.num>Blueteeth_BUFLEN)
+	{
+		if(analysis)
+		{
+			my_pack_come_phone(Blueteeth_buff.buf_num);
+		}
+		else
+		{
+			Blueteeth_buff.pre=1;
+		}
+		Blueteeth_buff.num=0;
+		Blueteeth_buff.buf_num=!Blueteeth_buff.buf_num;
+	}
+}
+/**
+
+* @brief		解析手机发送数据包
+* @param		buf_num 选择双缓冲buff的编号
+
+* @retval	 无
+* @par     糯米香
+
+**/
+
+void my_pack_come_phone(_Bool buf_num)//接收函数
+{     
+	_Bool Rx_flag=0;
+  int read_i,a,b,count_begin;
+	uint16_t SUM_Debug_Rx=0;
+  uint32_t site_sign;
+	if(Blueteeth_buff.pre)
+	{
+		Blueteeth_buff.pre=0;
+	}
+	for(count_begin=0;count_begin<=BlueTooth_MAX_LEN&&!Rx_flag;count_begin++)
+	{
+		if(Blueteeth_buff.buff[buf_num][count_begin]==0xa5)
+		{
+			if(Blueteeth_buff.buff[buf_num][count_begin+my_get_pack_len-1]==0x5a)
+		 {
+			 
+			 for(int i=count_begin+1;i<=count_begin+RXPACK_BYTE_SIZE;i++)
+			 {
+				SUM_Debug_Rx+=Blueteeth_buff.buff[buf_num][i];
+			 }         
+			 if(Blueteeth_buff.buff[buf_num][count_begin+my_get_pack_len-2]==(SUM_Debug_Rx&0xff))
+			 {
+				 Rx_flag++;
+			 }
+		 }
+		}
+	}
+     
+     if(Rx_flag)
+     {
+      //  提取数据包数据 一共有五步， bool byte short int float
+      // 1. bool
+     read_i=count_begin;
+#if  RX_BOOL_NUM
+      site_sign=(uint32_t)my_RxPack.bools;
+      b = RX_BOOL_NUM;
+      for(a=0;a<b;a++)
+      {
+        (*((unsigned char *)site_sign++))= (Blueteeth_buff.buff[buf_num][read_i]>>(a%8))&0x01;
+        if((a>0)&&(a%8==0))
+        {
+          read_i++;
+        }
+      }
+      read_i++;
+#endif
+// 2.byte
+#if RX_BYTE_NUM
+      site_sign=(uint32_t)my_RxPack.bytes;
+      b = RX_BYTE_NUM;
+      for(a=0;a<b;a++)
+      {
+        (*((unsigned char *)site_sign++))= Blueteeth_buff.buff[buf_num][read_i++];
+      }
+#endif
+      // 3.short
+#if RX_SHORT_NUM
+      site_sign=(uint32_t)my_RxPack.shorts;
+      b = RX_SHORT_NUM<<1;
+      for(a=0;a<b;a++)
+      {
+        (*((unsigned char *)site_sign++))= Blueteeth_buff.buff[buf_num][read_i++];
+      }
+#endif
+      // 4.int
+#if RX_INT_NUM
+      site_sign=(uint32_t)my_RxPack.integers;
+      b = RX_INT_NUM<<2;
+      for(a=0;a<b;a++)
+      {
+        (*((unsigned char *)site_sign++))= Blueteeth_buff.buff[buf_num][read_i++];
+      }
+#endif
+      // 5.float
+#if RX_FLOAT_NUM
+      site_sign=(uint32_t)my_RxPack.floats;
+      b = RX_FLOAT_NUM<<2;
+      for(a=0;a<b;a++)
+      {
+        (*((unsigned char *)site_sign++))= Blueteeth_buff.buff[buf_num][read_i++];
+
+      }
+#endif   
+      put_date(&my_RxPack);
+     }
+    Rx_flag=0;
+    SUM_Debug_Rx=0;
+   
+}
+/**
+
+* @brief		发送数据给手机端，由my_pack_send_phone()调用
+* @param		tx_pack_ptr 需要发送的各项数据
+
+* @retval	 无
+* @par     糯米香
+
+**/
+void my_pack_to_phone(TxPack *tx_pack_ptr)//发送函数
+{
+	uint16_t SUM_Debug_Tx=0,loop=0;
+	uint8_t my_send_buff[my_send_buff_len]={0};
+  uint8_t *send_buff_p;
+	my_send_buff[0]=0xa5;
+  send_buff_p=my_send_buff;
+  send_buff_p++;
+#if TX_BOOL_NUM 
+  for(loop=0;loop<TX_BOOL_NUM;loop++)
+  {
+      if(tx_pack_ptr->bools[loop])
+//        my_send_buff[valuepack_tx_index] |= 0x01<<valuepack_tx_bit_index++;
+        *send_buff_p |= 0x01<<valuepack_tx_bit_index++;
+      else
+        *send_buff_p &= ~(0x01<<valuepack_tx_bit_index++);
+  
+      if(valuepack_tx_bit_index>=8)
+      {
+        valuepack_tx_bit_index = 0;
+        send_buff_p++;
+      }	
+
+   }
+
+    if(valuepack_tx_bit_index!=0)
+      send_buff_p++;			
+
+#endif
+
+#if TX_BYTE_NUM
+    for(loop=0;loop<TX_BYTE_NUM;loop++)
+    {
+        *send_buff_p++ = tx_pack_ptr->bytes[loop];			
+    }      
+#endif
+
+#if TX_SHORT_NUM>0 
+
+    for(loop=0;loop<TX_SHORT_NUM;loop++)
+    {
+      *send_buff_p++ = tx_pack_ptr->shorts[loop];
+      *send_buff_p++ = tx_pack_ptr->shorts[loop]>>8;
+//      valuepack_tx_index+=2;			
+    }
+#endif
+		
+#if TX_INT_NUM
+
+    for(loop=0;loop<TX_INT_NUM;loop++)
+
+    {
+        int i;       
+        i = tx_pack_ptr->integers[loop];
+        *send_buff_p++ = i&0xff;
+        *send_buff_p++ = (i>>8);
+        *send_buff_p++ =(i>>16);
+        *send_buff_p++ = (i>>24);
+        		
+    }
+
+#endif
+	
+#if TX_FLOAT_NUM
+
+    for(loop=0;loop<TX_FLOAT_NUM;loop++)
+
+    {
+        int i=0;
+        i = *(int *)(&(tx_pack_ptr->floats[loop]));
+        *send_buff_p++ = i&0xff;
+        *send_buff_p++ = (i>>8)&0xff;
+        *send_buff_p++ =(i>>16)&0xff;
+        *send_buff_p++ = (i>>24)&0xff;
+       			
+    }
+#endif	
+    for(u16 d=1;d<=TXPACK_BYTE_SIZE;d++)
+			SUM_Debug_Tx+=my_send_buff[d];
+    *send_buff_p++ =(u8)(SUM_Debug_Tx&0x00ff);
+    *send_buff_p = 0x5a;
+		
+		my_sendBuffer(my_send_buff,sizeof(my_send_buff)/sizeof(my_send_buff[0]));
+		//printf("%c",my_send_buff[0]);
+}
+/**
+
+* @brief		发送函数，根据硬件配置自行修改
+* @param		
+
+* @retval			
+* @par     糯米香
+
+**/
+
+void my_sendBuffer(uint8_t *buff,u32 len)
+{
+//    short i=0;
+   uart_putbuff(UART_0,(uint8_t *)buff,len);
+   // for(int i=0;i<len;i++) my_send_buff[i]=0;
+//    while(len--)
+//    {
+////        i=100;
+////        uart_putchar(UART_0, *buff);
+////        buff++;
+//        //systick_delay_ms(STM0, 20);
+////        while(i--);
+//       //printf("%d",6);
+//        printf("%d",*buff++);
+//        //while(1);
+//    }
+//    while(1);
+
+}

@@ -4,6 +4,8 @@
 #define base_p saidao.center[BOTTOM]
 #define    MID 79
 #define   search_bus  15
+#define ONE_End (int16)(MT9V032_H * 0.2) //第一段结束行
+#define TWO_End (int16)(MT9V032_H * 0.9) //第二段结束行
 extern unsigned char out_flag;
 extern short int leftline[Row];
 extern short int rightline[Row];
@@ -171,6 +173,12 @@ extern int16 Island_time;
 extern int16 Island_change_time;
 extern  Maiy_characteristic_point  real_char;
 extern volatile WAY_STATUS  way;
+extern int16 WidthROWNum;
+extern int16 OutWidthStart;
+extern int16   OutWidthEnd;
+extern int16 OutWidthROWNum; //严重
+extern Maiy_2_dimensional L_Temp ;  //左边线找到线的最“远”点（图像上部分）
+extern   Maiy_2_dimensional R_Temp ; //右边线找到线的最“远”点（图像上部分）
 //  小麦温馨提示 : volatile修饰符的主要目的是提示编译器，该对象的值可能在编译器未检测到的情况下被改变。
 //因此编译器不能武断的对引用这些对象的代码作优化处理,不然出bug还不知道怎么回事，(*^▽^*)；
 // 否则编译器可能在未检测该变量时对其进行随机赋值.....
@@ -186,6 +194,7 @@ void get_differ(void);
 void get_td();
 void chujie();
 void danbianhuandao_bx();
+void GetMaxPnt();
 void Optimalpoint();
 void  road_type(Maiy_characteristic_point *tptp);
 void bu_xian();
@@ -200,3 +209,4 @@ void Boundary_init();
 void TEST3();
 void get_rest_line_2();
 void get_rest_line_dy();
+Maiy_2_dimensional GettangoP(int ST,int EN,int sequence);

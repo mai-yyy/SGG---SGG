@@ -10,6 +10,7 @@ int16 Fir_jump_point_row;
 int16 Fir_jump_point_column;
 int16 Sec_jump_point_row;
 int16 Sec_jump_point_column;
+int16 curr_wid_hang;
 uint8 L_ea_diu_flag=0;
 uint8 R_ea_diu_flag=0;
 uint8 cheak_cheak=0;
@@ -17,6 +18,14 @@ uint8 R_L_ea_diu_flag=0;
 uint8 Near_flag=0;
 uint8 rd_flag=0;
 uint8 r_t_o=0;
+uint8 L=1;
+uint8 R=2;
+int16 WidthROWNum=0;
+int16 OutWidthStart=0;
+int16   OutWidthEnd=0;
+int16 OutWidthROWNum=0; //严重
+Maiy_2_dimensional L_Temp ;  //左边线找到线的最“远”点（图像上部分）
+    Maiy_2_dimensional R_Temp ; //右边线找到线的最“远”点（图像上部分）
 uint8 better_Found_left_flag=0;
 uint8 better_Found_Right_flag=0;//开启横搜标志位
 int16 leftline[Row]={0};
@@ -316,56 +325,6 @@ uint8  search_add[60]={
 uint8 R_out_bustart=0;
 uint8 L_out_bustart=0;
 
-//void get_bottom_line()     //搜索第一行边线务必准确    决定其他行边线走向
-//{
-//for(uint8 hang=0 ; hang<60 ; hang++)     //边线中线赋初值
-//  {
-//    leftline[hang]=0;
-//    rightline[hang]=158;
-//    midline[hang]=79;
-//    saidao.center[hang]=82;
-//
-//  }
-//
-//for(uint8 j=0;j<=6;j++)
-//{
-//  for(uint8 i=25+20*j;i<159;i++)     //先搜右边线   从25列开始搜
-//  {
-//    if(image_data[59][i]&&!image_data[59][i+1])  //白黑跳变
-//    {
-//      rightline[59]=i;
-//      break;
-//    }
-//    else if(i==158)       //未搜到则是最右边
-//    {
-//       rightline[59]=158;
-//
-//    }
-//  }
-//
-//for(uint8 i=rightline[59];i>0;i--)       //从右边线开始搜左边线
-//  {
-//    if(image_data[59][i]&&!image_data[59][i-1])
-//    {
-//      leftline[59]=i;
-//      break;
-//    }
-//    else if(i==1)
-//    {
-//      leftline[59]=0;
-//
-//    }
-//
-//  }
-//
-//if((rightline[59]-leftline[59])>40)  //判断搜线是否出错，否则需重新搜线   极有可能在右弯、坡道发生         25
-//{
-//  break;      //搜线正常   跳出循环
-//}
-//
-//}
-//
-//}
 void get_bottom_line()     //搜索第一行边线务必准确    决定其他行边线走向
 {
 for(uint8 hang=0 ; hang<60 ; hang++)     //边线中线赋初值
@@ -394,7 +353,7 @@ for(uint8 j=0;j<=6;j++)
     }
   }
   
-for(uint8 i=rightline[59];i>0;i--)       //从右边线开始搜左边线
+for(int16 i=rightline[59];i>0;i--)       //从右边线开始搜左边线
   {
     if(image_data[59][i]&&!image_data[59][i-1])
     {
@@ -425,6 +384,7 @@ void get_rest_line()
     int16 left_to_right=0;
     box_right=99;
     box_left=99;
+
 
       //搜左边线
     for(int8 i=58;i>endline;i--)
@@ -488,7 +448,7 @@ void get_rest_line()
      }
      else{
 
-      for (int j = 0; j < right_to_left; j++)
+      for (int16 j = 0; j < right_to_left; j++)
              {
                  if (image_data[i][j] == 0 && image_data[i][j + 1] != 0)
                  {
@@ -510,7 +470,7 @@ void get_rest_line()
      }
      else
      {
-             for (int j = right_to_left; j > 0; j--)
+             for (int16 j = right_to_left; j > 0; j--)
              {
                  if (image_data[i][j] != 0 && image_data[i][j - 1] == 0)
                  {
@@ -599,7 +559,7 @@ else{
     }
     else
     {
-    for (int j = 159; j >=left_to_right; j--)
+    for (int16 j = 159; j >=left_to_right; j--)
     {
 
 
@@ -628,7 +588,7 @@ break;
     }
     else
     {
-            for (int j = left_to_right; j <= 158; j++)
+            for (int16 j = left_to_right; j <= 158; j++)
             {
                 if (image_data[i][j] != BLACK && image_data[i][j + 1] == BLACK)
                 {
@@ -654,187 +614,105 @@ break;
 
     right_all_lose_line=0;
     left_all_lose_line=0;
+    WidthROWNum=0;
+    OutWidthStart=0;
+    OutWidthEnd=0;
+    OutWidthROWNum=0;
+    GetMaxPnt();  //找到线的最“远”点（图像上部分）
+    curr_wid_hang =(L_Temp.my_y>=R_Temp.my_y  ? L_Temp.my_y:R_Temp.my_y );
+    while ((curr_wid_hang--) > endline+1) //检测中间阶段得赛道宽度是否发生突变
+       {
+           //判断宽度,不考虑边线(m_i16y)是否存在,因为无论什么情况,边界都会被赋值
+//           t_i16Width = (p_stBorder->m_stRPnt[t_i16LoopY].m_i16x - p_stBorder->m_stLPnt[t_i16LoopY].m_i16x);
+           if (current_width[curr_wid_hang] > (Outlier_lines[curr_wid_hang] + MT9V032_W * 0.2)) //正常超宽行数
+           {
+              WidthROWNum++;
+               if (!OutWidthStart)
+               {
+                OutWidthStart = curr_wid_hang;
+               }
+               else
+               {
+                   OutWidthEnd = curr_wid_hang;
+               }
+           }
+       }
+       //检测中间阶段得赛道宽度是否发生突变,取好数组已经
+
+
+
+       /*严重超宽检测（基于正常超宽下查严重超宽）*/
+    curr_wid_hang = OutWidthStart + 1;      //抵制while
+       while ((curr_wid_hang--) > OutWidthEnd) //检测中间阶段得赛道宽度是否发生突变
+       {
+
+           if (current_width[curr_wid_hang]  > MT9V032_W * 0.8) //严重超宽行数
+           {
+              OutWidthROWNum++;
+           }
+       }
+
+
 for(int16 i=BOTTOM;i>endline;i--)
 {
 if(rightline[i]>=156)
     right_all_lose_line++;
 if(leftline[i]<=2)
     left_all_lose_line++;
+
+
+
 }
 
 
 }
 
-void get_rest_line_2()
+void GetMaxPnt()
 {
-    get_bottom_line_test2();
-    int16 right_to_left=0;
-    int16 left_to_right=0;
-
-
-
-    for(int8 i=58;i>endline;i--)
-    {
-     right_to_left=real_char.miay_left_line[i+1].my_x+search_add[i];   //边线搜索开始列
-     if(right_to_left>158)    //搜索越界
-      {
-        right_to_left=158;
-      }
-     else if(real_char.miay_left_line[i+1].my_x==0)   //上一行丢线
-    {
-    for(uint8 k=0;k<=159;k++)
-    {
-    if(k<=130)        //争对左弯
-    {
-      if(!image_data[i+1][k])
-      {
-        right_to_left=k-15;
-        if(right_to_left<1)
+    int16 Y;
+//    Maiy_2_dimensional Ret = {0, 0};
+    const uint8 Hsize = 5;
+    uint8 Flag = 0;
+    if (1)
         {
-          right_to_left=1;
-        }
-        break;
-      }
-    }
-    else
-    {
-    right_to_left=80+search_add[i];
-    break;
-    }
-    }
-    //right_to_left=80+search_add[i];
-    }
-    else if(!image_data[i][right_to_left]&&right_to_left<100)      //搜线起始点为黑   往右移
-    {
-       right_to_left=right_to_left+10;
-     if(!image_data[i][right_to_left])      //仍为黑   继续往右移
-       {
-        right_to_left=right_to_left+15;
-       }
-     if(!image_data[i][right_to_left])      //仍为黑   继续往右移
-       {
-        right_to_left=right_to_left+15;
-       }
-    }
-
-    for(uint8 j=right_to_left;j>0;j--)
-    {
-      if(image_data[i][j]&&!image_data[i][j-1]&&!image_data[i][j-2])
-      {
-          real_char.miay_left_line[i].my_x=j;
-
-                     real_char.Left_line_lost[i]=0;
-                     saidao.Found_left_flag=1;
-        break;
-      }
-      else if(j==1)
-      {
-          real_char.miay_left_line[i].my_x=0;
-          real_char.Left_line_lost[i]=1;
-                              saidao.Found_left_flag=0;
-
-      }
-    }
-
-
-
-
-
-      //搜右边线
-         left_to_right=real_char.miay_right_line[i+1].my_x-search_add[i];   //边线搜索开始列
-    if(left_to_right<0)    //搜索越界
-      {
-        left_to_right=0;
-      }
-    else if(real_char.miay_right_line[i+1].my_x>=158)   //上一行丢线   changed
-      {
-     for(uint8 k=158;k>0;k--)
-    {
-    if(k>=30)        //争对右弯
-    {
-      if(!image_data[i+1][k])
-      {
-        left_to_right=k+15;
-        if(left_to_right>158)
-        {
-          left_to_right=158;
-        }
-        break;
-      }
-    }
-    else
-    {
-    left_to_right=80-search_add[i];
-    break;
-    }
-    }
-
-    }
-    else if(!image_data[i][left_to_right]&&left_to_right>60)      //搜线起始点为黑   往右移
-    {
-       left_to_right=left_to_right-10;
-     if(!image_data[i][left_to_right])      //仍为黑   继续往右移
-       {
-        left_to_right=left_to_right-15;
-       }
-     if(!image_data[i][left_to_right])      //仍为黑   继续往右移
-       {
-        left_to_right=left_to_right-15;
-       }
-    }
-
-
-
-    for(uint8 j=left_to_right;j<=158;j++)
-    {
-      if(image_data[i][j]&&!image_data[i][j+1])
-      {
-          real_char.miay_right_line[i].my_x=j;
-          real_char.Right_line_lost[i]=0;
-          saidao.Found_right_flag=1;
-        break;
-      }
-      else if(j==158)
-      {
-
-          real_char.miay_right_line[i].my_x=159;
-          real_char.Right_line_lost[i]=1;
-                 saidao.Found_right_flag=0;
-      }
-    }
-
-    }
-
-
-    for(uint8 i=BOTTOM-1;i>endline;i--)
-    {
-    real_char.miay_mid_line[i].my_x= ( real_char.miay_left_line[i].my_x  +real_char.miay_right_line[i].my_x)>>1;
-    }
-    for(uint8 j=0;j<160;j++)
-          {
-            for(uint8 i=0;i<60;i++)
+        L_Temp = (Maiy_2_dimensional){1, 0};
+           Y = MT9V032_H - Hsize;
+            while ((Y--) > ONE_End)//10
             {
-            if(image_data[i][j])
-                ips200_drawpoint(j+40,i+5,WHITE);
-            else
-                ips200_drawpoint(j+40,i+5,YELLOW);
+                if (leftline[Y] > L_Temp.my_x)
+                {
+                    Flag = 0;
+                    L_Temp = (Maiy_2_dimensional){leftline[Y] , Y};
+                }
+                else
+                {
+                    Flag++;
+                    if (Flag > 3)
+                        break;
+                }
             }
-        //    for(i=0;i<30;i++)
-        //        ips200_drawpoint(120,i+5,YELLOW);
         }
-        //  二值化图像
-        for(uint8 i=BOTTOM;i>endline;i--)// 边线
+       if ( 1)
         {
-            ips200_drawpoint(real_char.miay_left_line[i].my_x+40,i+5,BLACK);
-            ips200_drawpoint(real_char.miay_mid_line[i].my_x+40,i+5,GREEN);
-            ips200_drawpoint(real_char.miay_right_line[i].my_x+40,i+5,BLACK);
+           R_Temp  = (Maiy_2_dimensional){MT9V032_W-2, 0};
+           Y = MT9V032_H - Hsize;
+            while ((Y--) > ONE_End)
+            {
+                if (rightline[Y] < R_Temp .my_x)
+                {
+                    Flag = 0;
+                    R_Temp  = (Maiy_2_dimensional){rightline[Y], Y};
+                }
+                else
+                {
+                    Flag++;
+                    if (Flag > 3)
+                        break;
+                }
+            }
         }
 
 }
-
-
-
-//test dymic
 
 void get_rest_line_dy()
 {
@@ -2646,7 +2524,7 @@ else if(huan_L_flag==4&&bx_flag_4)
 }
 else if(huan_R_flag==2)
 {
-    midline[i]=(leftline[i] - Single_L_line[i])+82;
+    midline[i]=(leftline[i] - Single_L_line[i])+76;
 
 }
 else if(huan_R_flag==6)
@@ -2684,19 +2562,19 @@ else if(huan_R_flag==5)
 
 else if(huan_R_flag==3)
 {
-    midline[i]=(rightline[i] - Single_R_line[i])+79;
-//    if(i<58)
-//      {
-//          if(midline[i]-midline[i+1]<=0)
-//          {
-//              midline[i]=midline[i+1]+2;
-//              midline[i]=midline[i]>=158?   158:midline[i];
-//          }
+    midline[i]=(rightline[i] - Single_R_line[i])+84;
+    if(i<58)
+      {
+          if(midline[i]-midline[i+1]<=-2)
+          {
+              midline[i]=midline[i+1]+2;
+              midline[i]=midline[i]>=158?   158:midline[i];
+          }
 //
 //      }
 
-    midline[i]=midline[i]>=158?   158:midline[i];
-    midline[i]=midline[i]<=0?   0:midline[i];
+
+}
 }
 // if(ABS(midline[i]-79)>2&&!end_lose_line_flag)
 // {
@@ -2862,19 +2740,19 @@ else if(huan_R_flag==5)
 }
     else if(huan_R_flag==3)
     {
-        for(hang=59 ; hang>35 ; hang--)  //基础求偏差
+        for(hang=59 ; hang>25 ; hang--)  //基础求偏差
             {
-            if(midline[hang]<90)
-            {
-                continue;
-            }
-              WeightSum += huandao[hang];
+//            if(midline[hang]<90)
+//            {
+//                continue;
+//            }
+              WeightSum += weight[hang];
               error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
-              MidSum += midline[hang]*huandao[hang];
+              MidSum += midline[hang]*weight[hang];
             }
         MidValue = MidSum/WeightSum;
         differ = MidValue - basic;
-        differ=(differ<=45) ?  45:differ;
+//        differ=(differ<=45) ?  45:differ;
 //        buzzer(0);
 //        differ=(differ>=60) ?   60:differ;
     }
@@ -4897,7 +4775,7 @@ if(str_danbx)   //右环
        {
            zuiflag=1;
            zuiyoudian=rightline[i];
-        midline[i]=(leftline[i] - Single_L_line[i])+79;
+        midline[i]=(leftline[i] - Single_L_line[i])+76;
        }
        }
        else
@@ -4915,3 +4793,55 @@ if(str_danbx)   //右环
 }
 
 }
+
+
+
+
+
+Maiy_2_dimensional GettangoP(int ST,int EN,int sequence)
+{
+    int Y;
+       Maiy_2_dimensional Ret = {0,0};
+
+       uint8 Flag = 0;
+       if (sequence == 1)
+    {
+        Ret =( Maiy_2_dimensional ){1,0};
+        Y =ST+1;
+        while ((Y--) > EN+1)//10
+        {
+            if (leftline[Y] > Ret.my_x)
+            {
+                Flag = 0;
+                Ret = (Maiy_2_dimensional){leftline[Y] , Y};
+            }
+            else
+            {
+                Flag++;
+                if (Flag > 2)
+                    break;
+            }
+        }
+    }
+       else if (sequence == 2)
+    {
+        Ret = (Maiy_2_dimensional){158, 0};
+        Y = ST+1;
+              while ((Y--) > EN+1)
+              {
+            if (rightline[Y]< Ret.my_x)
+            {
+                Flag = 0;
+                Ret = (Maiy_2_dimensional){rightline[Y], Y};
+            }
+            else
+            {
+                Flag++;
+                if (Flag > 2)
+                    break;
+            }
+        }
+    }
+    return Ret;
+}
+

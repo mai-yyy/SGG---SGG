@@ -7129,3 +7129,13 @@ Command-line arguments:  -os win32 -ws win32 -arch x86_64 -perspective com.infin
 !MESSAGE The GDI debug instrument provided the following error message.
 !SUBENTRY 1 com.tasking.debug.cdt.core 4 150 2021-11-30 15:43:49.377
 !MESSAGE An internal error has occurred.
+!SESSION 2021-12-04 15:33:43.626 -----------------------------------------------
+eclipse.buildId=1.2.2
+java.version=11.0.2
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=zh_CN
+Framework arguments:  -perspective com.infineon.aurix.buildmanager.perspective.c
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -perspective com.infineon.aurix.buildmanager.perspective.c
+
+!ENTRY org.eclipse.core.resources 2 10035 2021-12-04 15:33:54.148
+!MESSAGE The workspace exited with unsaved changes in the previous session; refreshing workspace to recover changes.

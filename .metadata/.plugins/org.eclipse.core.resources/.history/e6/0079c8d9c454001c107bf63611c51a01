@@ -1,0 +1,24 @@
+#include "headfile.h"
+
+extern unsigned char chalu_flag;
+extern unsigned char end_count;
+extern unsigned char chalu_dirction;
+extern unsigned char chalu_turn_time;
+extern Maiy_2_dimensional TpM;
+extern Maiy_2_dimensional TpL;
+extern Maiy_2_dimensional TpR;
+extern Maiy_2_dimensional LMaxPoint;
+extern Maiy_2_dimensional RMaxPoint;
+extern Maiy_2_dimensional TEM_L;
+extern Maiy_2_dimensional TEM_R;
+extern uint8 RFixLineFlag;
+extern int16   RFixLineStart;
+extern uint8  LFixLineFlag;
+extern int16  LFixLineStart;
+ int LLineSegmentST[10]={0};
+ int LLineSegmentEN[10]={0};
+ int  RLineSegmentST[10]={0};
+ int RLineSegmentEN[10]= {0};
+ extern uint8 fork_road;
+void chalu();
+void ALL_fill(Maiy_characteristic_point* sc_char);

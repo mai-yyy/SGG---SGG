@@ -1,6 +1,8 @@
 #include "phone_BL.h"
 
-
+#define dj_blu_pr 0
+#define fork_blu_pr 1
+#define huan_blu_pr 0
 Blueteeth_Uart_Rx_buff_t Blueteeth_buff;
 
 TxPack my_TxPack;
@@ -16,16 +18,49 @@ void my_pack_send_phone()
 {
 
 //    my_TxPack.shorts[0] = dj;
-//    my_TxPack.floats[0]=teo_wheel_sp;
-//    my_TxPack.floats[1]=teo_wheel_sp;
-//    my_TxPack.floats[2]=teo_wheel_sp;
+#if   dj_blu_pr>0
+    my_TxPack.integers[0]=teo_wheel_sp;
+    my_TxPack.integers[1]=realspeed;
+    my_TxPack.integers[2]=realspeed_l;
+
+//    my_TxPack.integers[3]=Left_High_Speed;
+//    my_TxPack.integers[4]= Right_High_Speed;
+
+    my_TxPack.floats[0]=deb_delt_p;
+    my_TxPack.floats[1]=deb_delt_i;
+#endif
+
+
+
+#if fork_blu_pr>0
+
+    my_TxPack.integers[0]=LLineSegmentCnt;
+    my_TxPack.integers[1]=RLineSegmentCnt;
+    my_TxPack.integers[2]= LLineSegmentST[0];
+    my_TxPack.integers[3]= LLineSegmentEN[0];
+    my_TxPack.integers[4]= RLineSegmentST[0];
+    my_TxPack.integers[5]= RLineSegmentEN[0];
+    my_TxPack.integers[6]=TEM_L.my_y;
+    my_TxPack.integers[7]=TEM_L.my_x;
+    my_TxPack.integers[8]= TEM_R.my_y;
+    my_TxPack.integers[9]= TEM_R.my_x;
+    my_TxPack.integers[10]= tMCnt;
+            my_TxPack.integers[11]=tRCnt;
+            my_TxPack.integers[12]=tLCnt;
+            my_TxPack.integers[13] =LColCnt;
+            my_TxPack.integers[14]= RColCnt;
+            my_TxPack.integers[15]= fork_road;
+            my_TxPack.integers[16]= real_char.my_final_tOptimalPoint.my_x;
+            my_TxPack.integers[17]= real_char.m_stCenterLinePoint.my_y;
+
+#endif
 //    my_TxPack.integers[0]=250;
   //bools
    /* my_TxPack.floats[0]=differ;
     my_TxPack.floats[1]=servoKp;
     my_TxPack.floats[2]=(float)get_djj;
     */
-    my_TxPack.floats[0]=(float)Island_inflexion_row;
+//    my_TxPack.floats[0]=(float)Island_inflexion_row;
   //bytes
 	
   //shorts
@@ -57,15 +92,16 @@ void put_date(RxPack *i_RxPack)
   //byte
   
   //short
-//    debug_speed=i_RxPack->integers[0];
-//    deb_delt_p=i_RxPack->floats[0];
-//    deb_delt_i=i_RxPack->floats[1];
+#if dj_blu_pr>0
+    debug_speed=i_RxPack->integers[0];
+    deb_delt_p=i_RxPack->floats[0];
+    deb_delt_i=i_RxPack->floats[1];
   //integers
-
+//    debug_speed;
 
   //float
 
-
+#endif
 
 
 

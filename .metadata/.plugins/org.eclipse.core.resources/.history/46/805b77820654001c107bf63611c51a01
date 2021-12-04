@@ -1,0 +1,160 @@
+#include "image_chalu.h"
+
+uint8 chalu_flag=0;
+uint8 end_count=0;
+uint8 chalu_dirction=0;
+uint8 chalu_turn_time=0;
+void chalu()
+{
+uint8 lie_end[61]={0};
+   end_count=0;
+
+//      get_middle();
+      WeightSum=0;
+      MidSum=0;
+    for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+          {
+            WeightSum += weight[hang];
+            error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+            MidSum += midline[hang]*weight[hang];
+          }
+      MidValue = MidSum/WeightSum;
+      differ = MidValue - basic;
+   //判别第一次入岔路
+ if(!chuku_flag&&chalu_flag==0&&chalu_dirction<=1&&!huan_L_flag&&!huan_R_flag&&!podao_flag&&!qipao_flag&&!ku_L&&!ku_R&&!shizhiflag)
+ {
+     for(uint8 j=50;j<111;j++)
+    {
+        for(uint8 i=59;i>=1;i--)
+        {
+            if(!image_data[i][j]&&!image_data[i-1][j])      //一行连续两列为黑
+            {
+               lie_end[j-50]=i;
+               break;
+            }
+            else
+            {
+                lie_end[j-50]=0;
+            }
+        }
+
+    }
+
+for(uint8 i=0;i<61;i++)
+{
+    if(lie_end[i]<=10&&lie_end[i]>1)//(lie_end[i]<=10&&lie_end[i]!=0)
+    {
+        end_count++;
+    }
+
+}
+
+if(low_endline_count>=14&&end_count>=60&&endline<=3&&ABS(differ)<=10&&ABS(error[11])<=15&&ABS(error[13])<=15&&ABS(error[15])<=15)   //5  10
+{
+    chalu_flag=1;
+    buzzer(1);
+}
+
+ }
+
+ if(chalu_flag==1&&chalu_turn_time>=10)        //第一次入岔路
+ {
+//     get_middle();
+//     WeightSum=0;
+//     MidSum=0;
+//   for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+//         {
+//           WeightSum += weight[hang];
+//           error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//           MidSum += midline[hang]*weight[hang];
+//         }
+//     MidValue = MidSum/WeightSum;
+//     differ = MidValue - basic;
+
+
+     if(ABS(differ)>=20)    //15
+     {
+         chalu_flag=2;
+         chalu_speed_low=0;
+         chalu_turn_time=0;
+         buzzer(0);
+     }
+ }
+ if(chalu_flag==2)          //判别第一次出岔路
+ {
+     for(uint8 j=50;j<111;j++)
+      {
+          for(uint8 i=59;i>=1;i--)
+          {
+              if(!image_data[i][j]&&!image_data[i-1][j])      //一行连续两列为黑
+              {
+                 lie_end[j-50]=i;
+                 break;
+              }
+              else
+              {
+                  lie_end[j-50]=0;
+              }
+          }
+
+      }
+
+  for(uint8 i=0;i<61;i++)
+  {
+      if(lie_end[i]<=10&&lie_end[i]>1)//(lie_end[i]<=13&&lie_end[i]!=0)
+      {
+          end_count++;
+      }
+
+  }
+
+  if(low_endline_count>=14&&end_count>=60&&endline<=3&&ABS(differ)<=10&&ABS(error[11])<=15&&ABS(error[13])<=15&&ABS(error[15])<=15)   //5  10
+  {
+      chalu_flag=3;
+      buzzer(1);
+  }
+ }
+ if(chalu_flag==3&&chalu_turn_time>=10)      //第一次出岔路
+ {
+//     get_middle();
+//     WeightSum=0;
+//     MidSum=0;
+//   for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+//         {
+//           WeightSum += weight[hang];
+//           error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//           MidSum += midline[hang]*weight[hang];
+//         }
+//     MidValue = MidSum/WeightSum;
+//     differ = MidValue - basic;
+
+
+     if(ABS(differ)>=20)      //15
+          {
+              buzzer(0);
+              chalu_flag=0;
+              chalu_speed_low=0;
+              chalu_turn_time=0;
+              chalu_dirction++;
+          }
+ }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void ALL_fill()
+{
+
+}

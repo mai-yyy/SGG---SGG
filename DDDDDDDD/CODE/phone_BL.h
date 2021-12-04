@@ -40,8 +40,8 @@ typedef double fp64;
 #define TX_BOOL_NUM  0  
 #define TX_BYTE_NUM  0 
 #define TX_SHORT_NUM 0
-#define TX_INT_NUM   0
-#define TX_FLOAT_NUM 1
+#define TX_INT_NUM   18
+#define TX_FLOAT_NUM 0
 
 /// 3.指定接收数据包的结构-----------------------------------------------------------------------------------
 //    根据实际需要的变量，定义数据包中 bool byte short int float 五种类型的数目

@@ -225,8 +225,8 @@ void go_motor (int16 PWM_Duty1,int16 PWM_Duty2)
             pDelta_PIDStructrre.SetVal=type;
            pDelta_PIDStructrre.ActVal  = Actuall;
            pDelta_PIDStructrre.errr     = pDelta_PIDStructrre.SetVal -pDelta_PIDStructrre.ActVal;
-           pDelta_PIDStructrre.Out_add = (50) * (pDelta_PIDStructrre.errr-pDelta_PIDStructrre.err_lastt)
-                                        + (2.5)* (pDelta_PIDStructrre.errr);
+           pDelta_PIDStructrre.Out_add = 20* (pDelta_PIDStructrre.errr-pDelta_PIDStructrre.err_lastt)
+                                        + 5* (pDelta_PIDStructrre.errr);
 
 
            pDelta_PIDStructrre.OutVal   += (int16)pDelta_PIDStructrre.Out_add;
@@ -490,8 +490,8 @@ void HDDJPID_init()
             CS_RR.SetVal=type;
            CS_RR.ActVal  = Actuall;
            CS_RR.errr     = CS_RR.SetVal -CS_RR.ActVal;
-           CS_RR.Out_add = (50) * (CS_RR.errr-CS_RR.err_lastt)
-                                        + (2.5)* (CS_RR.errr);
+           CS_RR.Out_add = (22) * (CS_RR.errr-CS_RR.err_lastt)
+                                        + (4.5)* (CS_RR.errr);
 
 
            CS_RR.OutVal   += (int16)CS_RR.Out_add;
@@ -544,8 +544,8 @@ void HDDJPID_init()
                CS_LL.SetVal=type;
               CS_LL.ActVal  = Actuall;
               CS_LL.errr     = CS_LL.SetVal -CS_LL.ActVal;
-              CS_LL.Out_add = (50) * (CS_LL.errr-CS_LL.err_lastt)
-                                           + (2.5)* (CS_LL.errr);
+              CS_LL.Out_add = (22) * (CS_LL.errr-CS_LL.err_lastt)
+                                           + (4)* (CS_LL.errr);
 
 
               CS_LL.OutVal   += (int16)CS_LL.Out_add;
@@ -592,14 +592,14 @@ void HDDJPID_init()
              if(a>42)  a=42;
              if(a<0)   a=0;
              Temp_Orr = tan((a*3.14)/180) * 13.4 / 40;          //15.4
-             Left_Speed =  0.05* High_Speed * (0.70 + circle_out*Temp_Orr); //第一个常数可以加大差速，第二个常数可以提前差速 //原来是0.78
-             Right_Speed =  0.05* High_Speed * (0.70 - circle_in*Temp_Orr);//原来是1
+             Left_Speed =  0.04* High_Speed * (0.70 + circle_out*Temp_Orr); //第一个常数可以加大差速，第二个常数可以提前差速 //原来是0.78
+             Right_Speed =  0.04* High_Speed * (0.70 - circle_in*Temp_Orr);//原来是1
 //             Left_Speed=(Left_Speed>=20) ? 20:Left_Speed;
 //                       Left_Speed=(Left_Speed<=-20) ? -20:Left_Speed;
 //                       Right_Speed=(Right_Speed>=20) ? 20:Right_Speed;
 //                       Right_Speed=(Right_Speed<=-20) ? -20:Right_Speed;
-             Left_High_Speed = Left_Speed;
-             Right_High_Speed = Right_Speed;
+             Left_High_Speed = -Left_Speed;
+             Right_High_Speed = -Right_Speed;
           }
           else
           {
@@ -608,14 +608,14 @@ void HDDJPID_init()
               if(a<0)   a=0;
 
               Temp_Orr = tan((a*3.14)/180) * 13.4 / 40;
-              Left_Speed =  0.05* High_Speed * (0.70 - circle_in*Temp_Orr); //原来是1
-              Right_Speed =  0.05* High_Speed * (0.70 +circle_out*Temp_Orr);//原来是0.78
+              Left_Speed =  0.04* High_Speed * (0.70 - circle_in*Temp_Orr); //原来是1    0.05
+              Right_Speed =  0.04* High_Speed * (0.70 +circle_out*Temp_Orr);//原来是0.78
 //              Left_Speed=(Left_Speed>=20) ? 20:Left_Speed;
 //              Left_Speed=(Left_Speed<=-20) ? -20:Left_Speed;
 //              Right_Speed=(Right_Speed>=20) ? 20:Right_Speed;
 //              Right_Speed=(Right_Speed<=-20) ? -20:Right_Speed;
-              Left_High_Speed = Left_Speed;
-              Right_High_Speed = Right_Speed;
+              Left_High_Speed =- Left_Speed;
+              Right_High_Speed =- Right_Speed;
           }
 
 

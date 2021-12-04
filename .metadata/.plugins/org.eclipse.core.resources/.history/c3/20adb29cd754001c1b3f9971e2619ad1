@@ -1,0 +1,1423 @@
+#include "image_huandao.h"
+#include "headfile.h"
+
+//
+  uint16 LWhitePnt1 ;
+  uint16 LWhitePnt2 ;
+  uint16 LWhitePnt3 ;
+  uint16 RWhitePnt1;
+   uint16 RWhitePnt2 ;
+   uint16 RWhitePnt3 ;
+   uint8 hz_l=0;
+   uint8 hz_r=0;
+uint8 bx_flag_4_r=0;
+uint16 huan_L_flag=0;
+uint16 huan_L_entry=0;
+uint16 huanin_L_basic=0;
+uint16 huanin_L_point=0;
+uint16 huanout_L_basic=0;
+uint16 huanout_L_point=0;
+uint8 huan_L_flag4_time=0;
+uint8 huan_L_flag5_time=0;
+uint8 huan_L_flag1_time=0;
+uint8 ru_L_process=0;
+uint8 out_L_process=0; 
+uint8 cyccy=0;
+uint8 left_break_count=0;
+uint8 dx=0;
+int16 over_run=0;
+uint8 ddx=0;
+//uint8 Island_flag=0;
+int16 Right_line_swerve_R=0;
+int16 Right_line_swerve_L=0;
+int16 Left_line_swerve_L=0;
+int16 Left_line_swerve_R=0;
+uint8 Island_flag1=0;
+int16 O_R_Island_row=0;
+int16 O_L_Island_row=0;
+int16 Island_inflexion_row=0;
+int16 Big_island_error3=0;
+int16 Big_island_error2=0;
+uint8 huaxun_flag=0;
+uint8 huaxun_flag_r=0;
+uint8 bx_flag_4=0;
+uint16 huan_R_flag=0;
+uint16 huan_R_entry=0;
+uint16 huanin_R_basic=0;
+uint16 huanin_R_point=0;
+uint16 huanout_R_basic=0;
+uint16 huanout_R_point=0;
+uint8 huan_R_flag4_time=0;
+uint16 huan_R_flag1_time=0;
+uint8 ru_R_process=0;
+uint8 out_R_process=0; 
+uint8 right_break_count=0;
+uint8 huan_L_fchange=0;
+uint8 huan_R_fchange=0;
+int LC=0;
+int RC=0;
+int linest=0;
+int tbr=0;
+int rightb=0;
+int dxL=0;
+uint8 L_bxc=0;
+uint8 R_bxc=0;
+uint8 dxpd=0;
+uint16 huan_L_cnt=0;
+uint16 huan_R_cnt=0;
+int16 L1_R1_cnt=0;
+uint8 L0_R1=0;
+uint8 L1_R0=0;
+int16 L1_R1_row=0;
+int16 L0_R1_cnt=0;
+int16 L0_R1_row=0;
+int16 L1_R0_cnt=0;
+int16 L1_R0_row=0;
+//11.16  舍弃了之前找进环点，出环点补线的算法，在高速的时候并不能保证其稳定性；但是也能用；
+//以下是环岛不补线的算法，
+
+
+void Huandao_Sec_Low()
+{
+
+     LWhitePnt1 = real_char.mylinest[6];
+      LWhitePnt2 = real_char.mylinest[10];
+      LWhitePnt3 = real_char.mylinest[15];
+      RWhitePnt1 = real_char.mylinest[145];
+       RWhitePnt2 = real_char.mylinest[150];
+       RWhitePnt3 = real_char.mylinest[154];
+ uint8 R_diu_start=2;
+ uint8 L_diu_start=2;
+ uint8 L_out_count=0;
+ uint8 L_out_start=0;
+ uint8 R_out_count=0;
+
+ uint8 R_out_start=0;
+ huan_L_cnt=0;
+ huan_R_cnt=0;
+ Big_island_error3=0;
+ Big_island_error2=0;
+// bx_flag_4=0;
+        //放弃之前的思路，直接利用原始图像来做判断抗干扰强    11.17 v3.0
+//左环
+// if(dxL==1&&!chuku_flag&&endline==0&&huan_L_flag==0&&!qipao_flag&&!ku_L&&!ku_R&&!huan_R_flag&&!podao_flag&&!L_crossroad&&!R_crossroad&&!chalu_flag)   //确保在直道上才开始判断环岛
+ if(!chuku_flag&&!huan_L_flag&&!huan_R_flag&&!huan_R_flag&&!podao_flag&&!shizhiflag)   //确保在直道上才开始判断环岛
+ {
+//     huaxun_flag=0;
+     dxL=duanxi_L();     //防止二进环
+     if(rightline[55]>rightline[50]&&rightline[45]>rightline[40]&&rightline[35]>rightline[30]&&rightline[25]>rightline[20]&&rightline[15]>rightline[10]
+          &&rightline[55]>=80&&rightline[50]>=80&&rightline[45]>=80&&rightline[40]>=80&&rightline[35]>=80&&rightline[30]>=80&&
+          rightline[25]>=80&&rightline[20]>=80&&rightline[15]>=80&&rightline[10]>=80&&endline<=1&&right_all_lose_line==0)
+     {
+      //   buzzer(1);
+         for(uint8 i=59;i>50;i--)           //检测下环岛
+        {
+        if(leftline[i]<=3&&rightline[i]!=158&&rightline[i-1]!=158&&rightline[i-2]!=158)
+        {
+          L_diu_start=i;
+          break;
+        }
+       }
+         for(int i=L_diu_start-1;i>0;i--)
+         {
+             if(leftline[i]<=3&&rightline[i]!=158)
+                {
+                  huan_L_cnt++;
+                }
+             else{
+                 huan_L_fchange=i;
+                 break;
+             }
+
+    }
+     }
+//     ips200_showint16(30,11,huan_L_cnt);
+if(huan_L_cnt<=32&&huan_L_cnt>=15&&leftline[huan_L_fchange]!=0&&leftline[huan_L_fchange-3]!=0)
+  {
+    huan_L_flag=2;
+//    buzzer(1);//环岛第一标志      最明显特征
+  }
+else
+{
+    huan_L_flag=0;
+//       buzzer(0);//}
+ }
+
+     }
+ dxL=duanxi_L();     //防止二进环
+if(huan_L_flag==1&&dxL>1)           //保证进环点在圆弧上    不用了
+{
+//    uint8 yesin=0;
+             for(uint8 i=55;i>35;i--)
+            {
+            if(!image_data[i][4]&&rightline[i]!=158&&rightline[i-1]!=158&&rightline[i-2]!=158&&!image_data[i-1][4]&&!image_data[i-2][4])
+            {
+              L_diu_start=i;
+              break;
+            }
+            else
+            {L_diu_start=55;}
+           }
+             for(int i=L_diu_start-1;i>endline-1;i--)
+             {
+                 if(!image_data[i][4])
+                    {
+                      huan_L_cnt++;
+                    }
+                 else{
+
+                     break;
+//                     yesin=1;
+                     huan_L_fchange=i;
+                 }
+
+        }
+             if(huan_L_cnt<=38&&huan_L_cnt>=20)
+               {
+                 huan_L_flag=2;
+               }
+}
+//dxL=duanxi_L();
+if(huan_L_flag==2)           //寻找环岛入口                    //明天加入huan_L_flag1_time  try one  try
+{
+//    if(left_all_lose_line<10){
+//    huan_L_flag=3;}
+
+
+    if(LWhitePnt1<=10&&LWhitePnt2<=10&&LWhitePnt3<=10)
+    {
+
+        hz_l=1;
+    }
+
+
+    if(LWhitePnt1>=30&&LWhitePnt2>=30&&LWhitePnt3>=30&&hz_l)
+    {
+        huan_L_flag=3;
+
+    }
+if(huan_L_flag!=3&&hz_l){
+    for(uint8 i=57;i>endline;i--)
+               {
+                  if(leftline[i]-leftline[i+1]>3)
+                  {
+                      Big_island_error3++;//相邻两行的列坐标相差大于三的次数  用于区分大小环
+                  }
+                  else if(leftline[i]-leftline[i+1]>2)
+                  {
+                      Big_island_error2++;//相邻两行的列坐标相差大于二的次数  用于区分大小环
+                  }
+                  if(leftline[i+1]!=0&&leftline[i]!=0&&leftline[i-1]!=0)
+                  {
+                      if(leftline[i]-leftline[i-1]>=2&&image_data[59][5]==0&&image_data[57][5]==0&&image_data[54][5]==0)
+                      {
+                           Island_inflexion_row = i;
+                           break;
+                      }
+                  }
+               }
+    //           ips200_showuint8(90,17, Island_inflexion_row);
+
+               if(Island_inflexion_row>=28)//大环岛半径较小时  减小15
+               {
+                   huan_L_flag = 3;
+               }
+}
+    /*
+  for(uint8 i=23;i>=13;i--)         //14-8
+  {
+  if(leftline[i]!=0&&leftline[i-1]!=0&&leftline[i+1]==0&&leftline[i+2]==0
+          )
+    {
+//      buzzer(1);
+
+//      huan_L_entry=ceil(i);
+
+      huan_L_flag=3;
+      break;
+    }
+  }
+*/
+//    huan_L_flag=3;
+}
+if(huan_L_flag==3)   //寻找入环结束点               ||陀螺仪积分30
+{
+
+if(!ru_L_process)
+{
+if(rightline[20]>=157&&rightline[21]>=157&&rightline[22]>=157&&rightline[23]>=157)    //脱离直道
+{
+  ru_L_process=1;
+ }
+}
+
+
+if(ru_L_process)
+{
+if(rightline[40]!=158&&rightline[41]!=158&&rightline[45]!=158&&rightline[50]!=158&&rightline[53]!=158&&rightline[54]!=158&&endline>=16)      //成功入环              条件过于简单   需修改
+{
+//    buzzer(0);
+  huan_L_flag=4;
+  ru_L_process=0;
+// buzzer(1);
+}
+  
+}
+ 
+
+ }
+
+if(huan_L_flag==3)
+{
+if(icmdata.Yaw>=30)
+    huan_L_flag=4;
+}
+Right_line_swerve_R=0;
+Right_line_swerve_L=0;
+
+if(huan_L_flag==4&&huan_L_flag4_time>=100)        //搜索出环          ||利用时间先代替陀螺仪
+{
+for(int i=59;i>endline;i--)
+{
+    if(rightline[i]-rightline[i-1]>=3)
+                Right_line_swerve_L++;//右线趋势往左
+              else if(rightline[i-1]-rightline[i]>=3)
+                Right_line_swerve_R++;//右线趋势往右
+}
+if(Right_line_swerve_R>=6)
+{
+bx_flag_4=1;
+}
+    if(image_data[58][156]!=0&&image_data[57][156]!=0&&image_data[56][156]!=0)
+    {
+       cyccy=1;
+        }
+if(cyccy)
+{
+
+    for(int16 i=59;i>35;i--)
+           {
+               if(image_data[i][158]==0&&image_data[i-1][158]==0)
+               {
+                   over_run=i;
+                   break;
+               }
+}
+        if((over_run<=59&&over_run>=35&&icmdata.Yaw>=270)||icmdata.Yaw>=300)
+                  {
+//            buzzer(1);
+            huan_L_flag = 5;
+//            buzzer(1);
+//            buzzer(0);
+                  }
+    }
+//    ips200_showint16(30,11, Right_line_swerve_R);
+
+/*
+  for(int8 i=45;i>=endline+2;i--)
+  {
+    if((rightline[i]-rightline[i+1]>0)&&(rightline[i-1]-rightline[i])<20&&(rightline[i-2]>=rightline[i-1])&&(rightline[i-3]>=rightline[i-2]))          //寻找跳变
+    {
+        huan_L_flag=5;
+        huanout_L_point=i;
+     huan_L_flag4_time=0;
+//
+//      buzzer(1);
+      break;
+    }
+    
+  }
+ */
+}
+
+if(huan_L_flag==5)
+{
+//    out_flag=4;
+    Island_flag1=0;
+    Left_line_swerve_R=0;
+    Left_line_swerve_L=0;
+    for(int i=59;i>28;i--)
+            {
+                if(rightline[i]>=157)
+                {
+                    Island_flag1 = 1;
+                }
+                if(leftline[i]-leftline[i-1]<0)
+                    Left_line_swerve_R++;//左线往右趋势
+                else if(leftline[i]-leftline[i-1]>0)
+                  Left_line_swerve_L++;//左线往左趋势
+
+            }
+//    if((!Island_flag1&&Left_line_swerve_L<=2))
+    if(!Island_flag1&&Left_line_swerve_L<=1)
+    {
+        huan_L_flag=6;
+buzzer(1);
+    }
+
+  /*
+ if(!out_L_process)
+ {
+   if(rightline[53]>rightline[49]&&rightline[51]>rightline[46]&&rightline[49]>rightline[46])
+   {
+       buzzer(1);
+     out_L_process=1;
+
+   }
+ }
+ 
+ if((out_L_process==1&&endline<=12)||(endline<=8))
+ {
+          huan_L_flag=6;      //出环
+
+          out_L_process=0;
+ }
+
+  */
+}
+
+
+if(huan_L_flag==6)
+{
+uint8 finalrun=0;
+finalrun=0;
+for(uint8 i=59;i>endline;i--)
+ {
+    if(leftline[i]<=3&&rightline[i]!=158&&i>30)
+    {
+        finalrun++;
+    }
+ if(!L_out_start)
+  {
+ if(leftline[i]!=0&&rightline[i]!=158)
+ {
+ L_out_start=i;
+ }
+}
+ if(L_out_start)
+  {
+ if(leftline[i]!=0&&rightline[i]!=158)
+   {
+  L_out_count++;  
+   }
+  else 
+ {
+ break;
+ }
+  }
+  }
+//ips200_showint16(30,11,L_out_count);
+//ips200_showint16(50,8,finalrun);
+if((L_out_count>=59&&L_out_start>=55&&finalrun<=3)||huan_L_flag5_time>150||dt_code>11500)//小环11500
+    {
+  huan_L_flag=0;          //完全出环
+  buzzer(0);
+  bx_flag_4=0;
+  cyccy=0;
+  hz_l=0;
+//  out_flag=8;
+//  out_flag=44;
+    }
+
+}
+ 
+
+ //右环
+if(!chuku_flag&&!huan_R_flag&&!huan_R_flag&&!shizhiflag)   //确保在直道上才开始判断环岛
+ {
+
+    if(leftline[55]<leftline[50]&&leftline[45]<leftline[40]&&leftline[35]<leftline[30]&&leftline[25]<leftline[20]&&leftline[15]<leftline[10]
+              &&leftline[55]<=80&&leftline[50]<=80&&leftline[45]<=80&&leftline[40]<=80&&leftline[35]<=80&&leftline[30]<=80&&
+              leftline[25]<=80&&leftline[20]<=80&&leftline[15]<=80&&leftline[10]<=80&&endline<=1&&left_all_lose_line==0)
+    {
+            for(uint8 i=59;i>50;i--)
+           {
+           if(leftline[i]!=0&&rightline[i]>=155&&leftline[i-1]!=0&&leftline[i-2]!=0)
+           {
+             R_diu_start=i;
+             break;
+           }
+          }
+
+
+
+            for(int i=R_diu_start;i>0;i--)
+            {
+                if(leftline[i]!=0&&rightline[i]>=155)
+                   {
+                     huan_R_cnt++;
+                   }
+                else
+                {
+                   huan_R_fchange=i;
+                    break;
+                }
+
+
+
+        }
+    }
+            if(huan_R_cnt>=20&&huan_R_cnt<=35&&rightline[huan_R_fchange]<=155&&rightline[huan_R_fchange-3]<=155)
+              {
+                  huan_R_flag=2;
+//                  buzzer(1);
+//                  out_flag=5;
+              }
+            else
+            {
+                huan_R_flag=0;
+
+            }
+       }
+
+//dx=duanxi();     //防止二进环
+if(huan_R_flag==1&&dx>1)
+{
+//    uint8 yesin=0;
+             for(uint8 i=55;i>35;i--)
+            {
+            if(!image_data[i][155]&&leftline[i]!=0&&leftline[i-1]!=0&&leftline[i-2]!=0&&!image_data[i-1][155]&&!image_data[i-2][155])
+            {
+              R_diu_start=i;
+              break;
+            }
+            else
+            {L_diu_start=55;}
+           }
+             for(int i=R_diu_start-1;i>endline-1;i--)
+             {
+                 if(!image_data[i][155])
+                    {
+                      huan_R_cnt++;
+                    }
+                 else{
+
+                     break;
+                     huan_R_fchange=i;
+                 }
+
+        }
+             if(huan_R_cnt<=38&&huan_R_cnt>=20)
+               {
+                 huan_R_flag=2;
+               }
+
+
+
+}
+//dx=duanxi();
+if(huan_R_flag==2)           //寻找环岛入口  改行宽度
+{
+//    if(right_all_lose_line<10){
+//    huan_R_flag=3;}
+//  for(uint8 i=23;i>=13;i--)         //14-6
+//  {
+/*
+      if(rightline[i]<=155&&rightline[i-1]<=155&&rightline[i+1]>=155&&rightline[i+2]>=155&&rightline[i+3]>=155&&rightline[i+6]>=155&&rightline[i+8]>=155&&(rightline[i]-rightline[i+2])<0&&(rightline[i]-rightline[i-2])>0
+                && rightline[i]-leftline[i]<=50
+      //                                                              &&!image_data[i][rightline[i]]&& !image_data[i-1][rightline[i-1]]
+                                                                                                                      )
+    {
+//      buzzer(1);
+
+      huan_R_flag=3;
+      break;
+    }
+    */
+
+//
+
+    if(RWhitePnt1<=10&&RWhitePnt2<=10&&RWhitePnt3<=10)
+      {
+
+          hz_r=1;
+      }
+
+
+    if(RWhitePnt1>=30&&RWhitePnt2>=30&&RWhitePnt3>=30&&hz_r)
+    {
+
+        huan_R_flag=3;
+    }
+
+    if(huan_R_flag!=3&&hz_r)
+    {
+    for(int i=57;i>endline;i--)
+               {
+                  if(rightline[i+1]-rightline[i]>3)
+                  {
+                      Big_island_error3++;//相邻两行的列坐标相差大于三的次数  用于区分大小环
+                  }
+                  else if(rightline[i+1]-rightline[i]>2)
+                  {
+                      Big_island_error2++;//相邻两行的列坐标相差大于二的次数  用于区分大小环
+                  }
+                  if(rightline[i+1]<157&&rightline[i]<157&&rightline[i-1]<157)
+                  {
+                      if(rightline[i]-rightline[i-1]<=-3&&image_data[58][151]<=2&&image_data[56][151]<=2&&image_data[54][151]<=2)
+                      {
+                           Island_inflexion_row = i;
+                           break;
+                      }
+                  }
+
+                  /*
+                   * if(leftline[i]-leftline[i-1]>0&&leftline[57]!=0&&leftline[54]!=0&&leftline[51]!=0)
+                         {
+                              Island_inflexion_row = i;
+                              break;
+                         }
+                   * */
+               }
+
+               if(Island_inflexion_row>=28)//大环岛半径较小时  减小15
+               {
+                   huan_R_flag=3;
+   //                out_flag=5;
+
+               }
+    }
+  }
+
+
+//}
+                                                   
+if(huan_R_flag==3)   //寻找入环结束点
+{
+ 
+if(!ru_R_process)
+{
+if(leftline[20]==0&&leftline[21]==0&&leftline[22]==0&&leftline[23]==0)    //脱离直道
+{
+  ru_R_process=1;
+ }
+}
+
+
+if(ru_R_process)
+{
+if((leftline[48]>3&&leftline[50]>3&&leftline[51]>3&&leftline[53]>3&&leftline[54]>3&&leftline[56]>3&&endline>=15)||endline>=24)      //成功入环              条件过于简单   需修改
+{
+   buzzer(0);
+  huan_R_flag=4;
+  ru_R_process=0;
+}
+}
+ }
+if(huan_R_flag==3)
+{
+if(icmdata.Yaw<=-30)
+    huan_R_flag=4;
+}
+Left_line_swerve_R=0;
+Left_line_swerve_L=0;
+if(huan_R_flag==4&&huan_R_flag1_time>=150)        //搜索出环
+{
+/*
+  for(int8 i=45;i>=endline+2;i--)
+  {
+    if((leftline[i]<leftline[i+1])&&(leftline[i]-leftline[i+1])>-20&&(leftline[i-1]<=leftline[i])&&(leftline[i-2]<=leftline[i-1])&&(leftline[i-3]<=leftline[i-2]))          //寻找跳变
+    {
+        huanout_R_point=i;
+        huan_R_flag4_time=0;
+      huan_R_flag=5;
+//      buzzer(1);
+      break;
+    }
+    
+  }
+ */
+
+    for(int i=59;i>endline;i--)
+    {
+        if(leftline[i]-leftline[i-1]<=2)
+                        Left_line_swerve_R++;//左线往右趋势
+                      else if(leftline[i]-leftline[i-1]>=2)
+                        Left_line_swerve_L++;//左线往左趋势
+    }
+    if(Left_line_swerve_L>=4)
+    {
+    bx_flag_4_r=1;
+    }
+
+    if(leftline[59]==0&&leftline[58]==0&&leftline[57]==0)//出右岛时前面五行左边线全丢
+          {
+              for(int16 i=BOTTOM;i>0;i--)
+              {
+                  if(image_data[i][0]==0&&image_data[i-1][0]==0)
+                  {
+                      O_R_Island_row = i;
+                      break;
+                  }
+              }
+              if((O_R_Island_row<59&&O_R_Island_row>=35&&icmdata.Yaw<=-270)||icmdata.Yaw<=-300)
+              {
+                  huan_R_flag =5;
+//                  out_flag=33;
+              }
+          }
+
+
+}
+
+if(huan_R_flag==5)
+{
+    Island_flag1=0;
+        Left_line_swerve_R=0;
+        Left_line_swerve_L=0;
+        for(int i=59;i>28;i--)
+        {
+               if(leftline[i]<=3)
+               {
+                   Island_flag1 = 1;
+               }
+
+               if(rightline[i]-rightline[i-1]>0)
+                 Right_line_swerve_L++;//右线趋势往左
+               else if(rightline[i]-rightline[i-1]<0)
+                 Right_line_swerve_R++;//右线趋势往右
+           }
+           if(!Island_flag1&&Right_line_swerve_R<=1)
+           {
+               huan_R_flag = 6;
+               buzzer(1);
+//out_flag=33;
+           }
+   
+ }
+
+
+
+  
+
+ 
+
+
+ 
+if(huan_R_flag==6)
+{
+    uint8 finalrun_r=0;
+    finalrun_r=0;
+for(uint8 i=59;i>endline+1;i--)
+ {
+    if(leftline[i]!=0&&rightline[i]>=155&&i>30)
+        {
+        finalrun_r++;
+        }
+ if(!R_out_start)
+  {
+ if(leftline[i]!=0&&rightline[i]!=158)
+ {
+ R_out_start=i;
+ }
+}
+ if(R_out_start)
+  {
+ if(leftline[i]!=0&&rightline[i]!=158)
+   {
+  R_out_count++;
+   }
+  else
+ {
+ break;
+ }
+  }
+  }
+      
+if((R_out_count>=59&&R_out_start>=55&&finalrun_r<=3)||dt_code>12500)
+//if(finalrun_r<=5)
+    {
+    buzzer(0);
+    bx_flag_4_r=0;
+  huan_R_flag=0;          //完全出环  
+  hz_r=0;
+    }
+
+
+
+
+}
+
+}
+
+
+//void huandao_find()
+//{
+// uint8 R_diu_start=2;
+// uint8 L_diu_start=2;
+// uint8 L_out_count=0;
+// uint8 L_out_start=0;
+// uint8 R_out_count=0;
+// uint8 R_out_start=0;
+// huan_L_cnt=0;
+// huan_R_cnt=0;
+//        //放弃之前的思路，直接利用原始图像来做判断抗干扰强
+////左环
+//// if(dxL==1&&!chuku_flag&&endline==0&&huan_L_flag==0&&!qipao_flag&&!ku_L&&!ku_R&&!huan_R_flag&&!podao_flag&&!L_crossroad&&!R_crossroad&&!chalu_flag)   //确保在直道上才开始判断环岛
+// if(!chuku_flag&&!huan_L_flag&&!huan_R_flag&&!qipao_flag&&!ku_L&&!ku_R&&!huan_R_flag&&!podao_flag&&!shizhiflag)   //确保在直道上才开始判断环岛
+// {
+////     huaxun_flag=0;
+//     dxL=duanxi_L();     //防止二进环
+//     if(rightline[55]>rightline[50]&&rightline[45]>rightline[40]&&rightline[35]>rightline[30]&&rightline[25]>rightline[20]&&rightline[15]>rightline[10]
+//          &&rightline[55]>=80&&rightline[50]>=80&&rightline[45]>=80&&rightline[40]>=80&&rightline[35]>=80&&rightline[30]>=80&&
+//          rightline[25]>=80&&rightline[20]>=80&&rightline[15]>=80&&rightline[10]>=80&&dxL>1)
+//     {
+////         buzzer(1);
+//         for(uint8 i=50;i>40;i--)           //检测下环岛
+//        {
+//        if(leftline[i]==0&&rightline[i]!=158&&rightline[i-1]!=158&&rightline[i-2]!=158)
+//        {
+//          L_diu_start=i;
+//          break;
+//        }
+//       }
+//         for(int i=L_diu_start-1;i>0;i--)
+//         {
+//             if(leftline[i]==0&&rightline[i]!=158)
+//                {
+//                  huan_L_cnt++;
+//                }
+//             else{
+//                 huan_L_fchange=i;
+//                 break;
+//             }
+//
+//    }
+//     }
+////     ips200_showint16(30,11,huan_L_cnt);
+//if(huan_L_cnt<=26&&huan_L_cnt>=10&&leftline[huan_L_fchange]!=0&&leftline[huan_L_fchange-3]!=0)
+//  {
+//    huan_L_flag=1;
+////    buzzer(1);//环岛第一标志      最明显特征
+//  }
+//else
+//{
+//    huan_L_flag=0;
+////       buzzer(0);//}
+// }
+//
+//     }
+// dxL=duanxi_L();     //防止二进环
+//if(huan_L_flag==1&&dxL>1)           //保证进环点在圆弧上
+//{
+////    uint8 yesin=0;
+//             for(uint8 i=55;i>35;i--)
+//            {
+//            if(!image_data[i][4]&&rightline[i]!=158&&rightline[i-1]!=158&&rightline[i-2]!=158&&!image_data[i-1][4]&&!image_data[i-2][4])
+//            {
+//              L_diu_start=i;
+//              break;
+//            }
+//            else
+//            {L_diu_start=55;}
+//           }
+//             for(int i=L_diu_start-1;i>endline-1;i--)
+//             {
+//                 if(!image_data[i][4])
+//                    {
+//                      huan_L_cnt++;
+//                    }
+//                 else{
+//
+//                     break;
+////                     yesin=1;
+//                     huan_L_fchange=i;
+//                 }
+//
+//        }
+//             if(huan_L_cnt<=38&&huan_L_cnt>=20)
+//               {
+//                 huan_L_flag=2;
+//               }
+//
+//
+//
+//}
+////dxL=duanxi_L();
+//if(huan_L_flag==2)           //寻找环岛入口                    //明天加入huan_L_flag1_time  try one  try
+//{
+///*
+//  for(uint8 i=23;i>=13;i--)         //14-8
+//  {
+//  if(leftline[i]!=0&&leftline[i-1]!=0&&leftline[i+1]==0&&leftline[i+2]==0&&leftline[i+4]==0&&leftline[i+5]==0&&(leftline[i-1]-leftline[i+2])>0&&(leftline[i-2]-leftline[i])>0
+//         && rightline[i]-leftline[i]<=59 )
+//    {
+////      buzzer(1);
+//
+////      huan_L_entry=ceil(i);
+//      ips200_showint16(30,11,rightline[i]-leftline[i]);
+//      huan_L_entry=i;
+//      huan_L_flag=3;
+//      break;
+//    }
+//  }
+//*/
+//    huan_L_flag=3;
+//}
+//if(huan_L_flag==3)   //寻找入环结束点               ||陀螺仪积分30
+//{
+//
+//if(!ru_L_process)
+//{
+//if(rightline[20]>=157&&rightline[21]>=157&&rightline[22]>=157&&rightline[23]>=157)    //脱离直道
+//{
+//  ru_L_process=1;
+// }
+//}
+//
+//
+//if(ru_L_process)
+//{
+//if(rightline[40]!=158&&rightline[41]!=158&&rightline[45]!=158&&rightline[50]!=158&&rightline[53]!=158&&rightline[54]!=158&&endline>=16)      //成功入环              条件过于简单   需修改
+//{
+//
+//  huan_L_flag=4;
+//  ru_L_process=0;
+//}
+//
+//}
+//
+//
+// }
+//if(huan_L_flag==4&&huan_L_flag4_time>=80&&endline>=15)        //搜索出环          ||利用时间先代替陀螺仪
+//{
+//
+//  for(int8 i=50;i>=endline+2;i--)
+//  {
+//    if((rightline[i]-rightline[i+1]>0)&&(rightline[i-1]-rightline[i])>0)          //寻找跳变
+//    {
+//        huan_L_flag=5;
+//        huanout_L_point=i;
+//     huan_L_flag4_time=0;
+////
+////      buzzer(1);
+//      break;
+//    }
+//
+//  }
+//
+//}
+//
+//if(huan_L_flag==5)
+//{
+//
+// if(!out_L_process)
+// {
+//   if(rightline[56]>rightline[52]&&rightline[54]>rightline[50]&&rightline[53]>rightline[49]&&rightline[51]>rightline[46]&&rightline[49]>rightline[42])
+//   {
+////   buzzer(0);
+//     out_L_process=1;
+//
+//   }
+//   if(huan_L_flag5_time>=200)
+//   {
+////   buzzer(0);
+//        out_R_process=1;}
+//
+// }
+//
+// if(out_L_process==1&&endline<=8)
+// {
+//          huan_L_flag=6;      //出环
+//            buzzer(0);
+//          out_L_process=0;
+// }
+//
+//
+//}
+//
+//
+//if(huan_L_flag==6)
+//{
+//uint8 finalrun=0;
+//finalrun=0;
+//for(uint8 i=59;i>endline;i--)
+// {
+//    if(leftline[i]==0&&rightline[i]!=158)
+//    {
+//        finalrun++;
+//    }
+// if(!L_out_start)
+//  {
+// if(leftline[i]!=0&&rightline[i]!=158)
+// {
+// L_out_start=i;
+// }
+//}
+// if(L_out_start)
+//  {
+// if(leftline[i]!=0&&rightline[i]!=158)
+//   {
+//  L_out_count++;
+//   }
+//  else
+// {
+// break;
+// }
+//  }
+//  }
+////ips200_showint16(30,11,L_out_count);
+////ips200_showint16(50,8,L_out_start);
+//if(L_out_count>=13&&L_out_start>=23&&finalrun<=5)
+//    {
+//  huan_L_flag=0;          //完全出环
+//    }
+//
+//}
+//
+//
+// //右环
+//if(!chuku_flag&&!huan_R_flag&&!qipao_flag&&!huan_L_flag&&!podao_flag&&!shizhiflag)   //确保在直道上才开始判断环岛
+// {
+//    dx=duanxi();
+//    if(leftline[55]<leftline[50]&&leftline[45]<leftline[40]&&leftline[35]<leftline[30]&&leftline[25]<leftline[20]&&leftline[15]<leftline[10]
+//              &&leftline[55]<=80&&leftline[50]<=80&&leftline[45]<=80&&leftline[40]<=80&&leftline[35]<=80&&leftline[30]<=80&&
+//              leftline[25]<=80&&leftline[20]<=80&&leftline[15]<=80&&leftline[10]<=80&&dx>1)
+//    {
+//            for(uint8 i=50;i>40;i--)
+//           {
+//           if(leftline[i]!=0&&rightline[i]>=155&&leftline[i-1]!=0&&leftline[i-2]!=0)
+//           {
+//             R_diu_start=i;
+//             break;
+//           }
+//          }
+//
+//
+//
+//            for(int i=R_diu_start;i>0;i--)
+//            {
+//                if(leftline[i]!=0&&rightline[i]>=155)
+//                   {
+//                     huan_R_cnt++;
+//                   }
+//                else
+//                {
+//                   huan_R_fchange=i;
+//                    break;
+//                }
+//
+//
+//
+//        }
+//    }
+//            if(huan_R_cnt>=10&&huan_R_cnt<=26&&rightline[huan_R_fchange]<=155&&rightline[huan_R_fchange-3]<=155)
+//              {
+//                  huan_R_flag=1;
+//                  buzzer(1);
+//              }
+//            else
+//            {
+//                huan_R_flag=0;
+////                                 buzzer(0);
+//            }
+//       }
+//
+//dx=duanxi();     //防止二进环
+//if(huan_R_flag==1&&dx>1)
+//{
+////    uint8 yesin=0;
+//             for(uint8 i=55;i>35;i--)
+//            {
+//            if(!image_data[i][155]&&leftline[i]!=0&&leftline[i-1]!=0&&leftline[i-2]!=0&&!image_data[i-1][155]&&!image_data[i-2][155])
+//            {
+//              R_diu_start=i;
+//              break;
+//            }
+//            else
+//            {L_diu_start=55;}
+//           }
+//             for(int i=R_diu_start-1;i>endline-1;i--)
+//             {
+//                 if(!image_data[i][155])
+//                    {
+//                      huan_R_cnt++;
+//                    }
+//                 else{
+//
+//                     break;
+//                     huan_R_fchange=i;
+//                 }
+//
+//        }
+//             if(huan_R_cnt<=38&&huan_R_cnt>=20)
+//               {
+//                 huan_R_flag=2;
+//               }
+//
+//
+//
+//}
+//dx=duanxi();
+//if(huan_R_flag==2&&dx<=2)           //寻找环岛入口  改行宽度
+//{
+//    /*
+//  for(uint8 i=23;i>=13;i--)         //14-6
+//  {
+//
+//  if(rightline[i]<=155&&rightline[i-1]<=155&&rightline[i+1]>=155&&rightline[i+2]>=155&&rightline[i+3]>=155&&rightline[i+6]>=155&&rightline[i+8]>=155&&(rightline[i]-rightline[i+2])<0&&(rightline[i]-rightline[i-2])>0
+//          && rightline[i]-leftline[i]<=50
+////                                                              &&!image_data[i][rightline[i]]&& !image_data[i-1][rightline[i-1]]
+//                                                                                                                )
+//    {
+////      buzzer(1);
+//      ips200_showint16(30,11,rightline[i]-leftline[i]);
+//      huan_R_entry=i;
+//      huan_R_flag=3;
+//      break;
+//    }
+//  }
+//*/
+//    huan_R_flag=3;
+//}
+//
+//if(huan_R_flag==3)   //寻找入环结束点
+//{
+//
+//if(!ru_R_process)
+//{
+//if(leftline[20]==0&&leftline[21]==0&&leftline[22]==0&&leftline[23]==0)    //脱离直道
+//{
+//  ru_R_process=1;
+// }
+//}
+//
+//
+//if(ru_R_process)
+//{
+//if(leftline[30]!=0&&leftline[31]!=0&&leftline[35]!=0&&leftline[40]!=0&&leftline[44]!=0&&endline>=16)      //成功入环              条件过于简单   需修改
+//{
+//  // buzzer(0);
+//  huan_R_flag=4;
+//  ru_R_process=0;
+//}
+//}
+// }
+//if(huan_R_flag==4&&huan_R_flag4_time>=80&&endline>=15)        //搜索出环
+//{
+//
+//  for(int8 i=45;i>=endline+2;i--)
+//  {
+//    if((leftline[i]<leftline[i+1])&&(leftline[i]-leftline[i+1])>-20&&(leftline[i-1]<=leftline[i])&&(leftline[i-2]<=leftline[i-1])&&(leftline[i-3]<=leftline[i-2]))          //寻找跳变
+//    {
+//        huanout_R_point=i;
+//        huan_R_flag4_time=0;
+//      huan_R_flag=5;
+//      break;
+//    }
+//
+//  }
+//
+//}
+//
+//if(huan_R_flag==5)
+//{
+//
+// if(!out_R_process)
+// {
+////   if(leftline[59]==0&&leftline[58]==0&&leftline[57]==0&&leftline[55]==0&&leftline[53]==0&&leftline[50]==0&&leftline[47]==0&&leftline[44]==0&&leftline[42]==0&&leftline[39]==0&&leftline[35]==0&&leftline[30]==0)
+//
+//     if(leftline[56]<leftline[52]&&leftline[54]<leftline[50]&&leftline[53]<leftline[49]&&leftline[51]<leftline[46]&&leftline[49]<leftline[42]&&leftline[45]<leftline[41]&&leftline[42]<leftline[39])
+//     {
+////     buzzer(0);
+//     out_R_process=1;
+//   }
+//
+// }
+//
+// if(out_R_process==1&&endline<=7)//(out_R_process==1&&endline<2)
+// {
+//          huan_R_flag=6;      //出环
+//          buzzer(0);
+//          out_R_process=0;
+// }
+//
+//
+//
+//
+//}
+//
+//
+//
+//
+//if(huan_R_flag==6)
+//{
+//    uint8 finalrun_r=0;
+//    finalrun_r=0;
+//for(uint8 i=55;i>endline+1;i--)
+// {
+//    if(leftline[i]!=0&&rightline[i]>=155)
+//        {
+//        finalrun_r++;
+//        }
+// if(!R_out_start)
+//  {
+// if(leftline[i]!=0&&rightline[i]!=158)
+// {
+// R_out_start=i;
+// }
+//}
+// if(R_out_start)
+//  {
+// if(leftline[i]!=0&&rightline[i]!=158)
+//   {
+//  R_out_count++;
+//   }
+//  else
+// {
+// break;
+// }
+//  }
+//  }
+//
+//if(R_out_count>=15&&R_out_start>=20&&finalrun_r<=5)
+////if(finalrun_r<=5)
+//    {
+//  //  buzzer(0);
+//  huan_R_flag=0;          //完全出环
+//    }
+//
+//
+//
+//
+//}
+//
+//}
+
+void  huan_L_entr_count()    //求左环入口补线斜率
+{
+
+if(huan_L_flag==3)
+{
+    huanin_L_point=huan_L_entry;           //跳变行
+//    huanin_L_point=5;
+    rightline[huanin_L_point]=leftline[huanin_L_point];    //76
+   // huanin_L_basic=(140-10)/(59-huanin_L_point);     //计算出补线基准   140
+}
+//else if(huan_L_flag==5)
+//{
+//  huanout_L_point=59;
+//  rightline[59]=135;    //159
+//  huanout_L_basic=135/(59-13);     //计算出补线基准    140
+//}
+      
+
+//右环
+if(huan_R_flag==3)  
+{
+
+    huanin_R_point=huan_R_entry;           //跳变行
+//    huanin_R_point=5;
+    leftline[huanin_R_point]= rightline[huanin_R_point];     //118
+    //huanin_R_basic=(150-20)/(59-huanin_R_point);     //计算出补线基准
+
+}
+//else if(huan_R_flag==5)//&&!out_R_process)
+//{
+//
+//  huanout_R_point=59;
+//  leftline[59]=60;    //60
+//  huanout_R_basic=(160-30)/(59-13);     //计算出补线基准
+//
+//}
+
+
+}
+                                                   
+void c_CY_B()
+{
+    for(int i=28;i>0;i--)
+        for(int j=0;j<160;j++)
+        {
+            if(!image_data[i][j])
+            {
+                if(j<80)
+                {
+                    LC++;
+                }
+
+                if(j>80)
+                               {
+                                   RC++;
+                               }
+            }
+        }
+}
+
+
+
+
+
+void lll()
+{
+
+for(int i=59;i>0;i--)
+for(int j=0;j<80;j++)
+{
+    if(image_data[i][j]==0)
+
+        LC++;
+    }
+}
+void rrr()
+{
+
+for(int i=59;i>0;i--)
+for(int j=80;j<160;j++)
+{
+    if(image_data[i][j]==0)
+
+        RC++;
+    }
+}
+void Getlineon()
+{
+    linest=0;
+for(int i=59;i>0;i--)
+{
+if(image_data[i][80])
+{
+ linest++;
+    }
+else
+break;
+}
+}
+
+void  Round_1_L()
+{
+tbr=0;
+for(int i=1;i<58;i++)
+{
+if(!image_data[i-1][3]&&!image_data[i][3]&&image_data[i+1][3]&&image_data[i+2][3])
+{
+tbr+=1;
+}
+else if(image_data[i-1][3]&&image_data[i][3]&&!image_data[i+1][3]&&!image_data[i+2][3])
+{
+tbr+=1;
+}
+else
+    tbr+=0;
+}
+if(tbr==3)
+{
+    huan_L_flag=1;
+   // pwm_duty(MOTOR2_PWM,2400);
+}
+}
+                                                   
+                                                   
+void Round_2_L()
+{
+    if(rightline[30]>rightline[25]&&rightline[25]>rightline[20]&&rightline[19]>rightline[10]&&endline==0) //右环直线趋势,防止为判断就是后直道条件多，难顶！！
+    {
+       // if(leftline[50]==0&&leftline[45]==0&&leftline[40]==0&&leftline[25]>leftline[20]&&leftline[18]<leftline[10])  //左款有环
+     if(HUXI())
+        {
+            huan_L_flag=2;
+       }
+
+    }
+
+}
+
+void  Round_1_R()
+{
+rightb=0;
+for(int i=1;i<58;i++)
+{
+if(!image_data[i-1][156]&&!image_data[i][156]&&image_data[i+1][156]&&image_data[i+2][156])
+{
+rightb+=1;
+}
+else if(image_data[i-1][156]&&image_data[i][156]&&!image_data[i+1][156]&&!image_data[i+2][156])
+{
+rightb+=1;
+}
+else
+    rightb+=0;
+}
+if(rightb==3)
+    huan_R_flag=1;
+}
+
+
+void Round_2_R()
+{
+
+    //if(leftline[20]<leftline[15]&&leftline[15]<leftline[10]&&leftline[10]<leftline[5]&&endline==0) //右环直线趋势,防止为判断就是后直道条件多，难顶！！
+   if(HUXI_R())
+    {
+//        if(leftline[50]==0&&leftline[45]==0&&leftline[40]==0&&leftline[25]>leftline[20]&&leftline[18]<leftline[10])  //左款有环
+//        {
+            huan_R_flag=2;
+//            pwm_duty( ATOM1_CH7_P02_7,2300);
+//                               pwm_duty( ATOM1_CH6_P02_6,0);
+      //  }
+
+    }
+}
+
+
+int HUXI()
+{
+for(int i=10;i<40;i++)
+{
+if(leftline[i]>leftline[i+2]&&leftline[i]>leftline[i-2]&&leftline[i-2]!=0&&leftline[i+2]!=0&&leftline[i]!=0)
+    return 1;
+}
+return 0;
+}
+
+int HUXI_R()
+{
+for(int i=10;i<40;i++)
+{
+if(rightline[i]<rightline[i+2]&&rightline[i]<rightline[i-2]&&rightline[i-2]!=0&&rightline[i+2]!=0&&rightline[i]!=0)
+    return 1;
+}
+return 0;
+}
+
+
+int duanxi()
+{
+dx=0;
+for(int i=endline+5;i<58;i++)
+{
+if(!image_data[i-1][155]&&!image_data[i][155]&&image_data[i+1][155]&&image_data[i+2][155])
+{
+    dx+=1;
+}
+else if(image_data[i-1][155]&&image_data[i][155]&&!image_data[i+1][155]&&!image_data[i+2][155])
+{
+    dx+=1;
+}
+else
+    dx+=0;
+}
+return dx;
+}
+
+int duanxi_L()
+{
+dx=0;
+for(int i=endline+5;i<58;i++)
+{
+if(!image_data[i-1][4]&&!image_data[i][4]&&image_data[i+1][4]&&image_data[i+2][4])
+{
+    dx+=1;
+}
+else if(image_data[i-1][4]&&image_data[i][4]&&!image_data[i+1][4]&&!image_data[i+2][4])
+{
+    dx+=1;
+}
+else
+    dx+=0;
+}
+return dx;
+}
+
+
+

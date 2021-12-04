@@ -96,7 +96,7 @@ void gray_binaryzation(void)   /*灰度二值化*/
 // Bin_Image_Filter ();
 }
 //液晶屏显示二值化图像函数
-void oled_disp_image()
+void oled_disp_image(Maiy_characteristic_point* show_char)
 {
   uint8 i,j;
 for(j=0;j<160;j++)
@@ -118,12 +118,19 @@ for(i=0;i<60;i++)// 边线
     ips200_drawpoint(midline[i]+40,i+5,GREEN);
     ips200_drawpoint(rightline[i]+40,i+5,RED);
 }
-//  for(i=0;i<60;i++)// 边线
-//  {
-//      ips200_drawpoint(leftline[i],i,RED);
-//      ips200_drawpoint(midline[i],i,RED);
-//      ips200_drawpoint(rightline[i],i,RED);
-//  }
+
+for(i=0;i<160;i++)//超宽行 截止
+{
+    ips200_drawpoint(40+i,OutWidthStart+5,BLUE);
+    ips200_drawpoint(40+i,OutWidthEnd+5,BLUE);
+    ips200_drawpoint(40+i,endline+5,PURPLE);
+
+
+}
+  for(i=0;i<20;i++)
+  {
+      ips200_drawpoint(show_char->my_final_tOptimalPoint.my_x+i,i+5,RED);
+  }
 
 }
 
@@ -173,7 +180,7 @@ void cpu0_initialize(void)                      //初始化
         mt9v03x_init();
 //        gpio_set(P33_10,1);
 
-
+//
         pit_interrupt_ms(CCU6_0, PIT_CH0,5);
         pit_interrupt_ms(CCU6_0, PIT_CH1,20);
 
@@ -198,25 +205,7 @@ void get_road(void)
 {
 
     gray_binaryzation();
-//    get_endline_R();
-//     get_rest_line_dy();
-//   get_bottom_line_test2();
-//   get_rest_line_2();
 
-
-//    Get_line_LMR();
-//    for(uint8 hang=58 ; hang>0 ; hang--)  //基础求偏差
-//                {
-//                  WeightSum += weight[hang];
-//                  error[hang]=real_char.miay_mid_line[hang].my_x-basic;//计算每行偏差值（截止行后不计）
-//                  MidSum += real_char.miay_mid_line[hang].my_x*weight[hang];
-//                }
-//
-//    MidValue = MidSum/WeightSum;
-//    //ips200_showint16(30,11,suuerm/(58-endline));
-//    //ips200_showint16(50,8,MidSum);
-//    differ = MidValue- basic;
-//    ips200_showint16(50,8,differ);
 
     get_endline_R();
 
@@ -241,6 +230,8 @@ void get_road(void)
 
 //     chalu();
     bu_xian();
+    ALL_fill(&real_char);
+    sec_fork_law(&real_char);
     get_middle(&real_char);
    danbianhuandao_bx();
     Straight_Test_2();
@@ -261,7 +252,7 @@ void get_road(void)
 
 void showips()
 {
-    oled_disp_image();
+    oled_disp_image(&real_char);
 
 //       ips200_displayimage032(mt9v03x_image[0], MT9V03X_W, MT9V03X_H);
                ips200_showstr(0,10,"differ");
@@ -271,19 +262,19 @@ void showips()
 //               ips200_showstr(0,9,"dj");
 //               ips200_showint16(90,9,get_djj);
 
-               ips200_showstr(0,18,"LPnt1");
-                              ips200_showuint8(90,18,LWhitePnt1);
-                              ips200_showstr(0,14,"LPnt2");
-                              ips200_showuint8(90,14,LWhitePnt2);
-                              ips200_showstr(0,15,"LPnt3");
-                              ips200_showuint16(90,15,LWhitePnt3);
-                              ips200_showstr(0,16,"RPnt1");
-                              ips200_showuint16(90,16,RWhitePnt1);
-                              ips200_showstr(0,17,"RPnt2");
-                              ips200_showuint16(90,17,RWhitePnt2);
-
-                              ips200_showstr(0,11,"RPnt3");
-                                          ips200_showuint16(90,11,RWhitePnt3);
+               ips200_showstr(0,15,"WidEnd");
+                              ips200_showuint8(90,15,OutWidthEnd);
+                              ips200_showstr(0,14,"WidSta");
+                              ips200_showuint8(90,14,OutWidthStart);
+//                              ips200_showstr(0,15,"LPnt3");
+//                              ips200_showuint16(90,15,LWhitePnt3);
+//                              ips200_showstr(0,16,"RPnt1");
+//                              ips200_showuint16(90,16,RWhitePnt1);
+//                              ips200_showstr(0,17,"RPnt2");
+//                              ips200_showuint16(90,17,RWhitePnt2);
+//
+//                              ips200_showstr(0,11,"RPnt3");
+//                                          ips200_showuint16(90,11,RWhitePnt3);
 
                                           ips200_showstr(0,18,"R_huan");
                                                         ips200_showuint16(90,18,huan_R_flag);

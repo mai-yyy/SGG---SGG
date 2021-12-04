@@ -3,7 +3,7 @@
 //电池的放电能力  //  上3m必须处理好轮胎  //  轮胎性能较好的情况下保证稳定性  //  防止bug 行最多为58 左列可以为0，右列最好为157
 #include "headfile.h"
 #pragma section all "cpu0_dsram"
-#define open_buff_img 0  //说高级点 图传使能
+#define open_buff_img 0 //说高级点 图传使能
 #define open_blue_data 0//蓝牙使能
 uint32 Time=0;
 uint32 Time1=0;
@@ -24,7 +24,8 @@ for(; ;)
 #endif
             get_road();
 //            Time1=systick_getval_ms(STM1);
-//                        ips200_showint16(30,11, icmdata.Yaw);  //       ips200_showint16(50,8,realspeed_l);
+//                        ips200_showint16(30,11, icmdata.Yaw);
+//                               ips200_showint16(50,8,Left_High_Speed);
         if(!gpio_get(P33_12))
         {           showips();}        }   }   }   }
 #pragma section all restore

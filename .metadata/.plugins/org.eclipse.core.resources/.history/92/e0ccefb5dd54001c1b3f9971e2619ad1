@@ -1,0 +1,797 @@
+#include "image_chalu.h"
+
+uint8 chalu_flag=0;
+uint8 end_count=0;
+uint8 chalu_dirction=0;
+uint8 chalu_turn_time=0;
+uint8 RFixLineFlag=0;
+ int16   RFixLineStart=0;
+uint8  LFixLineFlag=0;
+ int16  LFixLineStart=0;
+ int LLineSegmentST[10]={0};
+ int LLineSegmentEN[10]={0};
+ int  RLineSegmentST[10]={0};
+ int RLineSegmentEN[10]= {0};
+int16 CurrentPos=56;
+uint8 fork_road=0;
+int16 tLCnt=0;
+int16 tRCnt=0;
+int16 tMCnt=0;
+Maiy_2_dimensional LMaxPoint;
+Maiy_2_dimensional RMaxPoint;
+Maiy_2_dimensional TEM_L;
+Maiy_2_dimensional TEM_R;
+Maiy_2_dimensional TpM;
+Maiy_2_dimensional TpL;
+Maiy_2_dimensional TpR;
+int LLineSegmentCnt=0;
+int LColCnt=0;
+ int RColCnt=0;
+  int RLineSegmentCnt=0;
+uint8 SFlag=0;
+void chalu()
+{
+uint8 lie_end[61]={0};
+   end_count=0;
+
+//      get_middle();
+      WeightSum=0;
+      MidSum=0;
+    for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+          {
+            WeightSum += weight[hang];
+            error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+            MidSum += midline[hang]*weight[hang];
+          }
+      MidValue = MidSum/WeightSum;
+      differ = MidValue - basic;
+   //判别第一次入岔路
+ if(!chuku_flag&&chalu_flag==0&&chalu_dirction<=1&&!huan_L_flag&&!huan_R_flag&&!podao_flag&&!qipao_flag&&!ku_L&&!ku_R&&!shizhiflag)
+ {
+     for(uint8 j=50;j<111;j++)
+    {
+        for(uint8 i=59;i>=1;i--)
+        {
+            if(!image_data[i][j]&&!image_data[i-1][j])      //一行连续两列为黑
+            {
+               lie_end[j-50]=i;
+               break;
+            }
+            else
+            {
+                lie_end[j-50]=0;
+            }
+        }
+
+    }
+
+for(uint8 i=0;i<61;i++)
+{
+    if(lie_end[i]<=10&&lie_end[i]>1)//(lie_end[i]<=10&&lie_end[i]!=0)
+    {
+        end_count++;
+    }
+
+}
+
+if(low_endline_count>=14&&end_count>=60&&endline<=3&&ABS(differ)<=10&&ABS(error[11])<=15&&ABS(error[13])<=15&&ABS(error[15])<=15)   //5  10
+{
+    chalu_flag=1;
+    buzzer(1);
+}
+
+ }
+
+ if(chalu_flag==1&&chalu_turn_time>=10)        //第一次入岔路
+ {
+//     get_middle();
+//     WeightSum=0;
+//     MidSum=0;
+//   for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+//         {
+//           WeightSum += weight[hang];
+//           error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//           MidSum += midline[hang]*weight[hang];
+//         }
+//     MidValue = MidSum/WeightSum;
+//     differ = MidValue - basic;
+
+
+     if(ABS(differ)>=20)    //15
+     {
+         chalu_flag=2;
+         chalu_speed_low=0;
+         chalu_turn_time=0;
+         buzzer(0);
+     }
+ }
+ if(chalu_flag==2)          //判别第一次出岔路
+ {
+     for(uint8 j=50;j<111;j++)
+      {
+          for(uint8 i=59;i>=1;i--)
+          {
+              if(!image_data[i][j]&&!image_data[i-1][j])      //一行连续两列为黑
+              {
+                 lie_end[j-50]=i;
+                 break;
+              }
+              else
+              {
+                  lie_end[j-50]=0;
+              }
+          }
+
+      }
+
+  for(uint8 i=0;i<61;i++)
+  {
+      if(lie_end[i]<=10&&lie_end[i]>1)//(lie_end[i]<=13&&lie_end[i]!=0)
+      {
+          end_count++;
+      }
+
+  }
+
+  if(low_endline_count>=14&&end_count>=60&&endline<=3&&ABS(differ)<=10&&ABS(error[11])<=15&&ABS(error[13])<=15&&ABS(error[15])<=15)   //5  10
+  {
+      chalu_flag=3;
+      buzzer(1);
+  }
+ }
+ if(chalu_flag==3&&chalu_turn_time>=10)      //第一次出岔路
+ {
+//     get_middle();
+//     WeightSum=0;
+//     MidSum=0;
+//   for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+//         {
+//           WeightSum += weight[hang];
+//           error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//           MidSum += midline[hang]*weight[hang];
+//         }
+//     MidValue = MidSum/WeightSum;
+//     differ = MidValue - basic;
+
+
+     if(ABS(differ)>=20)      //15
+          {
+              buzzer(0);
+              chalu_flag=0;
+              chalu_speed_low=0;
+              chalu_turn_time=0;
+              chalu_dirction++;
+          }
+ }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void ALL_fill(Maiy_characteristic_point* sc_char)
+{
+
+    if(!huan_L_flag&&!huan_R_flag)//后面会把环岛也移走
+    {
+
+        memset(LLineSegmentST,0,sizeof(int)*10);
+        memset(LLineSegmentEN,0,sizeof(int)*10);
+        memset(RLineSegmentST,0,sizeof(int)*10);
+        memset(RLineSegmentEN,0,sizeof(int)*10);
+        for(int i=59;i>endline;i--)
+        {
+        if (leftline[i] < 142&&i<=57)
+                                {
+
+         if (leftline[i+1]- leftline[i+2]<3&&leftline[i+1]- leftline[i+2]>-3)
+
+
+        {
+           LFixLineFlag=1;
+           LFixLineStart=i;
+        }
+        }
+
+
+          if (rightline[i] > 16&&i<=57)
+                                {
+
+                                    if (rightline[i+1]-rightline[i+2]<3&&rightline[i+1]-rightline[i+2]>-3)
+                                    {
+                                     RFixLineFlag=1;
+                                       RFixLineStart=i;
+        }
+
+
+
+        }
+
+
+        }
+
+        for(CurrentPos=56;CurrentPos>1;CurrentPos--)
+            {
+
+                if(leftline[CurrentPos]>2)
+                {
+
+                    if(CurrentPos<=LFixLineStart)break;
+
+                    if(leftline[CurrentPos+1]>2)
+                    {
+                        if(leftline[CurrentPos]-leftline[CurrentPos+1]>=5||leftline[CurrentPos]-leftline[CurrentPos+1]<=-5)
+                        {
+                                                if(leftline[CurrentPos-1]>2)
+                            {
+                                if(leftline[CurrentPos]-leftline[CurrentPos-1]>=5||leftline[CurrentPos]-leftline[CurrentPos-1]<=-5)
+                                {
+                                   leftline[CurrentPos]=0;
+
+                                }
+                            }
+                            else
+                            {
+
+                                   leftline[CurrentPos]=0;
+                                                    }
+                        }
+                    }
+
+                    else             {
+                        if(leftline[CurrentPos-1]>2)
+                        {
+                            if(leftline[CurrentPos]-leftline[CurrentPos-1]>=5||leftline[CurrentPos]-leftline[CurrentPos-1]<=-5)
+                            {
+                                leftline[CurrentPos]=0;
+
+                            }
+                        }
+                        else
+                        {
+                            leftline[CurrentPos]=0;
+
+                        }
+                    }
+
+                }
+
+
+                else if(leftline[CurrentPos+1]>2)
+                {
+                                if(leftline[CurrentPos-1]>2)
+                    {
+                        if(leftline[CurrentPos+1]-leftline[CurrentPos-1]<4&&leftline[CurrentPos+1]-leftline[CurrentPos-1]>-4)
+                        {
+                            leftline[CurrentPos]=(leftline[CurrentPos+1]+leftline[CurrentPos-1])/2;
+                        }
+                    }
+                    else if(leftline[CurrentPos-2]>2)
+                    {
+                        if(leftline[CurrentPos+1]-leftline[CurrentPos-2]<8&&leftline[CurrentPos+1]-leftline[CurrentPos-2]>-8)
+                        {
+                            leftline[CurrentPos]=leftline[CurrentPos+1]+(leftline[CurrentPos-2]-leftline[CurrentPos+1])/3;                }
+                    }
+                }
+
+            }
+
+
+
+
+
+            for(int i=60-1;i>3;i--)
+            {
+                if(leftline[i]<=2&& i>3)
+                {
+                    if(leftline[i-1]>2&&leftline[i-2]>2&&leftline[i-3]<=2)
+                    {
+                        leftline[i-1]=0;
+        leftline[i-2]=0;
+                    }
+                }
+            }
+            for(int i=3;i>0;i--)
+            {
+                if(leftline[i+1]<=2 &&leftline[i]>2 && leftline[i-1]<=2)
+                {
+                   leftline[i]=0;
+                }
+            }
+
+
+
+
+
+
+
+
+        for(CurrentPos=56;CurrentPos>1;CurrentPos--)
+            {
+
+                if(rightline[CurrentPos]<156)
+                {
+
+                    if(CurrentPos<=RFixLineStart)break;
+
+                    if(rightline[CurrentPos+1]<156)
+                    {
+                        if(rightline[CurrentPos]-rightline[CurrentPos+1]>=5||rightline[CurrentPos]-rightline[CurrentPos+1]<=-5)
+                        {
+                                                if(rightline[CurrentPos-1]<156)
+                            {
+                                if((rightline[CurrentPos]-rightline[CurrentPos-1]>=5)||(rightline[CurrentPos]-rightline[CurrentPos-1]<=-5))
+                                {
+                                   rightline[CurrentPos]=0;
+
+                                }
+                            }
+                            else
+                            {
+
+                                   rightline[CurrentPos]=0;
+                                                    }
+                        }
+                    }
+
+                    else             {
+                        if(rightline[CurrentPos-1]<156)
+                        {
+                            if((rightline[CurrentPos]-rightline[CurrentPos-1]>=5)||(rightline[CurrentPos]-rightline[CurrentPos-1]<=-5))
+                            {
+                                rightline[CurrentPos]=0;
+
+                            }
+                        }
+                        else
+                        {
+                            rightline[CurrentPos]=0;
+
+                        }
+                    }
+
+                }
+
+
+                else if(rightline[CurrentPos+1]<156)
+                {
+
+
+                                if(rightline[CurrentPos-1]<156)
+                    {
+                        if((rightline[CurrentPos+1]-rightline[CurrentPos-1]<4)&&(rightline[CurrentPos+1]-rightline[CurrentPos-1]>-4))
+                        {
+                            rightline[CurrentPos]=(rightline[CurrentPos+1]+rightline[CurrentPos-1])/2;
+                        }
+                    }
+                    else if(rightline[CurrentPos-2]<156)
+                    {
+                        if((rightline[CurrentPos+1]-rightline[CurrentPos-2]<8)&&(rightline[CurrentPos+1]-rightline[CurrentPos-2]>-8))
+                        {
+                            rightline[CurrentPos]=rightline[CurrentPos+1]+(rightline[CurrentPos-2]-rightline[CurrentPos+1])/3;                }
+                    }
+                }
+
+            }
+
+
+
+
+
+            for(int i=60-1;i>3;i--)
+            {
+                if(rightline[i]>=156&& i>3)
+                {
+                    if(rightline[i-1]<156&&rightline[i-2]<156&&rightline[i-3]>=156)
+                    {
+                        rightline[i-1]=0;
+        rightline[i-2]=0;
+                    }
+                }
+            }
+            for(int i=3;i>0;i--)
+            {
+                if(rightline[i+1]>=156 &&rightline[i]<156 && rightline[i-1]>=156)
+                {
+                   rightline[i]=0;
+                }
+            }
+
+
+        LLineSegmentCnt=0;
+         RLineSegmentCnt=0;
+
+
+
+
+
+         for(int i=59;i>0;i--)
+                {
+                    if(leftline[i]>2)
+                    {
+                        if(LLineSegmentST[LLineSegmentCnt]==0)
+                        {
+                          LLineSegmentST[LLineSegmentCnt]=i;
+                        }
+                        else if(i==1)
+                        {
+                            LLineSegmentEN[LLineSegmentCnt++]=i;
+                        }
+                        else if(leftline[i]>2 && leftline[i-1]>2)
+                        {
+                            if((leftline[i]-leftline[i-1]>=15)||(leftline[i]-leftline[i-1]<=-15))
+                            {
+                                if(  LLineSegmentST[LLineSegmentCnt]!=0)
+                                {
+                                    LLineSegmentEN[LLineSegmentCnt++]=i;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(LLineSegmentST[LLineSegmentCnt]!=0)
+                        {
+                             LLineSegmentEN[LLineSegmentCnt++]=i;
+                        }
+                    }
+                    if(rightline[i]<156)
+                    {
+                        if(RLineSegmentST[RLineSegmentCnt]==0)
+                        {
+                            RLineSegmentST[RLineSegmentCnt]=i;
+                        }
+                        else if(i==1)
+                        {
+                            RLineSegmentEN[RLineSegmentCnt++]=i;
+                        }
+                        else if(rightline[i]<156&&rightline[i-1]<156)//对跨度太大的段也做处理
+                        {
+                            if((rightline[i]-rightline[i-1]>=15)&&(rightline[i]-rightline[i-1])<=-15)
+                            {
+                                if( RLineSegmentST[RLineSegmentCnt]!=0)
+                                {
+                                   RLineSegmentEN[RLineSegmentCnt++]=i;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(RLineSegmentST[RLineSegmentCnt]!=0)
+                        {
+
+                                   RLineSegmentEN[RLineSegmentCnt++]=i;
+                        }
+                    }
+                }
+
+
+
+          /*段滤波*/
+                if(LLineSegmentCnt>=3)
+                {
+                    int SegmentCnt=0;
+                    for(int i=0;i<LLineSegmentCnt;i++)
+                    {
+                        if(LLineSegmentST[i]-LLineSegmentEN[i]<=3)
+                        {
+                            for(int j=LLineSegmentST[i];j>LLineSegmentEN[i];j--)
+                            {
+                               leftline[i]=0;
+                            }
+                            LLineSegmentST[i]=0;
+        LLineSegmentEN[i]=0;
+                            SegmentCnt++;
+                        }
+                    }
+                    if(SegmentCnt!=0)
+                    {
+                        for(int i=0;i<LLineSegmentCnt;i++)
+                        {
+                            if(  LLineSegmentST[i]==0 && LLineSegmentEN[i]==0)
+                            {
+                                LLineSegmentST[i]=LLineSegmentST[i+1];
+        LLineSegmentEN[i]=LLineSegmentEN[i+1];
+                            LLineSegmentEN[i+1]=0;
+        LLineSegmentST[i+1]=0;
+                            }
+                        }
+                        LLineSegmentCnt-=SegmentCnt;
+                    }
+                }
+
+                if(RLineSegmentCnt>=3)
+                {
+                    int SegmentCnt=0;
+                    for(int i=0;i<RLineSegmentCnt;i++)
+                    {
+                        if(RLineSegmentST[i]-RLineSegmentEN[i]<=3)
+                        {
+                            for(int j=RLineSegmentST[i];j>RLineSegmentEN[i];j--)
+                            {
+                               rightline[i]=0;
+                            }
+                            RLineSegmentST[i]=0;
+        RLineSegmentEN[i]=0;
+                            SegmentCnt++;
+                        }
+                    }
+                    if(SegmentCnt!=0)
+                    {
+                        for(int i=0;i<RLineSegmentCnt;i++)
+                        {
+                            if(RLineSegmentEN[i]==0 && RLineSegmentST[i]==0)
+                            {
+                                RLineSegmentST[i]=RLineSegmentST[i+1];
+         RLineSegmentEN[i]=RLineSegmentEN[i+1];
+                                RLineSegmentEN[i+1]=0;
+        RLineSegmentST[i+1]=0;
+                            }
+                        }
+                        RLineSegmentCnt-=SegmentCnt;
+                    }
+                }
+
+
+    }
+
+
+  LMaxPoint=GettangoP( LLineSegmentST[0],LLineSegmentEN[0],1);
+
+  RMaxPoint=GettangoP( RLineSegmentST[0],RLineSegmentEN[0],2);
+  TEM_L=LMaxPoint;
+  TEM_R=RMaxPoint;
+//  buzzer(1);
+    for(int i=TEM_L.my_y-1;i>0;i--)//防止段上点相同,我也遇见过，不处理会影响补线
+           {
+               if(i>0 && leftline[i]==TEM_L.my_x)
+               {
+                   LMaxPoint.my_x=leftline[i];
+                   LMaxPoint.my_y=i;
+               }
+               else
+               {
+                   break;
+               }
+           }
+           for(int i=TEM_R.my_y-1;i>0;i--)
+           {
+               if(i>0 && rightline[i]==TEM_R.my_x)
+               {
+                   RMaxPoint.my_x=rightline[i];
+                   RMaxPoint.my_y=i;
+               }
+               else
+               {
+                   break;
+               }
+           }
+
+
+
+           if(!huan_L_flag&&
+                     !huan_R_flag)
+             {
+
+
+                 if((LLineSegmentCnt && LLineSegmentST[0]==59 && LLineSegmentST[0]-LLineSegmentEN[0]>=8)
+                         ||(RLineSegmentCnt && RLineSegmentST[0]==59 && RLineSegmentST[0]-RLineSegmentEN[0]>=8))
+                 {
+                     if(LMaxPoint.my_y>=12 && RMaxPoint.my_y>=12
+                             && abs(LMaxPoint.my_y-RMaxPoint.my_y)<9
+                             && abs(LMaxPoint.my_x-RMaxPoint.my_x)>37)
+                     {
+
+                         TpM.my_x=(LMaxPoint.my_x+RMaxPoint.my_x)/2;
+                         TpM.my_y=(LMaxPoint.my_y+RMaxPoint.my_y)/2;
+                         TpL.my_x = (LMaxPoint.my_x+TpM.my_x)/2;
+                         TpL.my_y = TpM.my_y;/*确保起点相同*/
+                         TpR.my_x = (RMaxPoint.my_x+TpM.my_x)/2;
+                         TpR.my_y = TpM.my_y;/*确保起点相同*/
+                         SFlag=1;
+                     }
+                     else if(LMaxPoint.my_y>=12 || RMaxPoint.my_y>=12)
+                     {                   //左斜入应该右边大量丢线,但还有区分斜入十字   //36
+                         if((LMaxPoint.my_y>=12 && (!RLineSegmentCnt || RLineSegmentST[0]<LMaxPoint.my_y))&&right_all_lose_line>=36)
+                         {
+                             if(abs(sc_char->my_final_tOptimalPoint.my_x-LMaxPoint.my_x)<20)
+                             {
+                                 TpR.my_x =158;
+                                 TpM.my_x=(sc_char->my_final_tOptimalPoint.my_x+TpR.my_x)/2;
+                                 TpM.my_y=(LMaxPoint.my_y);
+                                 TpL.my_x = (LMaxPoint.my_x+TpM.my_x)/2;
+                                 TpL.my_y = TpM.my_y;/*确保起点相同*/
+                                 TpR.my_x = (TpR.my_x+TpM.my_x)/2;
+                                 TpR.my_y = TpM.my_y;/*确保起点相同*/
+                             }
+                             else
+                             {
+                                 TpR.my_x = 158;
+                                 TpM.my_x=sc_char->my_final_tOptimalPoint.my_x;
+                                 TpM.my_y=(LMaxPoint.my_y);
+                                 TpL.my_x = (LMaxPoint.my_x+TpM.my_x)/2;
+                                 TpL.my_y = TpM.my_y;/*确保起点相同*/
+                                 TpR.my_x = (TpR.my_x+TpM.my_x)/2;
+                                 TpR.my_y = TpM.my_y;/*确保起点相同*/
+                             }
+                             SFlag=1;
+                         }
+                         else if(( RMaxPoint.my_y>=12 && (!LLineSegmentCnt || LLineSegmentST[0]<RMaxPoint.my_y))&&left_all_lose_line>=36)
+                         {
+                             if(abs(sc_char->my_final_tOptimalPoint.my_x-RMaxPoint.my_x)<20)
+                             {
+                                 TpL.my_x=1;
+                                 TpM.my_x=(sc_char->my_final_tOptimalPoint.my_x+TpL.my_x)/2;
+                                 TpM.my_y=(RMaxPoint.my_y);
+                                 TpR.my_x = (RMaxPoint.my_x+TpM.my_x)/2;
+                                 TpR.my_y = TpM.my_y;/*确保起点相同*/
+                                 TpL.my_x = (TpL.my_x+TpM.my_x)/2;
+                                 TpL.my_y = TpM.my_y;/*确保起点相同*/
+                             }
+                             else
+                             {
+                                 TpL.my_x=1;
+                                 TpM.my_x=sc_char->my_final_tOptimalPoint.my_x;
+                                 TpM.my_y=RMaxPoint.my_y;
+                                 TpR.my_x=(RMaxPoint.my_x+TpM.my_x)/2;
+                                 TpR.my_y=TpM.my_y;/*确保起点相同*/
+                                 TpL.my_x=(TpL.my_x+TpM.my_x)/2;
+                                 TpL.my_y=TpM.my_y;/*确保起点相同*/
+                             }
+                             SFlag=1;
+                         }
+                     }
+                 }
+                 else
+                 {
+                    fork_road=0;
+                    /*
+                     if(!LLineSegment[0].Start&&!RLineSegment[0].Start)  //双边全部丢失
+                     {
+
+                     }
+                     else
+                     {
+
+                     }*/
+                 }
+                 if(1==SFlag)
+                 {
+                     /*判断这三条线构成的趋势--一段纵向扩充*/
+                     for(int i=TpM.my_y;i>0;i--)
+                     {
+                         if(255==image_data[i][TpM.my_x])
+                         {
+                             TpM.my_y=i;
+                             tMCnt++;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     for(int i=TpL.my_y;i>0;i--)
+                     {
+                         if(255==image_data[i][TpL.my_x])
+                         {
+                             tLCnt++;
+                             TpL.my_y=i+2;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     for(int i=TpR.my_y;i>0;i--)
+                     {
+                         if(255==image_data[i][TpM.my_x])
+                         {
+                             tRCnt++;
+                             TpR.my_y=i+2;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     /*横向搜索开始*/
+                      LColCnt=0;
+                      RColCnt=0;
+                     for(int i=TpL.my_x;i>0;i--)
+                     {
+                         if(255==image_data[TpL.my_y][i])
+                         {
+                             LColCnt++;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     for(int i=TpR.my_x;i<159;i++)
+                     {
+                         if(255==image_data[TpR.my_y][i])
+                         {
+                             RColCnt++;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     if(tMCnt&&tRCnt&&tLCnt)
+                     {
+                         if(tMCnt<=tRCnt && tMCnt<=tLCnt && ((LColCnt>=20 && RColCnt>=10)||(LColCnt>=10 && RColCnt>=20)))
+                         {
+                             if(TpM.my_y>sc_char->my_final_tOptimalPoint.my_x)
+                                 fork_road=1;
+                             else
+                                 fork_road=0;
+                         }
+                         else
+                         {
+                             fork_road=0;
+                         }
+                     }
+                     else
+                     {
+                         fork_road=0;
+                     }
+                 }
+                 else
+                 {
+                     fork_road=0;;
+                 }
+               LMaxPoint=TpL;
+               RMaxPoint=TpR;
+             }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+void sec_fork_law()
+{
+
+
+
+}
+
+
+
+
+
+
+
+

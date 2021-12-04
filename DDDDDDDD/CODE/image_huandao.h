@@ -25,6 +25,8 @@ extern uint16 huanin_R_point;
 extern uint16 huanout_R_basic;
 extern uint16 huanout_R_point;
 extern uint16 huan_R_flag1_time;
+extern int16 Left_line_swerve_L;
+extern int16 Right_line_swerve_R;
 extern uint16 huan_R_entry;
 extern uint8 out_L_process;
 extern uint8 out_R_process;
