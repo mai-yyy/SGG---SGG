@@ -404,7 +404,7 @@ void ICM_OneOrderFilter(void) {
     icmdata.Pitch = -90 - icmdata.Pitch;
 
   //Æ«º½½Ç¶È
-  if ( huan_L_flag== 4||huan_L_flag==3||huan_R_flag==4||huan_R_flag==3||fork_road==2
+  if ( huan_L_flag== 4||huan_L_flag==3||huan_R_flag==4||huan_R_flag==3||sancha_flag_left==2||sancha_flag_right==2
       ) {
     icmdata.Yaw = (icmdata.YawVelocity) * dt + icmdata.Yaw;
     //        buzzer_off();

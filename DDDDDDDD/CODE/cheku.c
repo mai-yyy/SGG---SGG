@@ -18,9 +18,9 @@ qipao_line=0;
 if(!chuku_flag&&qipao_time<=1&&qipao_flag==0&&endline<=9&&!ku_L&&!ku_R&&!podao_flag&&!huan_L_flag&&!huan_R_flag&&!shizhiflag)
 {
 //    buzzer(1);
-for(uint8 j=25;j<45;j++)    //25-40
+for(uint8 j=15;j<50;j++)    //25-40
 {
-for(uint8 i=20;i<140;i++)
+for(uint8 i=10;i<150;i++)
 {
  if(w_to_b_cnt==0)
  {
@@ -68,9 +68,52 @@ else
 
 }
 //ips200_showint16(30,11,first_change_ponit);
-if(qipao_flag==1&&qipao_time==0&&!ku_L&&!ku_R)     //第1麦次判车库
+if(qipao_flag==1&&qipao_time==0)
 {
-//    buzzer(1);
+    for(uint8 j=15;j<40;j++)    //20-25
+    {
+    for(uint8 i=20;i<140;i++)
+    {
+     if(w_to_b_cnt==0)
+     {
+      if(image_data[j][i]&&!image_data[j][i+1])   //寻找黑白跳变点数
+      {
+          first_change_ponit=i;
+           w_to_b_cnt++;
+      }
+     }
+     else
+     {
+         if(image_data[j][i]&&!image_data[j][i+1])   //寻找黑白跳变点数
+         {
+         //   if((i-first_change_ponit)<=30&&(i-first_change_ponit)>=5)     //判断黑白跳变点之间间距
+              w_to_b_cnt++;
+         }
+
+     }
+    }
+
+    if(w_to_b_cnt>=4)
+    {
+      w_to_b_cnt=0;
+      qipao_line++;
+      //buzzer(1);
+    }
+    else
+    {
+      w_to_b_cnt=0;
+    }
+    }
+    if(qipao_line==0)//越过起跑线
+    {
+        buzzer(0);
+        qipao_flag=0;
+        qipao_time++;
+    }
+}
+
+if(qipao_flag==1&&qipao_time==1&&!ku_L&&!ku_R)     //第二次判车库
+{
     if(direction)
     {
         ku_R=1;
@@ -78,82 +121,19 @@ if(qipao_flag==1&&qipao_time==0&&!ku_L&&!ku_R)     //第1麦次判车库
     else
     {
         ku_L=1;
-
     }
 }
-//*********************************************双，用不上现在***********
-//if(qipao_flag==1&&qipao_time==0)
-//{
-//    for(uint8 j=15;j<40;j++)    //20-25
-//    {
-//    for(uint8 i=20;i<140;i++)
-//    {
-//     if(w_to_b_cnt==0)
-//     {
-//      if(image_data[j][i]&&!image_data[j][i+1])   //寻找黑白跳变点数
-//      {
-//          first_change_ponit=i;
-//           w_to_b_cnt++;
-//      }
-//     }
-//     else
-//     {
-//         if(image_data[j][i]&&!image_data[j][i+1])   //寻找黑白跳变点数
-//         {
-//         //   if((i-first_change_ponit)<=30&&(i-first_change_ponit)>=5)     //判断黑白跳变点之间间距
-//              w_to_b_cnt++;
-//         }
-//
-//     }
-//    }
-//
-//    if(w_to_b_cnt>=4)
-//    {
-//      w_to_b_cnt=0;
-//      qipao_line++;
-//      //buzzer(1);
-//    }
-//    else
-//    {
-//      w_to_b_cnt=0;
-//    }
-//    }
-//    if(qipao_line==0)//越过起跑线
-//    {
-//        buzzer(0);
-//        qipao_flag=0;
-//        qipao_time++;
-//    }
-//}
-
-//if(qipao_flag==1&&qipao_time==1&&!ku_L&&!ku_R)     //第二次判车库
-//{
-//    if(direction)
-//    {
-//        ku_R=1;
-//
-//
-//    }
-//    else
-//    {
-//        ku_L=1;
-//
-//
-//    }
-//}
-//双，用不上现在***************************************
 if(ku_R==1&&ruku_time>=25)   //25
 {
     if(endline>=25)
         ku_R=2;
-
 }
 else if(ku_L==1&&ruku_time>=25)
 {
     if(endline>=25)
         ku_L=2;
-
 }
+
 
 }
 void chuku()    //出库判断

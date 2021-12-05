@@ -1,5 +1,41 @@
 #include "image_chalu.h"
 
+
+int16 TriangRange[160]={0};
+uint8 sancha_flag_left=0;
+uint8 sancha_flag_right=0;
+uint8 diu_flag1=0;
+uint8 diu_flag2=0;
+uint8 jilu;
+uint8 one_add=0;
+int16 one_add_time=0;
+uint8 XieRiCnt=0;
+uint8 XieLiCnt=0;
+_Bool XLFlag=0;
+_Bool XRFlag=0;
+uint8 flag22=0;
+uint8 cnt_fache1=0;
+uint16 cnt_black=0;
+uint16 sancha_stop=0;
+uint16 sanchacount=0;
+int16 cnt_1=0;
+int16 cnt_2=0;
+int16 cnt_11=0;
+int16 cnt_22=0;
+uint8 yes=0;
+uint8 dorg_l=0;
+uint8 dorg_r=0;
+Maiy_2_dimensional LowLeftJump={0,59};
+Maiy_2_dimensional LowRightJump={158,59};
+int16 point=0;
+//uint8 maxflag=0;
+//uint16 maxvalue=0;
+Maiy_2_dimensional TriangBlackPoint={0,0};
+uint8 ForkStep=0;
+uint8 sancha_flag1=0;
+uint8 nowait=0;
+_Bool ForkLeft=1;
+_Bool ForkRight=0;
 uint8 chalu_flag=0;
 uint8 end_count=0;
 uint8 chalu_dirction=0;
@@ -888,7 +924,301 @@ if (fork_road==2)
 
 
 
+void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
+{
+    yes=0;
+    point=0;
+    XLFlag=0;
 
+        if(!sancha_flag_right&&!sancha_flag_left&&!huan_L_flag&&!huan_R_flag)
+        {
+            for(int16 i=58;i>=20;i--)
+            {
+            if((leftline[i]-leftline[i-1]>=0&&leftline[i]-leftline[i-2]>=0&&leftline[i]-leftline[i-5]>0&&leftline[i]>=2))
+                {
+                LowLeftJump.my_x=leftline[i];
+                LowLeftJump.my_y=i;
+                ForkStep=1;
+                sancha_flag1=1;
+                break;
+                }
+            }
+            for(int16 i=58;i>=20;i--)
+            {
+            if((rightline[i-1]-rightline[i]>=0&&rightline[i-2]-rightline[i]>=0&&rightline[i-5]-rightline[i]>0&&rightline[i]<=157))
+                {
+                LowRightJump.my_x=rightline[i];
+                LowRightJump.my_y=i;
+                ForkStep=1;
+                sancha_flag1=1;
+                    break;
+                }
+            }
+            if(ForkStep==1&&LowRightJump.my_x==0)
+            {
+                LowRightJump.my_x=158;
+            }
+
+            if(left_all_lose_line>=40&&right_all_lose_line>=40)
+            {
+                ForkStep=1;
+                LowRightJump.my_x=120;
+                                LowRightJump.my_y=30;
+                                LowLeftJump.my_x=40;
+                                               LowLeftJump.my_y=30;
+
+                                               XLFlag=1;
+            }
+
+
+        }
+
+
+    if(ForkStep==1&&!huan_L_flag&&!huan_R_flag&&!sancha_flag_left&&!sancha_flag_right&&((LowLeftJump.my_x-leftline[59]>7&&leftline[59]!=0)||(rightline[59]-LowRightJump.my_x>7&&rightline[59]<=157)))
+        {
+            yes=0;
+            TriangBlackPoint.my_x=0;
+            TriangBlackPoint.my_y=0;
+            XieLiCnt=0;
+            XieRiCnt=0;
+            XLFlag=0;
+            XRFlag=0;
+//            ips200_showint16(30,11, LowLeftJump.my_x);
+//            for(uint8 i=58;i>=40;i--)
+//      {
+//      if((rightline[i]>=150&&rightline[i-2]>=150&&leftline[i]<=10&&leftline[i-2]<=10)||XLFlag||XRFlag)
+if((!XLFlag&&LowRightJump.my_y>15&&LowLeftJump.my_y>15&&ABS(LowRightJump.my_y-LowLeftJump.my_y)<=18&&ABS(LowRightJump.my_x-LowLeftJump.my_x)>48))
+        {
+          memset(TriangRange,0,sizeof(int)*160);
+            for(int16 j=LowLeftJump.my_x;j<=LowRightJump.my_x;j++)
+      {
+            for(int16 k=59;k>=2;k--)
+            {
+                if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                {
+                    TriangRange[j]=k;
+                    if(TriangBlackPoint.my_y<=TriangRange[j]&&j<=80)
+                    {
+                        TriangBlackPoint.my_y=TriangRange[j];
+                        TriangBlackPoint.my_x=j;
+                    }
+                    if(TriangBlackPoint.my_y<TriangRange[j]&&j>=80)
+                    {
+                        TriangBlackPoint.my_y=TriangRange[j];
+                        TriangBlackPoint.my_x=j;
+                    }
+                    break;
+                }
+            }
+      }
+        }
+else if(LowLeftJump.my_y>=15&&right_all_lose_line>=30&&!XLFlag)
+{
+//    buzzer(1);
+    memset(TriangRange,0,sizeof(int)*160);
+               for(int16 j=LowLeftJump.my_x;j<=LowRightJump.my_x;j++)
+         {
+               for(int16 k=59;k>=2;k--)
+               {
+                   if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                   {
+                       TriangRange[j]=k;
+                       if(TriangBlackPoint.my_y<=TriangRange[j]&&j<=80)
+                       {
+                           TriangBlackPoint.my_y=TriangRange[j];
+                           TriangBlackPoint.my_x=j;
+                       }
+                       if(TriangBlackPoint.my_y<TriangRange[j]&&j>=80)
+                       {
+                           TriangBlackPoint.my_y=TriangRange[j];
+                           TriangBlackPoint.my_x=j;
+                       }
+                       break;
+                   }
+               }
+         }
+}
+
+else if(LowRightJump.my_y>=15&&left_all_lose_line>=30&&!XLFlag)
+{
+    memset(TriangRange,0,sizeof(int)*160);
+                   for(int16 j=LowLeftJump.my_x;j<=LowRightJump.my_x;j++)
+             {
+                   for(int16 k=59;k>=2;k--)
+                   {
+                       if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                       {
+                           TriangRange[j]=k;
+                           if(TriangBlackPoint.my_y<=TriangRange[j]&&j<=80)
+                           {
+                               TriangBlackPoint.my_y=TriangRange[j];
+                               TriangBlackPoint.my_x=j;
+                           }
+                           if(TriangBlackPoint.my_y<TriangRange[j]&&j>=80)
+                           {
+                               TriangBlackPoint.my_y=TriangRange[j];
+                               TriangBlackPoint.my_x=j;
+                           }
+                           break;
+                       }
+                   }
+             }
+}
+
+else
+{
+    if(XLFlag)
+                                           {
+
+        memset(TriangRange,0,sizeof(int)*160);
+                           for(int16 j=40;j<=120;j++)
+                     {
+                           for(int16 k=sc_char->mylinest[80]+6;k>=2;k--)
+                           {
+                               if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                               {
+                                   TriangRange[j]=k;
+                                   if(TriangBlackPoint.my_y<=TriangRange[j]&&j<=80)
+                                   {
+                                       TriangBlackPoint.my_y=TriangRange[j];
+                                       TriangBlackPoint.my_x=j;
+                                   }
+                                   if(TriangBlackPoint.my_y<TriangRange[j]&&j>=80)
+                                   {
+                                       TriangBlackPoint.my_y=TriangRange[j];
+                                       TriangBlackPoint.my_x=j;
+                                   }
+                                   break;
+                               }
+                           }
+                     }
+
+                                           }
+
+
+
+    else
+    {
+
+        ForkStep=0;
+    }
+
+}
+
+            for(int16 k=59;k>=30;k--)
+            {
+                point=0;
+                for(int16 j=0;j<=159;j++)
+                    {
+                if(image_data[k][j])
+                    point++;
+                     }
+                if(point>150)
+                    yes++;
+            }
+
+            if(ForkStep&&TriangBlackPoint.my_y>=10&&TriangBlackPoint.my_y<LowLeftJump.my_y&&TriangBlackPoint.my_y<LowRightJump.my_y)
+            {
+            if(TriangRange[TriangBlackPoint.my_x+1]>=TriangRange[TriangBlackPoint.my_x+10]&&TriangRange[TriangBlackPoint.my_x-1]>=TriangRange[TriangBlackPoint.my_x-10]&&TriangRange[TriangBlackPoint.my_x+10]&&TriangRange[TriangBlackPoint.my_x-10]&&TriangBlackPoint.my_y<=40)
+              {
+                dorg_l=1;
+//buzzer(1);
+              }
+            }
+//            }
+
+//        }
+    }
+
+if(dorg_l&&sc_char->mylinest[79]<=40)
+{
+    sancha_flag_left=2;
+                  sancha_flag_right=2;
+                  buzzer(1);
+                  flag22=2;
+                  dorg_l=0;
+                  ForkStep=0;
+}
+
+
+            if(sancha_flag_left==2&&qipao_time==1)
+           {
+            for(int16 i=58;i>=58;i--)
+      {
+
+                    if(rightline[i]-rightline[i-1]>0&&rightline[i]-rightline[i-20]>0&&rightline[i]<=157&&rightline[i-10]<=157&&rightline[i-40]<=157&&rightline[i-30]<=157&&rightline[i-20]<=157)
+
+                {
+          sancha_flag_left=0;
+          buzzer(0);
+                sancha_flag_right=0;
+//                if( icmdata.Yaw>=35)
+                if(one_add==0)
+                {
+                sanchacount++;
+                one_add=1;
+                }
+                if(ShangForkDir==0)
+                    ShangForkDir=2;
+                else if(ShangForkDir==2)
+                {
+                    ShangForkDir=0;
+                }
+                if(sanchacount>=4)
+                    cnt_fache1=1;
+                break;
+                        }
+      }
+
+           }
+
+
+            if(sancha_flag_right==2&&qipao_time==0)
+            {
+                uint8 flag3;
+                for(int16 i=58;i>=57;i--)
+          {
+
+
+                    if(
+                                                leftline[i-1]-leftline[i]>0&&leftline[i-20]-leftline[i]>0&&leftline[i-40]!=0&&leftline[i-30]!=0&&leftline[i-20]!=0&&leftline[i-10]!=0&&leftline[i]!=0)
+                    {
+              sancha_flag_right=0;
+                    sancha_flag_left=0;
+                if(ShangForkDir==0)
+                    ShangForkDir=3;
+                    else if(ShangForkDir==3)
+                    {
+                        ShangForkDir=0;
+                    }
+
+                 buzzer(0);
+                  if(one_add==0)
+                 {
+                 sanchacount++;
+                 one_add=1;
+                 }
+                    if(sanchacount>=4)
+                        cnt_fache1=1;
+                    break;
+            }
+          }
+
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 
 

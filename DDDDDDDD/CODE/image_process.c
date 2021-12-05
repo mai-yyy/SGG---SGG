@@ -20,6 +20,9 @@ uint8 rd_flag=0;
 uint8 r_t_o=0;
 uint8 L=1;
 uint8 R=2;
+uint8 remember=0;
+uint8 remind=0;
+uint8 ShangForkDir=0;
 int16 WidthROWNum=0;
 int16 OutWidthStart=0;
 int16   OutWidthEnd=0;
@@ -44,6 +47,8 @@ int16 final_Optimalpoint_get=0;
 uint8 s_to_b_1=0;
 uint8 s_to_b_2=0;
 uint8 kt=0;
+uint8 jump_i1;
+uint8 jump_j1;
 uint8 bend_count_R=0;
 uint8 bend_count_L=0;
 uint8 bend_count=0;
@@ -655,6 +660,7 @@ break;
 
 for(int16 i=BOTTOM;i>endline;i--)
 {
+//    buzzer(1);
 if(rightline[i]>=156)
     right_all_lose_line++;
 if(leftline[i]<=2)
@@ -664,7 +670,7 @@ if(leftline[i]<=2)
 
 }
 
-
+//ips200_showuint16(90,17,right_all_lose_line);
 }
 
 void GetMaxPnt()
@@ -852,7 +858,7 @@ void get_rest_line_dy()
 
 
 
-    for(uint8 j=left_to_right;j<=158;j++)
+    for(int16 j=left_to_right;j<=158;j++)
     {
       if(image_data[i][j]&&!image_data[i][j+1])
       {
@@ -2014,7 +2020,7 @@ void TEST3()    //在确定近处斜率
            }
         }
 
-        for(uint8 j=left_to_right;j<=158;j++)
+        for(int16 j=left_to_right;j<=158;j++)
                {
                  if(image_data[i][j]&&!image_data[i][j+1])
                  {
@@ -2524,7 +2530,7 @@ else if(huan_L_flag==4&&bx_flag_4)
 }
 else if(huan_R_flag==2)
 {
-    midline[i]=(leftline[i] - Single_L_line[i])+76;
+    midline[i]=(leftline[i] - Single_L_line[i])+80;
 
 }
 else if(huan_R_flag==6)
@@ -2662,16 +2668,20 @@ void get_differ(void)
         differ=-50;
     }
 }
-//else if(shizhiflag)
-//{
-////differ=((differ>30) ? 30:differ);
-////differ=((differ<-30) ? -30:differ);
-//    if(differ>30)
-//        differ=30;
-//    else if(differ<-30)
-//    {differ=-30;}
-//
-//}
+else if(qipao_flag==0&&sancha_flag_right)
+{
+    for(hang=59 ; hang>endline ; hang--)  //基础求偏差
+              {
+                WeightSum += weight[hang];
+                error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+                MidSum += midline[hang]*weight[hang];
+              }
+          MidValue = MidSum/WeightSum;
+          differ = MidValue - basic;
+//          differ=differ>60  ?  60:differ;
+//          differ=differ<45  ?  45:differ;
+
+}
 else if(podao_flag)
 {
     for(hang=Row-1 ; hang>30 ; hang--)  //基础求偏差
@@ -3099,347 +3109,251 @@ if(s_to_b_1)
 
 }
 
-//需要补线的地方    环岛    十字
-//void bu_xian()
-//{
-//
-//if(huan_L_flag==2)             //左环第一标志位补线
-//{
-//  for(int8 i=59;i>=0;i--)
-//  {
-//    leftline[i]=rightline[i]-Width[i]+15;
-//    if(leftline[i]<0)
-//    {
-//      leftline[i]=0;
-//    }
-//
-//  }
-//
-//}
-// if(huan_L_flag==3)  //入左环补线
-//{
-//for(uint8 i=huanin_L_point+1;i<60;i++)
-//{
-//  rightline[i]=rightline[i-1]+2;
-//  if(rightline[i]>159)
-//  {
-//    rightline[i]=158;
-//  }
-//  leftline[i]=0;
-// }
-//}
-//else if(huan_L_flag==5)  //出左环补线
-//{
-//
-//for(int8 i=huanout_L_point+1;i>=1;i--)
-//  {
-//    rightline[i-1]=rightline[i]-1;    //  108   116
-//    if(rightline[i-1]<=leftline[i-1])
-//    {
-//        rightline[i-1]=leftline[i-1];
-//        leftline[i-1]=0;
-//
-//    }
-//
-//  }
-//}
-//
-////else if(huan_L_flag==6)
-////{
-////
-////for(uint8 i=endline+1;i<50;i++)
-////    {
-////        if(leftline[i]!=0&&leftline[i-1]!=0&&leftline[i+2]==0&&(leftline[i]-leftline[i+2])>=10)
-////        {
-////              L_out_bustart=i-1;
-////
-////              break;
-////        }
-////
-////    }
-////
-////
-////for(uint8 i=L_out_bustart+1;i<60;i++)               //沿着右边线走
-////  {
-////    leftline[i]=leftline[i-1]-2;
-////    if(leftline[i]<0)
-////    {
-////      leftline[i]=0;
-////    }
-////
-////  }
-////
-////}
-//
-//else if(huan_L_flag==6)
-//{
-//for(uint8 i=0;i<=59;i++)
-//{
-//  leftline[i]=rightline[i]-Width[i]+15;
-//  if(leftline[i]<0)
-//  {
-//    leftline[i]=0;
-//  }
-//}
-//
-////for(int8 i=59;i>=0;i--)               //沿着右边线走
-////  {
-////    leftline[i]=rightline[i]-variable_3;   //100
-////    if(leftline[i]<0)
-////    {
-////      leftline[i]=0;
-////    }
-////
-////  }
-//
-//}
-//else if(huan_R_flag==2)             //右环第一标志位补线
-//{
-//  for(int8 i=59;i>=0;i--)
-//  {
-//    rightline[i]=leftline[i]+Width[i]-15;
-//    if(rightline[i]>158)
-//    {
-//      rightline[i]=158;
-//    }
-//
-//  }
-//
-//}
-//else if(huan_R_flag==3)  //入左环补线
-//{
-//for(uint8 i=huanin_R_point+1;i<60;i++)
-//{
-//  leftline[i]=leftline[i-1]-2;
-//  if(leftline[i]<0)
-//  {
-//    leftline[i]=0;
-//  }
-//  rightline[i]=158;
-// }
-//}
-//else if(huan_R_flag==5)  //出右环补线
-//{
-//// endline=13;    //此时截止行赋定值
-////for(int8 i=huanout_R_point-1;i>=endline;i--)
-////{
-////  leftline[i]=leftline[i+1]+huanout_L_basic;
-////  if(leftline[i]>=159)
-////  {
-////    leftline[i]=159;
-//////    if(i>endline)      //此时截止行应往下拉
-//////    {
-//////    endline=i+1;
-//////    }
-////    break;
-////  }
-//// }
-//
-//    for(int8 i=huanout_R_point+1;i>=1;i--)
-//      {
-//        leftline[i-1]=leftline[i]+1;    //  108   116
-//        if(rightline[i-1]>=leftline[i-1])
-//        {
-//            leftline[i-1]=rightline[i-1];
-//            rightline[i-1]=158;
-//
-//        }
-//
-//      }
-//}
-//
-////else if(huan_R_flag==6)
-////{
-////for(uint8 i=endline+1;i<50;i++)
-////    {
-////if(rightline[i]!=158&&rightline[i-1]!=158&&rightline[i+2]==158&&(rightline[i+2]-rightline[i])>=10)
-////        {
-////              R_out_bustart=i-1;
-////              break;
-////        }
-////
-////    }
-////
-////
-////  for(uint8 i=R_out_bustart+1;i<60;i++)
-////  {
-////    rightline[i]=rightline[i-1]+2;    //75
-////    if(rightline[i]>159)
-////    {
-////      rightline[i]=159;
-////    }
-////
-////  }
-////
-////}
-//else if(huan_R_flag==6)
-//{
-//for(uint8 i=0;i<=59;i++)
-//{
-//  rightline[i]=leftline[i]+Width[i]-15;
-//  if(rightline[i]>158)
-//  {
-//    rightline[i]=158;
-//  }
-//}
-//}
-////
-////  for(int8 i=59;i>=0;i--)
-////  {
-////    rightline[i]=leftline[i]+100;    //75
-////    if(rightline[i]>159)
-////    {
-////      rightline[i]=159;
-////    }
-////
-////  }
-////
-////}
-////else if(L_crossroad||R_crossroad)
-////else if(line_wan_flag)
-////{
-////    buzzer(1);
-////    uint16 cyc;
-////    uint16 add_get=0;
-////if(rightline[10]+leftline[10]>160)//右转 左边线偏移动
-////{
-////    add_get=rightline[real_turn]-158;
-////    for(cyc=59;cyc>=endline;cyc--)
-////    {
-////        leftline[cyc]-=add_get;
-////        if( leftline[cyc]<= rightline[cyc])
-////        {
-////            leftline[cyc]+= add_get;
-////        }
-////    }
-////
-//////  add_get=rightline[real_turn-3]-rightline[real_turn];
-//////  for(cyc=real_turn+1;cyc<=58;cyc++)
-//////  {
-//////      rightline[cyc+1]=rightline[cyc]+add_get;
-//////      if( rightline[cyc+1]>=158)
-//////      {
-//////          rightline[cyc+1]=158;
-//////      }
-//////  }
-////}
-////else if(rightline[10]+leftline[10]<160)
-////{
-////    add_get=leftline[real_turn];
-////      for(cyc=59;cyc>=endline;cyc--)
-////      {
-////          rightline[cyc]-=add_get;
-////          if( rightline[cyc]<=leftline[cyc])
-////                {
-////              rightline[cyc]+=add_get;
-////                }
-////      }
-////}
-////}
-//else if(shizhiflag)
-//{
-//    crossroad_find();
-//crossroad_deal();
-//}
-//else if((chalu_flag==1||chalu_flag==3)&&chalu_dirction==0)      //右拐
-//{
-//    leftline[0]=84;      //80
-//    for(uint8 i=1;i<60;i++)
-//    {
-//      leftline[i]=leftline[i-1]-2;
-//      if(leftline[i]<0)
-//      {
-//          leftline[0]=0;
-//      }
-//      rightline[i]=159;
-//    }
-//}
-//else if((chalu_flag==1||chalu_flag==3)&&chalu_dirction==1)   //左拐
-//{
-//    rightline[0]=81;      //78      72
-//    for(uint8 i=1;i<60;i++)
-//    {
-//        rightline[i]=rightline[i-1]+2;
-//        if(rightline[i]>159)
-//        {
-//            rightline[i]=159;
-//        }
-//        leftline[i]=0;
-//    }
-//}
-////else if(qipao_flag==1&&qipao_time==0)       //第一次识别起跑线     两次使用
-////{
-////    buzzer(1);
-////    for(uint8 i=4;i<59;i++)
-////    {
-////        rightline[i+1]=rightline[i]+2;
-////        if(rightline[i+1]>159)
-////        {
-////            rightline[i+1]=159;
-////        }
-////        leftline[i+1]=leftline[i]-2;
-////        if(leftline[i+1]<0)
-////        {
-////            leftline[i+1]=0;
-////        }
-////    }
-////}
-//
-//}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
 void bu_xian()
 {
-
-
+    float vary;
+ int16 leftjump=0,rightjump=0;
 if(shizhiflag)
 {
-    crossroad_find();
+crossroad_find();
 crossroad_deal();
 }
-else if((chalu_flag==1||chalu_flag==3)&&chalu_dirction==0)      //右拐
-{
-    leftline[0]=84;      //80
-    for(uint8 i=1;i<60;i++)
-    {
-      leftline[i]=leftline[i-1]-2;
-      if(leftline[i]<0)
-      {
-          leftline[0]=0;
-      }
-      rightline[i]=159;
-    }
-}
-else if((chalu_flag==1||chalu_flag==3)&&chalu_dirction==1)   //左拐
-{
-    rightline[0]=81;      //78      72
-    for(uint8 i=1;i<60;i++)
-    {
-        rightline[i]=rightline[i-1]+2;
-        if(rightline[i]>159)
+
+
+if(!sancha_flag_left&&!sancha_flag_right)
         {
-            rightline[i]=159;
+                sancha_stop=0;
+            leftjump=0;
+            rightjump=0;
         }
-        leftline[i]=0;
-    }
-}
-//else if(qipao_flag==1&&qipao_time==0)       //第一次识别起跑线     两次使用
+//if((sancha_flag_left||sancha_flag_right)&&ShangForkDir==0&&sanchacount==0&&remember==0)
 //{
-//    buzzer(1);
-//    for(uint8 i=4;i<59;i++)
+//    if(sancha_stop==0)
 //    {
-//        rightline[i+1]=rightline[i]+2;
-//        if(rightline[i+1]>159)
-//        {
-//            rightline[i+1]=159;
-//        }
-//        leftline[i+1]=leftline[i]-2;
-//        if(leftline[i+1]<0)
-//        {
-//            leftline[i+1]=0;
-//        }
+//    if(ForkLeft)
+//    {
+//        sancha_flag_left=2;
+//        sancha_flag_right=0;
+//        remember=1;
+//        sancha_stop=1;
+//
+//    }
+//
+//    else if(ForkRight)
+//    {
+//        sancha_flag_left=0;
+//        sancha_flag_right=2;
+//        remember=2;
+//        sancha_stop=1;
 //    }
 //}
+//}
+//if((sancha_flag_left||sancha_flag_right)&&ShangForkDir==0&&sanchacount==2&&remind==0)
+//{
+//    if(sancha_stop==0)
+//    {
+//    if(ForkLeft)//car_time_1ms%2==
+//    {
+//        sancha_flag_left=0;
+//        sancha_flag_right=2;
+//        remind=1;
+//        sancha_stop=1;
+//
+//    }
+//    else if(ForkRight)
+//    {
+//        sancha_flag_left=2;
+//        sancha_flag_right=0;
+//        remind=2;
+//        sancha_stop=1;
+//    }
+//}
+//}
+//    if(sanchacount==4&&remember==1&&(sancha_flag_left||sancha_flag_right)&&ShangForkDir==0)
+//    {
+//        sancha_flag_left=0;
+//        sancha_flag_right=2;
+//    }
+//    if(sanchacount==4&&remember==2&&(sancha_flag_left||sancha_flag_right)&&ShangForkDir==0)
+//    {
+//        sancha_flag_left=2;
+//        sancha_flag_right=0;
+//    }
+//        if(sanchacount==6&&remind==1&&(sancha_flag_left||sancha_flag_right)&&ShangForkDir==0)
+//    {
+//        sancha_flag_left=0;
+//        sancha_flag_right=2;
+//    }
+//    if(sanchacount==6&&remind==2&&(sancha_flag_left||sancha_flag_right)&&ShangForkDir==0)
+//    {
+//        sancha_flag_left=2;
+//        sancha_flag_right=0;
+//    }
+//    if(ShangForkDir==0&&sanchacount>=8&&sanchacount%4/2==0&&(sancha_flag_left||sancha_flag_right))
+//    {
+//        sancha_flag_left=2;
+//        sancha_flag_right=0;
+//    }
+//        if(ShangForkDir==0&&sanchacount>=8&&sanchacount%4/2==1&&(sancha_flag_left||sancha_flag_right))
+//    {
+//        sancha_flag_left=0;
+//        sancha_flag_right=2;
+//    }
+//    if(ShangForkDir==2&&(sancha_flag_left||sancha_flag_right))
+//    {
+//        sancha_flag_left=2;
+//        sancha_flag_right=0;
+//    }
+//    if(ShangForkDir==3&&(sancha_flag_left||sancha_flag_right))
+//    {
+//        sancha_flag_left=0;
+//        sancha_flag_right=2;
+//    }
+//
+
+     if(sancha_flag_left||sancha_flag_right)
+    {
+        for(uint8 i=58;i>=20;i--)
+            if((leftline[i]-leftline[i-1]>=0&&leftline[i]-leftline[i-2]>=0&&leftline[i]-leftline[i-5]>0&&leftline[i]!=0))
+            {
+                leftjump=leftline[i];
+
+                break;
+            }
+            else if(i==20)
+                leftjump=0;
+            for(uint8 i=58;i>=20;i--)
+            if((rightline[i-1]-rightline[i]>=0&&rightline[i-2]-rightline[i]>=0&&rightline[i-5]-rightline[i]>0&&rightline[i]!=159))
+            {
+                rightjump=rightline[i];
+                    break;
+            }
+            else if(i==20)
+            {
+                rightjump=158;
+            }
+
+    if(qipao_time==1)  //left
+    {
+            uint16 topline[160];
+            jump_i1=0;
+            jump_j1=0;
+
+            for(uint16 l=0;l<=159   ;l++)
+            {
+                topline[l]=0;
+            }
+            for(int16 j=leftjump;j<=rightjump;j++)
+            {
+            for(int16 k=59;k>=2;k--)
+            {
+                if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                {
+                    topline[j]=k;
+                    if(jump_i1<=topline[j]&&j<=80)
+                    {
+                        jump_i1=topline[j];
+                        jump_j1=j;
+                    }
+                    if(jump_i1<topline[j]&&j>=80)
+                    {
+                        jump_i1=topline[j];
+                        jump_j1=j;
+                    }
+                    break;
+                }
+            }
+            }
+        vary=(float)(158-jump_j1)/(59-jump_i1);
+//            if(vary<1)
+//                vary=1;
+        rightline[jump_i1]=jump_j1;
+        for(uint8 i=jump_i1;i<=58;i++)
+        {
+            rightline[i+1]=rightline[i]+vary;
+            if(rightline[i+1]>=158)
+                rightline[i+1]=158;
+        }
+        for(uint8 i=jump_i1;i>0;i--)
+        {
+            rightline[i-1]=rightline[i]-vary;
+            if(rightline[i-1]<=0)
+                rightline[i-1]=0;
+        }
+        for(uint8 i=59;i>0;i--)
+            leftline[i]=0;
+
+    }
+     else if(qipao_time==0)
+    {
+        uint16 topline[160];
+            jump_i1=0;
+            jump_j1=158;
+                for(int16 l=0;l<=158;l++)
+            {
+                topline[l]=0;
+            }
+            for (uint16 j=leftjump;j<=rightjump;j++)
+            {
+            for(uint16 k=59;k>=2;k--)
+            {
+                if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                {
+                    topline[j]=k;
+                    if(jump_i1<=topline[j]&&j<=80)
+                    {
+                        jump_i1=topline[j];
+                        jump_j1=j;
+                    }
+                    if(jump_i1<topline[j]&&j>=80)
+                    {
+                        jump_i1=topline[j];
+                        jump_j1=j;
+                    }
+                    break;
+                }
+            }
+            }
+
+        vary=(float)(jump_j1)/(59-jump_i1);
+//            if(vary<1)
+//                vary=1;
+        leftline[jump_i1]=jump_j1;
+        for(uint8 i=jump_i1;i>=1;i--)
+        {
+            leftline[i-1]=leftline[i]+vary;
+            if(leftline[i-1]>=158)
+                leftline[i-1]=158;
+        }
+        for(uint8 i=jump_i1;i<=58;i++)
+        {
+            leftline[i+1]=leftline[i]-vary;
+            if(leftline[i+1]<=0)
+                leftline[i+1]=0;
+        }
+        for(uint8 i=59;i>0;i--)
+            rightline[i]=158;
+
+
+    }
+    }
+else if(qipao_flag==1&&qipao_time==0)       //第一次识别起跑线     两次使用
+{
+    buzzer(1);
+    for(uint8 i=58;i<4;i--)
+    {
+        rightline[i]=rightline[i+1]-1;
+        if(rightline[i]<=0)
+        {
+            rightline[i+1]=0;
+        }
+        leftline[i]=leftline[i+1]+1;
+        if(leftline[i]>157)
+        {
+            leftline[i]=157;
+        }
+    }
+}
 
 }
 
@@ -4739,7 +4653,7 @@ void danbianhuandao_bx()
     _Bool str_danbx=1;
     int16 zuiyoudian=0;
     uint8 zuiflag=0;
-if(endline==0&&!huan_L_flag&&!huan_R_flag)
+if(endline==0&&!huan_L_flag&&!huan_R_flag&&!sancha_flag_left&&!sancha_flag_right)
 {
 if(str_danbx)   //左环
 {
@@ -4810,7 +4724,7 @@ Maiy_2_dimensional GettangoP(int ST,int EN,int sequence)
         Y =ST+1;
         while ((Y--) > EN+1)//10
         {
-            if (leftline[Y] > Ret.my_x)
+            if (leftline[Y] >= Ret.my_x)
             {
                 Flag = 0;
                 Ret = (Maiy_2_dimensional){leftline[Y] , Y};
@@ -4827,9 +4741,9 @@ Maiy_2_dimensional GettangoP(int ST,int EN,int sequence)
     {
         Ret = (Maiy_2_dimensional){158, 0};
         Y = ST+1;
-              while ((Y--) > EN+1)
+              while ((Y--) >EN+1)
               {
-            if (rightline[Y]< Ret.my_x)
+            if (rightline[Y]<= Ret.my_x)
             {
                 Flag = 0;
                 Ret = (Maiy_2_dimensional){rightline[Y], Y};

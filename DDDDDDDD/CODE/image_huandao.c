@@ -10,6 +10,7 @@
    uint16 RWhitePnt3 ;
    uint8 hz_l=0;
    uint8 hz_r=0;
+   uint8 R_2_time=0;
 uint8 bx_flag_4_r=0;
 uint16 huan_L_flag=0;
 uint16 huan_L_entry=0;
@@ -146,7 +147,7 @@ else
  }
 
      }
- dxL=duanxi_L();     //防止二进环
+// dxL=duanxi_L();     //防止二进环
 if(huan_L_flag==1&&dxL>1)           //保证进环点在圆弧上    不用了
 {
 //    uint8 yesin=0;
@@ -277,7 +278,7 @@ if(icmdata.Yaw>=30)
 Right_line_swerve_R=0;
 Right_line_swerve_L=0;
 
-if(huan_L_flag==4&&huan_L_flag4_time>=100)        //搜索出环          ||利用时间先代替陀螺仪
+if(huan_L_flag==4&&huan_L_flag4_time>=150)        //搜索出环          ||利用时间先代替陀螺仪
 {
 for(int i=59;i>endline;i--)
 {
@@ -410,7 +411,7 @@ for(uint8 i=59;i>endline;i--)
   }
 //ips200_showint16(30,11,L_out_count);
 //ips200_showint16(50,8,finalrun);
-if((L_out_count>=59&&L_out_start>=55&&finalrun<=3&&dt_code>10000)||dt_code>11500)//小环11500
+if((L_out_count>=59&&L_out_start>=55&&finalrun<=3&&dt_code>12000)||dt_code>13500)//小环11500
     {
   huan_L_flag=0;          //完全出环
   buzzer(0);
@@ -726,7 +727,7 @@ for(uint8 i=59;i>endline+1;i--)
   }
   }
       
-if((R_out_count>=59&&R_out_start>=55&&finalrun_r<=3&&dt_code>10000)||dt_code>12500)
+if((R_out_count>=59&&R_out_start>=55&&finalrun_r<=3&&dt_code>12000)||dt_code>14500)
 //if(finalrun_r<=5)
     {
     buzzer(0);

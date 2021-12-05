@@ -30,6 +30,7 @@ extern int16 Right_line_swerve_R;
 extern uint16 huan_R_entry;
 extern uint8 out_L_process;
 extern uint8 out_R_process;
+extern uint8 R_2_time;
 extern uint8 ddx;
 extern uint8 bx_flag_4_r;
 extern int16 Island_inflexion_row;

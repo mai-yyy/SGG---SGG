@@ -33,7 +33,7 @@ void my_pack_send_phone()
 
 
 #if fork_blu_pr>0
-
+/*
     my_TxPack.integers[0]=LLineSegmentCnt;
     my_TxPack.integers[1]=RLineSegmentCnt;
     my_TxPack.integers[2]= LLineSegmentST[0];
@@ -52,6 +52,17 @@ void my_pack_send_phone()
             my_TxPack.integers[15]= fork_road;
             my_TxPack.integers[16]= real_char.my_final_tOptimalPoint.my_x;
             my_TxPack.integers[17]= real_char.m_stCenterLinePoint.my_y;
+            */
+
+//    my_TxPack.integers[0]=TriangBlackPoint.my_x;
+    my_TxPack.integers[0]=TriangBlackPoint.my_y;
+    my_TxPack.integers[1]=LowLeftJump.my_y;
+    my_TxPack.integers[2]=LowRightJump.my_y;
+//    my_TxPack.integers[2]=sancha_flag_left;
+//    my_TxPack.integers[3]=sancha_flag_right;
+//    my_TxPack.integers[4]=sanchacount;
+//    my_TxPack.integers[5]=ShangForkDir;
+
 
 #endif
 //    my_TxPack.integers[0]=250;
@@ -92,6 +103,7 @@ void put_date(RxPack *i_RxPack)
   //byte
   
   //short
+    deb_delt_p=i_RxPack->floats[0];
 #if dj_blu_pr>0
     debug_speed=i_RxPack->integers[0];
     deb_delt_p=i_RxPack->floats[0];

@@ -80,8 +80,8 @@ void  Double_no_line()
 R_L_lose=0;//双边丢线数
 right_no_line=0;  //右边丢边最小行
 left_no_line=0; //左边丢边最小行
-left_all_lose_line=0;  //左边丢线总数
-right_all_lose_line=0;//右边丢线总数
+//left_all_lose_line=0;  //左边丢线总数
+//right_all_lose_line=0;//右边丢线总数
  start_lose_l=0;//左边开始丢边的行数
  start_lose_r=0;//左边开始丢边的行数
 if(!huan_L_flag&&!huan_R_flag&&!podao_flag)

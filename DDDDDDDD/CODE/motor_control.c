@@ -51,7 +51,42 @@ void real_hopespeed_count()
 //                                           }
 //              if(real_char.Road_type==Straight)
 //    if(endline>6||ABS(differ)>=21)
-    if(huan_L_flag||huan_R_flag)
+    if(sancha_flag_left||sancha_flag_left)
+       {
+            if(qipao_time==0)
+                   {
+                CS_control(get_djj,170);
+                                                  if(differ<0)
+                                                                         { CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                                         CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                                         }
+                                                                         else {
+
+                                                                                   CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                                                   CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+
+                                                                         }
+                   }
+           else if(qipao_time==1)
+           {
+
+               CS_control(get_djj,170);
+                                  if(differ<0)
+                                                         { CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                         CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                         }
+                                                         else {
+
+                                                                   CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                                   CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+
+                                                         }
+           }
+
+       }
+
+
+           else  if(huan_L_flag||huan_R_flag)
     {
          if(huan_L_flag==2||huan_R_flag==2)
                 {
@@ -235,7 +270,8 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
     {
     buzzer(1);
 
-                    if(teo_wheel_sp<=200||(endline<=2&&ABS(differ<=15))||endline==0||ABS(differ)<=10)
+//                    if(teo_wheel_sp<=200||(endline<=2&&ABS(differ<=15))||endline==0||ABS(differ)<=10)
+    if(0)
                     {
                         buzzer(1);
                         pwm_duty( ATOM1_CH7_P02_7,10000);

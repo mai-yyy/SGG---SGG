@@ -592,8 +592,8 @@ void HDDJPID_init()
              if(a>42)  a=42;
              if(a<0)   a=0;
              Temp_Orr = tan((a*3.14)/180) * 13.4 / 40;          //15.4
-             Left_Speed =  0.04* High_Speed * (0.70 + circle_out*Temp_Orr); //第一个常数可以加大差速，第二个常数可以提前差速 //原来是0.78
-             Right_Speed =  0.04* High_Speed * (0.70 - circle_in*Temp_Orr);//原来是1
+             Left_Speed =  0.05* High_Speed * (0.70 + circle_out*Temp_Orr); //第一个常数可以加大差速，第二个常数可以提前差速 //原来是0.78
+             Right_Speed =  0.05* High_Speed * (0.70 - circle_in*Temp_Orr);//原来是1
 //             Left_Speed=(Left_Speed>=20) ? 20:Left_Speed;
 //                       Left_Speed=(Left_Speed<=-20) ? -20:Left_Speed;
 //                       Right_Speed=(Right_Speed>=20) ? 20:Right_Speed;
@@ -608,8 +608,8 @@ void HDDJPID_init()
               if(a<0)   a=0;
 
               Temp_Orr = tan((a*3.14)/180) * 13.4 / 40;
-              Left_Speed =  0.04* High_Speed * (0.70 - circle_in*Temp_Orr); //原来是1    0.05
-              Right_Speed =  0.04* High_Speed * (0.70 +circle_out*Temp_Orr);//原来是0.78
+              Left_Speed =  0.05* High_Speed * (0.70 - circle_in*Temp_Orr); //原来是1    0.05
+              Right_Speed =  0.05* High_Speed * (0.70 +circle_out*Temp_Orr);//原来是0.78
 //              Left_Speed=(Left_Speed>=20) ? 20:Left_Speed;
 //              Left_Speed=(Left_Speed<=-20) ? -20:Left_Speed;
 //              Right_Speed=(Right_Speed>=20) ? 20:Right_Speed;
