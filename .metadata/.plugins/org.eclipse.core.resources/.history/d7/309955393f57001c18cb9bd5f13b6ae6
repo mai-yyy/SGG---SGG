@@ -1,0 +1,121 @@
+
+//#ifndef SER_S
+//#define SER_S
+
+#include "headfile.h"
+#include  "common.h"
+
+void ServoControlDiffer(int16 nowErr);
+//void zhiruwan();
+
+#define servoPoint 670 //762
+#define servoLeft  servoPoint+111//872
+#define servoRight servoPoint-111//637
+
+
+
+float Fuzzy(float P, float D);
+
+typedef enum {
+    Fuzz_L=2,
+      Fuzz_R,
+      No_fuzz,
+} R_oadset;
+
+
+typedef struct S_ervestate
+{
+        uint8 State_fuzz;
+                       uint8 maiyanaaa;
+} Which_turn;
+
+extern  Which_turn  turn_redev;
+
+
+                typedef struct {
+                  //基础模糊表
+                  uint8         ui8_Table[4][4];
+                } MH_Table;
+
+
+                typedef struct {
+                  //舵机P值表L
+                  float         f_DuoJiP_TableL[7];
+                  //舵机P值表R
+                  float         f_DuoJiP_TableR[7];//没用  就用一个  没必要用两个舵机表 麻烦
+                  //舵机模糊表
+                  MH_Table      mt_Duoji[4];
+                    //电机P值表
+                  float         f_DianJiP_Table[7];   //没用
+                  //电机I值表
+                  float         f_DianJiI_Table[7];   //没用
+                  //电机模糊表
+                  MH_Table      mt_DianJi[4];            //没用
+                  //出入弯标志
+                  uint8         ui8_IO;              //没用
+                  //左右出入弯标志
+                  uint8         ui8_IOLR;            //没用
+                  //出入弯加减速标志
+                  uint8         ui8_IOAS;          //没用
+                  //反向可视距离变化范围
+                  float         f_SizeOfViewH;      //图像视野  由摄像头的角度决定
+                  //中值偏差变化范围
+                  float         f_SizeOfViewE;
+                    //脉冲偏差变化范围                          //没用看不懂
+                  float         f_SizeOfPulseE;
+                  //上次反向可视距离                                //和OFFLINE一个意思
+                  sint16         i16_ViewH;
+                  //
+                } MH;
+
+
+                typedef struct {
+                        uint32 Fuzz_L_1;
+                        uint32 Fuzz_L_2;
+                        uint32 Fuzz_L_3;
+                        uint32 Fuzz_L_4;
+                        uint32 Fuzz_L_5;
+                        uint32 Fuzz_L_6;
+                        uint32 Fuzz_L_7;
+                        uint32 Fuzz_R_1;
+                        uint32 Fuzz_R_2;
+                        uint32 Fuzz_R_3;
+                        uint32 Fuzz_R_4;
+                        uint32 Fuzz_R_5;
+                        uint32 Fuzz_R_6;
+                        uint32 Fuzz_R_7;
+                        } FUzz_rule_par;
+
+                        extern  FUzz_rule_par DJ_fuzz_par;
+                float f_Get_E_approximation(sint16 i16_E, float f_E_Size);
+                float f_Get_H_approximation(sint16 i16_ViewH);
+                void DuoJi_GetP( sint16 i16_ViewH, sint16 i16_ViewE);
+                void InitMH(void);
+
+                extern MH      MHstruct;
+                extern MH      MHstructFastCar;
+    extern float servoKp;
+    extern float servoKd;
+extern uint16 real_turn;
+extern uint16 line_wan_flag;
+extern uint16 wan_to_line;
+extern uint16 turn_point;
+extern uint32 Kp_R_15;
+extern uint32 Kd_R_15;
+extern uint16 chuwan;
+extern int16 get_djj;
+extern uint32 Kp_L_15;
+extern uint32 Kd_L_15;
+
+extern uint32 Kp_S;
+extern uint32 Kd_S;
+extern uint16 hhe;
+extern uint16 hhh;
+
+
+void ServoPDSet(float flag);
+
+void fuzz_to_nor();
+
+                //c车可以考虑不分左右，b车分左右属实没办法
+//#endif

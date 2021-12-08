@@ -270,8 +270,7 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
     {
     buzzer(1);
 
-//                    if(teo_wheel_sp<=200||(endline<=2&&ABS(differ<=15))||endline==0||ABS(differ)<=10)
-    if(0)
+                    if(teo_wheel_sp<=200||(endline<=2&&ABS(differ<=15))||endline==0||ABS(differ)<=10)
                     {
                         buzzer(1);
                         pwm_duty( ATOM1_CH7_P02_7,10000);

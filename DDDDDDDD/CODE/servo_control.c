@@ -595,7 +595,7 @@ void ServoPDSet(float flag)
       //  gogo->State_fuzz=No_fuzz;
 //        servoKp=(float)(0.01*75);
 //      servoKd=(float)(0.1*165);
-       servoKp=0.90;
+       servoKp=0.95;
       servoKd=80;
         ServoControlDiffer(flag);
     //  buzzer(1);
@@ -717,7 +717,7 @@ void ServoPDSet(float flag)
 else           //Ö±µÀ
 {
 //    fuzz_tem_flag=0;
-    servoKp=0.90;
+    servoKp=0.95;
  servoKd=80;
  ServoControlDiffer(flag);
 // buzzer(1);

@@ -7,7 +7,8 @@ uint8 chuku_flag=0;    //1
 uint8 qipao_line=0;
 uint16 ruku_time=0;
 int32 chuku_distance=0;
-
+uint16 time_ck=0;
+uint8 time_ck_fl=0;
 void qipao_find()    //车库寻找
 {
 uint8 w_to_b_cnt=0;
@@ -18,7 +19,7 @@ qipao_line=0;
 if(!chuku_flag&&qipao_time<=1&&qipao_flag==0&&endline<=9&&!ku_L&&!ku_R&&!podao_flag&&!huan_L_flag&&!huan_R_flag&&!shizhiflag)
 {
 //    buzzer(1);
-for(uint8 j=15;j<50;j++)    //25-40
+for(uint8 j=15;j<45;j++)    //25-40
 {
 for(uint8 i=10;i<150;i++)
 {
@@ -112,7 +113,7 @@ if(qipao_flag==1&&qipao_time==0)
     }
 }
 
-if(qipao_flag==1&&qipao_time==1&&!ku_L&&!ku_R)     //第二次判车库
+if(qipao_flag==1&&qipao_time==1&&!ku_L&&!ku_R&&time_ck_fl)     //第二次判车库
 {
     if(direction)
     {
@@ -136,7 +137,7 @@ else if(ku_L==1&&ruku_time>=25)
 
 
 }
-void chuku()    //出库判断
+void chuku()    //出库判断 陀螺仪积分
 {
 if(chuku_flag)
 {

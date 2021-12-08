@@ -2,14 +2,6 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
-################################################################################
-# Automatically-generated file. Do not edit!
-################################################################################
-
-################################################################################
-# Automatically-generated file. Do not edit!
-################################################################################
-
 image_process.o :	../CODE/image_process.c
 ../CODE/image_process.c :
 image_process.o :	../Libraries/seekfree_libraries/headfile.h

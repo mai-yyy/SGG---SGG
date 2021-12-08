@@ -1,7 +1,7 @@
 #include "phone_BL.h"
 
 #define dj_blu_pr 0
-#define fork_blu_pr 1
+#define fork_blu_pr 0
 #define huan_blu_pr 0
 Blueteeth_Uart_Rx_buff_t Blueteeth_buff;
 
@@ -17,6 +17,7 @@ float asd=0;
 void my_pack_send_phone()
 {
 
+//    my_TxPack.integers[0]=teo_wheel_sp;
 //    my_TxPack.shorts[0] = dj;
 #if   dj_blu_pr>0
     my_TxPack.integers[0]=teo_wheel_sp;
@@ -55,9 +56,12 @@ void my_pack_send_phone()
             */
 
 //    my_TxPack.integers[0]=TriangBlackPoint.my_x;
-    my_TxPack.integers[0]=TriangBlackPoint.my_y;
-    my_TxPack.integers[1]=LowLeftJump.my_y;
-    my_TxPack.integers[2]=LowRightJump.my_y;
+//    my_TxPack.integers[0]=TriangBlackPoint.my_y;
+//    my_TxPack.integers[1]=LowLeftJump.my_y;
+//    my_TxPack.integers[2]=LowRightJump.my_y;
+//    my_TxPack.floats[0]=deb_delt_p;
+//    my_TxPack.floats[1]=deb_delt_i;
+//    my_TxPack.integers[0]=debug_speed
 //    my_TxPack.integers[2]=sancha_flag_left;
 //    my_TxPack.integers[3]=sancha_flag_right;
 //    my_TxPack.integers[4]=sanchacount;
@@ -90,6 +94,7 @@ void my_pack_send_phone()
 //	my_TxPack.floats[3]=user_value.y;
 //	my_TxPack.floats[4]=user_value.yaw;
 //	my_TxPack.floats[5]=user_value.yaw;
+//    my_TxPack.integers[0]=teo_wheel_sp;
   my_pack_to_phone(&my_TxPack);
 }
 /*!
@@ -103,7 +108,10 @@ void put_date(RxPack *i_RxPack)
   //byte
   
   //short
-    deb_delt_p=i_RxPack->floats[0];
+//    deb_delt_p=i_RxPack->floats[0];
+//      deb_delt_i=i_RxPack->floats[1];
+       debug_speed=i_RxPack->integers[0];
+//    deb_delt_p=i_RxPack->floats[0];
 #if dj_blu_pr>0
     debug_speed=i_RxPack->integers[0];
     deb_delt_p=i_RxPack->floats[0];

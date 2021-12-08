@@ -40,7 +40,7 @@ typedef double fp64;
 #define TX_BOOL_NUM  0  
 #define TX_BYTE_NUM  0 
 #define TX_SHORT_NUM 0
-#define TX_INT_NUM   3
+#define TX_INT_NUM   0
 #define TX_FLOAT_NUM 0
 
 /// 3.指定接收数据包的结构-----------------------------------------------------------------------------------
@@ -48,8 +48,8 @@ typedef double fp64;
 #define RX_BOOL_NUM  0
 #define RX_BYTE_NUM  0
 #define RX_SHORT_NUM 0
-#define RX_INT_NUM   0
-#define RX_FLOAT_NUM 1
+#define RX_INT_NUM   1
+#define RX_FLOAT_NUM 0
 
 #define  TXPACK_BYTE_SIZE  ((TX_BOOL_NUM+7)>>3)+TX_BYTE_NUM+(TX_SHORT_NUM<<1)+(TX_INT_NUM<<2)+(TX_FLOAT_NUM<<2)
 #define  RXPACK_BYTE_SIZE  ((RX_BOOL_NUM+7)>>3)+RX_BYTE_NUM+(RX_SHORT_NUM<<1)+(RX_INT_NUM<<2)+(RX_FLOAT_NUM<<2)//const unsigned short

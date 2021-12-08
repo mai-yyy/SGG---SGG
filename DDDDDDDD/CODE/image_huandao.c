@@ -107,7 +107,7 @@ void Huandao_Sec_Low()
  if(!chuku_flag&&!huan_L_flag&&!huan_R_flag&&!huan_R_flag&&!podao_flag&&!shizhiflag)   //确保在直道上才开始判断环岛
  {
 //     huaxun_flag=0;
-     dxL=duanxi_L();     //防止二进环
+//     dxL=duanxi_L();     //防止二进环
      if(rightline[55]>rightline[50]&&rightline[45]>rightline[40]&&rightline[35]>rightline[30]&&rightline[25]>rightline[20]&&rightline[15]>rightline[10]
           &&rightline[55]>=80&&rightline[50]>=80&&rightline[45]>=80&&rightline[40]>=80&&rightline[35]>=80&&rightline[30]>=80&&
           rightline[25]>=80&&rightline[20]>=80&&rightline[15]>=80&&rightline[10]>=80&&endline<=1&&right_all_lose_line==0)
@@ -530,7 +530,7 @@ if(huan_R_flag==2)           //寻找环岛入口  改行宽度
 
 //
 
-    if(RWhitePnt1<=10&&RWhitePnt2<=10&&RWhitePnt3<=10)
+    if(RWhitePnt1<=12&&RWhitePnt2<=12&&RWhitePnt3<=12)
       {
 
           hz_r=1;

@@ -8,6 +8,7 @@ uint8 image_threshold1;
 uint8 image_threshold2;
 uint8 image_threshold3;
 uint16 wpoint=0;
+uint8 once_blu=0;
 void HUdudeal(uint8 th)
 {
     int16 i=59;
@@ -229,10 +230,17 @@ void get_road(void)
    // crossroad_find();
 
 //     chalu();
-     if(deb_delt_p)
-     {
+//     if(deb_delt_p)
+//     {
      ShangCha_thr_law(&real_char);
-     }
+//     }
+//     if(debug_speed>0&&once_blu==0)
+//     {
+//         once_blu=1;
+//         sancha_flag_right=2;
+//                            sancha_flag_left=2;
+//     }
+
     bu_xian();
 //    ALL_fill(&real_char);
 //    sec_fork_law(&real_char);
@@ -240,7 +248,7 @@ void get_road(void)
    danbianhuandao_bx();
     Straight_Test_2();
 
-    center_inflect_p_n();
+//    center_inflect_p_n();
 
   //  zhiruwan();
     get_differ();

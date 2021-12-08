@@ -14,6 +14,10 @@ uint8 XieLiCnt=0;
 _Bool XLFlag=0;
 _Bool XRFlag=0;
 uint8 flag22=0;
+int16 YLCnt=0;
+int16 YRCnt=0;
+int16 ColLcnt=0;
+int16 ColRcnt=0;
 uint8 cnt_fache1=0;
 uint16 cnt_black=0;
 uint16 sancha_stop=0;
@@ -22,6 +26,10 @@ int16 cnt_1=0;
 int16 cnt_2=0;
 int16 cnt_11=0;
 int16 cnt_22=0;
+uint8 ColFlagL=0;
+uint8 ColFlagR=0;
+Maiy_2_dimensional ColPoint_L={0,0};
+Maiy_2_dimensional ColPoint_R={0,0};
 uint8 yes=0;
 uint8 dorg_l=0;
 uint8 dorg_r=0;
@@ -961,13 +969,13 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
 
             if(left_all_lose_line>=40&&right_all_lose_line>=40)
             {
-                ForkStep=1;
-                LowRightJump.my_x=120;
-                                LowRightJump.my_y=30;
-                                LowLeftJump.my_x=40;
-                                               LowLeftJump.my_y=30;
+                ForkStep=0;
+//                LowRightJump.my_x=120;
+//                                LowRightJump.my_y=30;
+//                                LowLeftJump.my_x=40;
+//                                               LowLeftJump.my_y=30;
 
-                                               XLFlag=1;
+//                                               XLFlag=1;
             }
 
 
@@ -987,7 +995,7 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
 //            for(uint8 i=58;i>=40;i--)
 //      {
 //      if((rightline[i]>=150&&rightline[i-2]>=150&&leftline[i]<=10&&leftline[i-2]<=10)||XLFlag||XRFlag)
-if((!XLFlag&&LowRightJump.my_y>15&&LowLeftJump.my_y>15&&ABS(LowRightJump.my_y-LowLeftJump.my_y)<=18&&ABS(LowRightJump.my_x-LowLeftJump.my_x)>48))
+if(( LowRightJump.my_y>15&&LowLeftJump.my_y>15&&ABS(LowRightJump.my_y-LowLeftJump.my_y)<=18&&ABS(LowRightJump.my_x-LowLeftJump.my_x)>48))
         {
           memset(TriangRange,0,sizeof(int)*160);
             for(int16 j=LowLeftJump.my_x;j<=LowRightJump.my_x;j++)
@@ -1014,9 +1022,11 @@ if((!XLFlag&&LowRightJump.my_y>15&&LowLeftJump.my_y>15&&ABS(LowRightJump.my_y-Lo
         }
 else if(LowLeftJump.my_y>=15&&right_all_lose_line>=30&&!XLFlag)
 {
+    LowRightJump.my_x=158;
+    LowRightJump.my_y=59;
 //    buzzer(1);
     memset(TriangRange,0,sizeof(int)*160);
-               for(int16 j=LowLeftJump.my_x;j<=LowRightJump.my_x;j++)
+               for(int16 j=LowLeftJump.my_x;j<=158;j++)
          {
                for(int16 k=59;k>=2;k--)
                {
@@ -1041,8 +1051,10 @@ else if(LowLeftJump.my_y>=15&&right_all_lose_line>=30&&!XLFlag)
 
 else if(LowRightJump.my_y>=15&&left_all_lose_line>=30&&!XLFlag)
 {
+    LowLeftJump.my_x=0;
+    LowLeftJump.my_y=59;
     memset(TriangRange,0,sizeof(int)*160);
-                   for(int16 j=LowLeftJump.my_x;j<=LowRightJump.my_x;j++)
+                   for(int16 j=LowRightJump.my_x;j>=1;j--)
              {
                    for(int16 k=59;k>=2;k--)
                    {
@@ -1105,21 +1117,68 @@ else
 
 }
 
-            for(int16 k=59;k>=30;k--)
-            {
-                point=0;
-                for(int16 j=0;j<=159;j++)
-                    {
-                if(image_data[k][j])
-                    point++;
-                     }
-                if(point>150)
-                    yes++;
-            }
 
-            if(ForkStep&&TriangBlackPoint.my_y>=10&&TriangBlackPoint.my_y<LowLeftJump.my_y&&TriangBlackPoint.my_y<LowRightJump.my_y)
+             ColFlagL=0;
+             ColFlagR=0;
+             YLCnt=0;
+             YRCnt=0;
+            for(int16 i=LowRightJump.my_y>=LowLeftJump.my_y ? LowRightJump.my_y:LowLeftJump.my_y;i>=3;i--)
             {
-            if(TriangRange[TriangBlackPoint.my_x+1]>=TriangRange[TriangBlackPoint.my_x+10]&&TriangRange[TriangBlackPoint.my_x-1]>=TriangRange[TriangBlackPoint.my_x-10]&&TriangRange[TriangBlackPoint.my_x+10]&&TriangRange[TriangBlackPoint.my_x-10]&&TriangBlackPoint.my_y<=40)
+                if(image_data[i][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]&&image_data[i-1][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]==0&&image_data[i-2][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]==0)
+                {
+                    ColFlagL=1;
+                    ColPoint_L.my_y=i;
+//                    YLCnt=LowLeftJump.my_y-i;
+                }
+                if(image_data[i][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]&&image_data[i-1][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]==0&&image_data[i-2][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]==0)
+                                {
+                    ColFlagR=1;
+                    ColPoint_R.my_y=i;
+//                    YRCnt=LowRightJump.my_y-i;
+                                }
+                if(ColFlagR==1&&ColFlagL==1)
+                {
+                    break;
+                }
+
+            }
+            ColRcnt=0;
+            ColLcnt=0;
+            if(ColFlagR==1&&ColFlagL==1)
+            {
+               for(int16 i=(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2);i<158;i++)
+               {
+                   if(image_data[ColPoint_R.my_y][i]!=0)
+                   {
+                       ColRcnt++;
+                   }
+                   else
+                   {
+                       break;
+                   }
+               }
+
+               for(int16 i=(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2);i>0;i--)
+                              {
+                                  if(image_data[ColPoint_L.my_y][i]!=0)
+                                  {
+                                      ColLcnt++;
+                                  }
+                                  else
+                                  {
+                                      break;
+                                  }
+                              }
+
+            }
+//            ips200_showint16(30,11, ColRcnt);
+//             ips200_showint16(50,8, ColLcnt);
+//             ips200_showuint16(90,17,sc_char->mylinest[TriangBlackPoint.my_x]);
+//            buzzer(1);
+            if(ForkStep&&TriangBlackPoint.my_y>=10&&TriangBlackPoint.my_y<LowLeftJump.my_y&&ColLcnt>=10&&ColRcnt>=10&&TriangBlackPoint.my_y<LowRightJump.my_y&&ABS(ColLcnt-ColRcnt)<=38&&(ColLcnt+ColRcnt>=95||sanchacount>=1||1))
+            {
+//                buzzer(1);
+            if(TriangRange[TriangBlackPoint.my_x]>=TriangRange[TriangBlackPoint.my_x+5]&&TriangRange[TriangBlackPoint.my_x]>=TriangRange[TriangBlackPoint.my_x-5]&&TriangRange[TriangBlackPoint.my_x+5]&&TriangRange[TriangBlackPoint.my_x-5]&&TriangBlackPoint.my_y<=40)
               {
                 dorg_l=1;
 //buzzer(1);
@@ -1139,7 +1198,8 @@ if(dorg_l&&sc_char->mylinest[79]<=40)
                   dorg_l=0;
                   ForkStep=0;
 }
-
+//ips200_showint16(50,8, ColLcnt);
+//             ips200_showuint16(90,17,ColRcnt);
 
             if(sancha_flag_left==2&&qipao_time==1)
            {
@@ -1153,6 +1213,10 @@ if(dorg_l&&sc_char->mylinest[79]<=40)
           buzzer(0);
                 sancha_flag_right=0;
 //                if( icmdata.Yaw>=35)
+                if(sanchacount>0)
+                {
+                    sanchacount=0;
+                }
                 if(one_add==0)
                 {
                 sanchacount++;
@@ -1191,7 +1255,10 @@ if(dorg_l&&sc_char->mylinest[79]<=40)
                     {
                         ShangForkDir=0;
                     }
-
+                if(sanchacount>0)
+                               {
+                                   sanchacount=0;
+                               }
                  buzzer(0);
                   if(one_add==0)
                  {

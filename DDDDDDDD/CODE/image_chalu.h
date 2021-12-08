@@ -17,6 +17,8 @@ extern int16   RFixLineStart;
 extern uint8  LFixLineFlag;
 extern uint8 one_add;
 extern int16 one_add_time;
+extern Maiy_2_dimensional ColPoint_L;
+extern Maiy_2_dimensional ColPoint_R;
 extern int16  LFixLineStart;
 extern int LLineSegmentST[10];
 extern int LLineSegmentEN[10];

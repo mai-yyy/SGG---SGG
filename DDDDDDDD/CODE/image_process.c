@@ -2346,7 +2346,7 @@ void optimal_v20_get()     //其实无需Maiy_2_dimensional类型的返回值，直接调用rea
      real_char.m_u32LAllArea = 0;
      real_char.m_u32RAllArea = 0;
 
-     memset(real_char.mylinest, 0, sizeof(real_char.mylinest));
+     memset(real_char.mylinest, 0, sizeof(int)*60);
 
      X = MT9V032_W-2;
      while ((--X) + 1)
@@ -2432,7 +2432,7 @@ void optimal_v20_get()     //其实无需Maiy_2_dimensional类型的返回值，直接调用rea
              temp_ReturnPoint.my_y = (int16)(MT9V032_H - real_char.mylinest[temp_ReturnPoint.my_x]);
          }
      }
-     real_char.my_final_tOptimalPoint = temp_ReturnPoint; //将最优点返回直接赋值到p_stBorder结构体中,实际函数也返回了这个变量,在调用的地方使用函数有一个ST_2D_INT_POINT_INFO类型的变量来接也可以
+     real_char.my_final_tOptimalPoint = temp_ReturnPoint; //将最优点返回直接赋值到p_stBorder结构体中,实际函数也返回了这个变量
      real_char.m_stCenterLinePoint.my_x = MT9V032_W >> 1;
      real_char.m_stCenterLinePoint.my_y = MT9V032_H - real_char.mylinest[real_char.m_stCenterLinePoint.my_x];
 //     return temp_ReturnPoint; //返回实际计算出的最优点
@@ -2530,7 +2530,7 @@ else if(huan_L_flag==4&&bx_flag_4)
 }
 else if(huan_R_flag==2)
 {
-    midline[i]=(leftline[i] - Single_L_line[i])+80;
+    midline[i]=(leftline[i] - Single_L_line[i])+78;
 
 }
 else if(huan_R_flag==6)
@@ -2680,6 +2680,22 @@ else if(qipao_flag==0&&sancha_flag_right)
           differ = MidValue - basic;
 //          differ=differ>60  ?  60:differ;
 //          differ=differ<45  ?  45:differ;
+//          differ=differ<30  ?  30:differ;
+
+}
+
+else if(qipao_flag==1&&sancha_flag_left)
+{
+    for(hang=59 ; hang>endline ; hang--)  //基础求偏差
+              {
+                WeightSum += weight[hang];
+                error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+                MidSum += midline[hang]*weight[hang];
+              }
+          MidValue = MidSum/WeightSum;
+          differ = MidValue - basic;
+//          differ=differ>60  ?  60:differ;
+//          differ=differ<25  ?  25:differ;
 
 }
 else if(podao_flag)
@@ -2704,9 +2720,9 @@ else if(podao_flag)
 //       MidValue = MidSum/WeightSum;
 //       differ = MidValue - basic;
 //}
-else if(huan_L_flag==1||huan_R_flag==1)
+else if(huan_L_flag==2||huan_R_flag==2)
 {
-    for(hang=Row-1 ; hang>endline+1 ; hang--)  //基础求偏差
+    for(hang=Row-1 ; hang>endline+15 ; hang--)  //基础求偏差
         {
           WeightSum += huandao[hang];
           error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
@@ -2981,13 +2997,15 @@ void chujie()
 {
 //if(!stopcar_flag&&!ku_L&&!ku_R)
 //  {
- if(!image_data[59][110]&&!image_data[59][120]&&!image_data[59][130]&&!image_data[59][140]&&!image_data[59][150]&&!image_data[59][75]&&!image_data[59][74]&&!image_data[59][10]&&!image_data[59][20]&&!image_data[59][30]&&!image_data[59][40]&&!image_data[59][50]&&!image_data[59][60])
+ if(!sancha_flag_left&&!sancha_flag_right&&!image_data[59][110]&&!image_data[59][120]&&!image_data[59][130]&&!image_data[59][140]&&!image_data[59][150]&&!image_data[59][75]&&!image_data[59][74]&&!image_data[59][10]&&!image_data[59][20]&&!image_data[59][30]&&!image_data[59][40]&&!image_data[59][50]&&!image_data[59][60])
  {
 //   buzzer(1);
+
+
    out_flag++;
 
  }
- if(endline>=55)
+ if(endline>=55&&!sancha_flag_right&&!sancha_flag_left)
  {
      out_flag++;
 //     buzzer(1);
@@ -3120,12 +3138,12 @@ crossroad_deal();
 }
 
 
-if(!sancha_flag_left&&!sancha_flag_right)
-        {
-                sancha_stop=0;
-            leftjump=0;
-            rightjump=0;
-        }
+//if(!sancha_flag_left&&!sancha_flag_right)
+//        {
+////                sancha_stop=0;
+////            leftjump=0;
+////            rightjump=0;
+//        }
 //if((sancha_flag_left||sancha_flag_right)&&ShangForkDir==0&&sanchacount==0&&remember==0)
 //{
 //    if(sancha_stop==0)
@@ -4685,7 +4703,7 @@ if(str_danbx)   //右环
    {
        if(!zuiflag)
        {
-       if(rightline[i-1]>=rightline[i]&&leftline[i-1]-leftline[i]<7)
+       if(rightline[i-1]>=rightline[i]&&leftline[i-1]-leftline[i]<8)
        {
            zuiflag=1;
            zuiyoudian=rightline[i];
@@ -4696,7 +4714,7 @@ if(str_danbx)   //右环
        {
            if(rightline[i]>=zuiyoudian&&leftline[i-1]-leftline[i]<7)
            {
-               midline[i]=(leftline[i] - Single_L_line[i])+79;
+               midline[i]=(leftline[i] - Single_L_line[i])+76;
 //               if((leftline[i] - Single_L_line[i])>0) midline[i]=79;
            }
        }

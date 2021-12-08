@@ -10,5 +10,7 @@ extern uint16 ruku_time;
 extern int32 chuku_distance;
 extern unsigned char chuku_flag;
 extern unsigned char qipao_line;
+extern uint16 time_ck;
+extern uint8 time_ck_fl;
 void qipao_find();
 void chuku();
