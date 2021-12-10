@@ -2346,7 +2346,7 @@ void optimal_v20_get()     //其实无需Maiy_2_dimensional类型的返回值，直接调用rea
      real_char.m_u32LAllArea = 0;
      real_char.m_u32RAllArea = 0;
 
-     memset(real_char.mylinest, 0, sizeof(int)*60);
+     memset(real_char.mylinest, 0, sizeof(int)*160);
 
      X = MT9V032_W-2;
      while ((--X) + 1)
@@ -2530,7 +2530,7 @@ else if(huan_L_flag==4&&bx_flag_4)
 }
 else if(huan_R_flag==2)
 {
-    midline[i]=(leftline[i] - Single_L_line[i])+78;
+    midline[i]=(leftline[i] - Single_L_line[i])+85;
 
 }
 else if(huan_R_flag==6)

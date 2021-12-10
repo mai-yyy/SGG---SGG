@@ -53,6 +53,7 @@ void real_hopespeed_count()
 //    if(endline>6||ABS(differ)>=21)
     if(sancha_flag_left||sancha_flag_left)
        {
+        real_hope_speed=170;
             if(qipao_time==0)
                    {
                 CS_control(get_djj,170);
@@ -96,7 +97,7 @@ void real_hopespeed_count()
                 }
         else if(huan_L_flag==3||huan_R_flag==3)
         {
-
+            real_hope_speed=150;
             CS_control(get_djj,150);
                                if(differ<0)
                                                       { CSRDelta_PID(realspeed,150+Right_High_Speed);
@@ -113,7 +114,7 @@ void real_hopespeed_count()
                {
 if(1)
 {
-
+    real_hope_speed=150;
     CS_control(get_djj,150);
                               if(differ<0)
                                                      { CSRDelta_PID(realspeed,150+Right_High_Speed);
@@ -124,7 +125,9 @@ if(1)
                                                                CSRDelta_PID(realspeed,150+Right_High_Speed);
                                                                CSLDelta_PID(realspeed_l,150+Left_High_Speed);
     }}
-else{              CS_control(get_djj,170);
+else{
+    real_hope_speed=170;
+    CS_control(get_djj,170);
                            if(differ<0)
                                                   { CSRDelta_PID(realspeed,170+Right_High_Speed);
                                                   CSLDelta_PID(realspeed_l,170+Left_High_Speed);

@@ -3,7 +3,7 @@
 
 
 
-
+extern  uint8 hz_r;
  extern uint16 LWhitePnt1 ;
  extern  uint16 LWhitePnt2 ;
 extern   uint16 LWhitePnt3 ;

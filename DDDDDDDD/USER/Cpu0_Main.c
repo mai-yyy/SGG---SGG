@@ -24,7 +24,7 @@ for(; ;)
 #endif
             get_road();
 //            Time1=systick_getval_ms(STM1);
-//                        ips200_showint16(30,11, variable_3);
+                        ips200_showint16(30,11, sancha_flag_left);
 //                               ips200_showint16(50,8,qipao_time);
         if(!gpio_get(P33_12))
         {           showips();}        }   }   }   }

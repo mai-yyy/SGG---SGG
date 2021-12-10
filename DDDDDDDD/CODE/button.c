@@ -1019,7 +1019,7 @@ else if(START_PAGE==Init_debug)
          variable_3=value+variable_3;
                 value=0;
                 uicolorget(0, 0, "dj_init", IPS200_PENCOLOR,0x001F);
-                 ips200_showfloat(120,0,660+variable_3,3,1);
+                 ips200_showfloat(120,0,variable_3,3,1);
 
                  ips200_showstr(120,3,"return");
 

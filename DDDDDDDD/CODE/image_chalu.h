@@ -60,6 +60,8 @@ extern int RLineSegmentEN[10];
  extern  uint8 sancha_flag1;
  extern uint8 nowait;
 void chalu();
+void ShangCha_flo_law(Maiy_characteristic_point* sc_char);
 void ALL_fill(Maiy_characteristic_point* sc_char);
 void sec_fork_law(Maiy_characteristic_point *SewFork_char);
 void ShangCha(Maiy_characteristic_point* sc_char);
+void ShangCha_thr_law(Maiy_characteristic_point* sc_char);

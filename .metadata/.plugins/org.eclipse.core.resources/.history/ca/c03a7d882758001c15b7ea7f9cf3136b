@@ -1,0 +1,170 @@
+#ifndef _PHONE_BL_H_
+#define _PHONE_BL_H_
+#include "headfile.h"
+#pragma section all "cpu0_dsram"
+
+typedef unsigned char 	u8;
+typedef unsigned short 	u16;
+typedef unsigned int 	u32;
+
+typedef signed char 		s8;
+typedef signed short 		s16;
+typedef signed int			s32;
+
+typedef volatile unsigned char 	vu8;
+typedef volatile unsigned short vu16;
+typedef volatile unsigned int 	vu32;
+
+typedef volatile signed char 	vs8;
+typedef volatile signed short vs16;
+typedef volatile signed int 	vs32;
+
+typedef signed char int8_t;
+typedef signed short int int16_t;
+typedef signed int int32_t;
+typedef signed long long int64_t;
+
+/* exact-width unsigned integer types */
+typedef unsigned char uint8_t;
+typedef unsigned short int uint16_t;
+typedef unsigned int uint32_t;
+typedef unsigned long long uint64_t;
+//typedef float fp32;
+typedef double fp64;
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+/// 2.指定发送数据包的结构--------------------------在发送时会自动额外在前后加上包头，包尾和校验和数据，因此会多出3个字节
+
+///   
+
+//    根据实际需要的变量，定义数据包中 bool byte short int float 五种类型的数目
+#define TX_BOOL_NUM  0  
+#define TX_BYTE_NUM  0 
+#define TX_SHORT_NUM 0
+#define TX_INT_NUM   2
+#define TX_FLOAT_NUM 0
+
+/// 3.指定接收数据包的结构-----------------------------------------------------------------------------------
+//    根据实际需要的变量，定义数据包中 bool byte short int float 五种类型的数目
+#define RX_BOOL_NUM  0
+#define RX_BYTE_NUM  0
+#define RX_SHORT_NUM 0
+#define RX_INT_NUM   0
+#define RX_FLOAT_NUM 2
+
+#define  TXPACK_BYTE_SIZE  ((TX_BOOL_NUM+7)>>3)+TX_BYTE_NUM+(TX_SHORT_NUM<<1)+(TX_INT_NUM<<2)+(TX_FLOAT_NUM<<2)
+#define  RXPACK_BYTE_SIZE  ((RX_BOOL_NUM+7)>>3)+RX_BYTE_NUM+(RX_SHORT_NUM<<1)+(RX_INT_NUM<<2)+(RX_FLOAT_NUM<<2)//const unsigned short
+
+#define my_send_buff_len TXPACK_BYTE_SIZE+3
+#define my_get_pack_len RXPACK_BYTE_SIZE+3
+#define my_get_buff_len (int)(my_get_pack_len*1.5)
+
+#define BlueTooth_MAX_LEN (my_get_buff_len)
+#define Blueteeth_BUFLEN      (my_get_pack_len)
+
+#define FLASH_INT_NUM   14
+#define FLASH_FLOAT_NUM 7
+typedef struct
+{
+	u8 buff[2][BlueTooth_MAX_LEN];
+	uint16_t lens;
+	
+	_Bool pre;
+	_Bool buf_num;
+	uint16_t num;
+}Blueteeth_Uart_Rx_buff_t;
+extern Blueteeth_Uart_Rx_buff_t Blueteeth_buff;
+
+typedef struct   
+
+{	
+    #if TX_BOOL_NUM > 0
+    unsigned char bools[TX_BOOL_NUM];
+    #endif	
+    
+    #if TX_BYTE_NUM > 0
+    char bytes[TX_BYTE_NUM];
+    #endif	
+    
+    #if TX_SHORT_NUM > 0
+    short shorts[TX_SHORT_NUM];	
+    #endif	
+    
+    #if TX_INT_NUM > 0
+    int  integers[TX_INT_NUM];
+    #endif	
+    
+    #if TX_FLOAT_NUM > 0
+    float floats[TX_FLOAT_NUM];
+    #endif
+    
+    char space; //只是为了占一个空，当所有变量数目都为0时确保编译成功
+}
+TxPack;
+
+typedef struct 
+
+{	
+    #if RX_BOOL_NUM > 0
+    unsigned char bools[RX_BOOL_NUM];
+    #endif
+    
+    #if RX_BYTE_NUM > 0
+    char bytes[RX_BYTE_NUM];
+    #endif
+    
+    #if RX_SHORT_NUM > 0
+    short shorts[RX_SHORT_NUM];	
+    #endif
+    
+    #if RX_INT_NUM > 0
+    int  integers[RX_INT_NUM];
+    #endif
+    
+    #if RX_FLOAT_NUM > 0
+    float floats[RX_FLOAT_NUM];
+    #endif
+    
+    char space; //只是为了占一个空，当所有变量数目都为0时确保编译成功
+}RxPack;
+
+typedef union 
+{
+float _dat_float;
+uint32_t _dat_int;
+}float_int_u;
+
+typedef struct 
+{   
+    #if FLASH_INT_NUM > 0
+    int  integers[FLASH_INT_NUM];
+    #endif
+    
+    #if FLASH_FLOAT_NUM > 0
+    float_int_u floats[FLASH_FLOAT_NUM];
+    #endif
+    
+    char space; //只是为了占一个空，当所有变量数目都为0时确保编译成功
+}Flash_pack_t;
+
+
+extern TxPack my_TxPack;
+extern RxPack my_RxPack;
+extern
+
+void my_pack_come_phone(_Bool pre);//接收函数
+void my_pack_to_phone(TxPack *i_TxPack);
+void my_sendBuffer(uint8_t *buff,u32 len);
+void my_pack_send_phone();
+void my_pack_come_phone_uart_handle(uint8_t bit,_Bool analysis);
+
+
+#endif
+
+
+
+
+
+
+
+
+

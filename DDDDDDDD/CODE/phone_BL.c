@@ -21,16 +21,22 @@ void my_pack_send_phone()
 //    my_TxPack.shorts[0] = dj;
 #if   dj_blu_pr>0
     my_TxPack.integers[0]=teo_wheel_sp;
-    my_TxPack.integers[1]=realspeed;
-    my_TxPack.integers[2]=realspeed_l;
+    my_TxPack.integers[1]=real_hope_speed;
 
-//    my_TxPack.integers[3]=Left_High_Speed;
-//    my_TxPack.integers[4]= Right_High_Speed;
-
-    my_TxPack.floats[0]=deb_delt_p;
-    my_TxPack.floats[1]=deb_delt_i;
+//    my_TxPack.integers[1]=realspeed;
+//    my_TxPack.integers[2]=realspeed_l;
+//
+////    my_TxPack.integers[3]=Left_High_Speed;
+////    my_TxPack.integers[4]= Right_High_Speed;
+//
+//    my_TxPack.floats[0]=deb_delt_p;
+//    my_TxPack.floats[1]=deb_delt_i;
 #endif
 
+    my_TxPack.integers[0]=RWhitePnt1;
+    my_TxPack.integers[1]=RWhitePnt2;
+    my_TxPack.integers[2]=RWhitePnt3;
+    my_TxPack.integers[3]=hz_r;
 
 
 #if fork_blu_pr>0
@@ -110,10 +116,10 @@ void put_date(RxPack *i_RxPack)
   //short
 //    deb_delt_p=i_RxPack->floats[0];
 //      deb_delt_i=i_RxPack->floats[1];
-       debug_speed=i_RxPack->integers[0];
+//       debug_speed=i_RxPack->integers[0];
 //    deb_delt_p=i_RxPack->floats[0];
 #if dj_blu_pr>0
-    debug_speed=i_RxPack->integers[0];
+//    debug_speed=i_RxPack->integers[0];
     deb_delt_p=i_RxPack->floats[0];
     deb_delt_i=i_RxPack->floats[1];
   //integers
