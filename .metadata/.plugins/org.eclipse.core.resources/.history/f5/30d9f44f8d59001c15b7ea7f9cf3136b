@@ -1,0 +1,705 @@
+#include "motor_control.h"
+#include "headfile.h"
+
+//14届四轮冠军武大的取胜要素就是速度决策很好，有时间我来优化
+
+int16 debug_speed=0;
+int16 nowErr=0;
+int16 lastErr=0;
+int16 Err_prelast=0;
+float motorKp=10;//60
+float motorKd=5;//10
+float motorKi=4;//7
+int16 adjust=0;
+int16 realspeed=0;
+int16 teo_wheel_sp=0;
+int16 realspeed_l=0;
+int16 real_hope_speed=0;
+uint8 huan_R_speed_low=0;
+uint8 huan_L_speed_low=0;
+uint8 chalu_speed_low=0;
+uint8 last_td=0;
+uint8 ruku_speed_low=0;
+uint8 speeddown_time=0;
+float hopessp=0;
+uint8 shouldgo=0;
+
+//void Better_speed()
+//{
+//switch(way)
+//{case straight:
+//    {
+//        break;
+//    }
+//case out_left:
+//{
+//break;
+//}
+//}
+//}
+
+void real_hopespeed_count()
+{
+
+//    if(s_to_b_1)
+//                                           {
+//
+//                                               buzzer(1);
+//                                               real_hope_speed=(130);//
+//                                                                                    hopessp=130;//
+//                                                                                    Delta_PID(realspeed,130);//
+//                                           }
+//              if(real_char.Road_type==Straight)
+//    if(endline>6||ABS(differ)>=21)
+    if(sancha_flag_left||sancha_flag_left)
+       {
+        real_hope_speed=170;
+            if(qipao_time==0)
+                   {
+                CS_control(get_djj,170);
+                                                  if(differ<0)
+                                                                         { CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                                         CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                                         }
+                                                                         else {
+
+                                                                                   CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                                                   CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+
+                                                                         }
+                   }
+           else if(qipao_time==1)
+           {
+
+               CS_control(get_djj,170);
+                                  if(differ<0)
+                                                         { CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                         CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                         }
+                                                         else {
+
+                                                                   CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                                   CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+
+                                                         }
+           }
+
+       }
+
+
+           else  if(huan_L_flag||huan_R_flag)
+    {
+         if(huan_L_flag==2||huan_R_flag==2)
+                {
+                    real_hope_speed=(230);//
+                                                   hopessp=170;//
+                                                   Delta_PID(teo_wheel_sp,230);
+                }
+        else if(huan_L_flag==3||huan_R_flag==3)
+        {
+            real_hope_speed=150;
+            CS_control(get_djj,150);
+                               if(differ<0)
+                                                      { CSRDelta_PID(realspeed,150+Right_High_Speed);
+                                                      CSLDelta_PID(realspeed_l,150+Left_High_Speed);
+                                                      }
+                                                      else {
+
+                                                                CSRDelta_PID(realspeed,150+Right_High_Speed);
+                                                                CSLDelta_PID(realspeed_l,150+Left_High_Speed);
+
+                                                      }
+        }
+        else if(huan_L_flag==4||huan_R_flag==4)
+               {
+if(1)
+{
+    real_hope_speed=150;
+    CS_control(get_djj,150);
+                              if(differ<0)
+                                                     { CSRDelta_PID(realspeed,150+Right_High_Speed);
+                                                     CSLDelta_PID(realspeed_l,150+Left_High_Speed);
+                                                     }
+                                                     else {
+
+                                                               CSRDelta_PID(realspeed,150+Right_High_Speed);
+                                                               CSLDelta_PID(realspeed_l,150+Left_High_Speed);
+    }}
+else{
+    real_hope_speed=170;
+    CS_control(get_djj,170);
+                           if(differ<0)
+                                                  { CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                  CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                  }
+                                                  else {
+
+                                                            CSRDelta_PID(realspeed,170+Right_High_Speed);
+                                                            CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+
+                                                  }
+               }
+               }
+
+        else if(huan_L_flag==5||huan_R_flag==5)
+        {
+            real_hope_speed=(170);//
+                                                      hopessp=170;//
+                                                      Delta_PID(teo_wheel_sp,170);
+
+        }
+
+    }
+    else if(huan_L_flag==6||huan_R_flag==6)
+    {
+if(ABS(differ)<=10)
+{
+        real_hope_speed=(230);//
+                                                 hopessp=170;//
+                                                 Delta_PID(teo_wheel_sp,230);
+}
+
+else
+{
+
+    real_hope_speed=(200);//
+                                                    hopessp=170;//
+                                                    Delta_PID(teo_wheel_sp,200);
+
+}
+//                                                 out_flag=8;
+
+    }
+
+//    else if(endline<=16&&endline>=10&&((differ>9&&differ<40)||(differ>-25&&differ<-9))&&(way==not_straight||way==straight))                //run_wan
+//        {
+//
+//            buzzer(1);
+//            CS_control(get_djj,100);
+//            if(differ<0)
+//                                   { CSRDelta_PID(realspeed,100+Right_High_Speed);
+//                                   CSLDelta_PID(realspeed_l,100+Left_High_Speed);
+//                                   }
+//                                   else {
+//
+//                                             CSRDelta_PID(realspeed,100+Right_High_Speed);
+//                                             CSLDelta_PID(realspeed_l,100+Left_High_Speed);
+//
+//                                   }
+//    //                     real_hope_speed=(160);//
+//    //                                                          hopessp=140;//
+//    //
+//    //                                                          Delta_PID(realspeed,160);//
+//                                                            //  pwm_duty( ATOM1_CH7_P02_7,4000);
+//                     }
+
+else  if((!type_str||endline>=10)&&ABS(differ)>=20)
+    {
+    buzzer(0);
+    real_hope_speed=(Higher_ben_speed);//
+//        if(realspeed<=130)
+
+//                         {
+//                             pwm_duty( ATOM1_CH7_P02_7,5000);
+//                                           pwm_duty( ATOM1_CH6_P02_6,0);
+//                                           pwm_duty( ATOM1_CH4_P02_4,5000);
+//                                                   pwm_duty( ATOM1_CH5_P02_5,0);
+//                         }
+//                   buzzer(0);
+
+//   if(way==out_right||way==out_left)
+//    {
+//
+//        buzzer(0);
+//        CS_control(get_djj,200);
+//               if(differ<0)
+//                                      { CSRDelta_PID(realspeed,200+Right_High_Speed);
+//                                      CSLDelta_PID(realspeed_l,200+Left_High_Speed);
+//                                      }
+//                                      else {
+//
+//                                                CSRDelta_PID(realspeed,200+Right_High_Speed);
+//                                                CSLDelta_PID(realspeed_l,200+Left_High_Speed);
+//
+//                                      }
+//
+//
+//
+//    }
+//
+//
+//    else{                      //_in_wan
+        CS_control(get_djj,Higher_ben_speed);
+        buzzer(0);
+        r_t_o=1;
+                       if(differ<0)
+                                              {
+//                           if(differ<=-40&&endline>16)
+//                           {
+//                                                     way=in_left;
+//                                                     r_t_o=1;
+//                           }
+//                           if(endline>=20)
+//                           {
+//
+//                               way=in_left;
+//                                                                                   r_t_o=1;
+//                           }
+                           CSRDelta_PID(realspeed,Higher_ben_speed+Right_High_Speed);
+                                              CSLDelta_PID(realspeed_l,Higher_ben_speed+Left_High_Speed);
+                                              }
+                                              else {
+//                                                  if(differ>=40&&endline>16)
+//                                                  {
+//                                                  way=in_right;
+//                                                  r_t_o=1;
+//                                                  }
+//                                                  if(endline>=20)
+//                                                  {
+//                                                      way=in_right;
+//                                                                                                     r_t_o=1;
+//                                                  }
+                                                  CSRDelta_PID(realspeed,Higher_ben_speed+Right_High_Speed);
+                                                        CSLDelta_PID(realspeed_l,Higher_ben_speed+Left_High_Speed);
+
+                                              }
+
+
+
+    }
+//    }
+//else if((endline<=6&&ABS(differ)<=20)||ABS(differ<=15))
+    else if(type_str||(shizhiflag&&ABS(differ)<=18))
+    {
+    buzzer(1);
+
+                    if(teo_wheel_sp<=200||(endline<=2&&ABS(differ<=15))||endline==0||ABS(differ)<=10)
+                    {
+                        buzzer(1);
+                        pwm_duty( ATOM1_CH7_P02_7,10000);
+                                      pwm_duty( ATOM1_CH6_P02_6,0);
+                                      pwm_duty( ATOM1_CH4_P02_4,10000);
+                                              pwm_duty( ATOM1_CH5_P02_5,0);
+                    }
+
+                    else{
+                        buzzer(0);
+                 real_hope_speed=(Higher_str_speed);//
+                                   hopessp=Higher_str_speed;//
+                                   Delta_PID(teo_wheel_sp,Higher_str_speed);
+                    }//
+                                //   pwm_duty( ATOM1_CH7_P02_7,3000);
+             }
+             else
+             {
+//                 r_t_o=1;
+              buzzer(0);
+              real_hope_speed=(Higher_ben_speed);//
+                 CS_control(get_djj,Higher_ben_speed);
+                        if(differ<0)
+                        { CSRDelta_PID(realspeed,Higher_ben_speed+Right_High_Speed);
+
+                        CSLDelta_PID(realspeed_l,Higher_ben_speed+Left_High_Speed);
+                        }
+                        else {
+
+                                  CSRDelta_PID(realspeed,Higher_ben_speed+Right_High_Speed);
+                                  CSLDelta_PID(realspeed_l,Higher_ben_speed+Left_High_Speed);
+
+                        }
+                                                    //  pwm_duty( ATOM1_CH7_P02_7,4000);
+             }
+
+//    if(s_to_b_1)
+//    {
+//        buzzer(1);
+//        real_hope_speed=(100);//
+//                          hopessp=100;//
+//                          Delta_PID(realspeed,100);//
+//     //   pwm_duty( ATOM1_CH7_P02_7,2700);
+//    }
+//    else if(chuku_flag==1)
+//{
+//    Delta_PID(realspeed,90);
+//           hopessp=90;
+//}
+//// if(ku_R||ku_L)
+////{
+////    if(ku_R==1||ku_L==1)
+////    {
+////        if(!ruku_speed_low)
+////           {
+////               if(realspeed>=(int16)ruku_max)
+////               {
+////                   speedDown();
+////               }
+////               else
+////               {
+////                   ruku_speed_low=1;
+////               }
+////           }
+////           else
+////           {
+////               real_hope_speed=ruku_max;
+////               Dianji_pid_diff(real_hope_speed,realspeed);
+////           }
+////    }
+////    else if(ku_R==2||ku_L==2)
+////    {
+////      if(speeddown_time<=55)   // 700ms        370ms
+////      {
+////        speedDown();
+////        speeddown_time++;
+////      }
+////      else
+////      {
+////          speedStop();
+////      }
+////    }
+////}   //shangmian yingjing zhushi my
+//// if(chalu_flag==1||chalu_flag==3)
+////{
+////    s_to_b_1=0;
+////    if(!chalu_speed_low)
+////    {
+////        if(realspeed>=(int16)chalu_max)
+////        {
+////            //speedDown();
+////            Delta_PID(realspeed,100);
+////            hopessp=100;
+////        }
+////        else
+////        {
+////            chalu_speed_low=1;
+////        }
+////    }
+////    else
+////    {
+////        real_hope_speed=chalu_max;
+////        Dianji_pid_diff(real_hope_speed,realspeed);
+////    }
+////}
+////else if(differ>=40||differ<=-40)  //弯中
+////{
+////    real_hope_speed=120;
+////   // Dianji_pid_diff(real_hope_speed,realspeed);
+////    Delta_PID(realspeed,120);
+////    hopessp=120;
+////}
+//else if(podao_flag)
+//{
+//    real_hope_speed=podao_max-20;
+//   // Dianji_pid_diff(real_hope_speed,realspeed);
+//    Delta_PID(realspeed,80);
+//    hopessp=70;
+//}
+//// else if(ku_R||ku_L)
+//// {
+////     Delta_PID(realspeed,0);
+////        hopessp=0;
+//// }
+//////else if(s_to_b_1&&!ku_R&&!ku_L&&!qipao_flag&&!huan_L_flag&&!huan_R_flag&&!podao_flag)
+////    {
+////      if(s_to_b_1==1)
+////      {
+////      if(realspeed>=(int16)s_to_b_max)
+////      {
+////         // speedDown();
+////          Delta_PID(realspeed,110);
+////          hopessp=110;
+////          buzzer(0);
+////      }
+////      else
+////      {
+////          s_to_b_1=2;
+////      }
+////      }
+////      else if(s_to_b_1==2)
+////      {
+////       real_hope_speed=s_to_b_max;
+////     //  Dianji_pid_diff(real_hope_speed,realspeed);
+////       Delta_PID(realspeed,110);
+////       hopessp=110;
+////       buzzer(0);
+////      }
+////
+////    }
+//
+////else if(linest>50&&linest<=58&&!tdflag)
+////{
+////    Delta_PID(realspeed,110);
+////         hopessp=110;
+////        // buzzer(0);
+////}
+//else if(huan_L_flag)
+//{
+//    if(huan_L_flag==1)
+//    {
+//    hopessp=130;
+//    real_hope_speed=hopessp;
+//    }
+//    else if(huan_L_flag==2)
+//        {
+//        hopessp=80;
+//        real_hope_speed=hopessp;
+//        }
+//    else
+//    {
+//    hopessp=130;
+//    real_hope_speed=hopessp;
+//    }
+//    Delta_PID(realspeed,real_hope_speed);
+//}
+//else if(huan_R_flag)
+//{
+//    if(huan_R_flag==1)
+//    {
+//    hopessp=130;
+//    real_hope_speed=hopessp;
+//    }
+//    else if(huan_R_flag==2)
+//        {
+//        hopessp=110;
+//        real_hope_speed=hopessp;
+//        }
+//    else
+//    {
+//    hopessp=130;
+//    real_hope_speed=hopessp;
+//    }
+//    Delta_PID(realspeed,real_hope_speed);
+//}
+//
+////else if(huan_L_flag>=1||huan_R_flag>=1)
+////{
+////  if(huan_L_flag)
+////  {
+////  if(huan_L_flag==2||huan_L_flag==3)
+////  {
+////  if(!huan_L_speed_low)
+////  {
+////      if(realspeed>=(int16)s_to_huanL_max)
+////      {
+////          hopessp=85;
+////      }
+////      else
+////      {
+////          huan_L_speed_low=1;
+////      }
+////  }
+////  else
+////  {
+////      real_hope_speed=(int16)s_to_huanL_max;
+////      Dianji_pid_diff(real_hope_speed,realspeed);
+////  }
+////  }
+////  else if(huan_L_flag==4||huan_L_flag==5||huan_L_flag==6)
+////  {
+////      huan_L_speed_low=0;
+////      real_hope_speed=huan_in_speed_L-ABS(differ);
+////      Dianji_pid_diff(real_hope_speed,realspeed);
+////  }
+////
+////  }
+////  else if(huan_R_flag)
+////  {
+////      if(huan_R_flag==2||huan_R_flag==3)
+////       {
+////       if(!huan_R_speed_low)
+////       {
+////           if(realspeed>=(int16)s_to_huanR_max)
+////           {
+////               hopessp=90;
+////           }
+////           else
+////           {
+////               huan_R_speed_low=1;
+////           }
+////       }
+////       else
+////       {
+////           real_hope_speed=s_to_huanR_max;
+////           Dianji_pid_diff(real_hope_speed,realspeed);
+////       }
+////       }
+////       else if(huan_R_flag==4||huan_R_flag==5||huan_R_flag==6)
+////       {
+////           huan_R_speed_low=0;
+////           real_hope_speed=huan_in_speed_R-ABS(differ);
+////           Dianji_pid_diff(real_hope_speed,realspeed);
+////       }
+////  }
+////
+////}
+////    else
+////    {
+//////        if(ABS(differ)<=8&&tdflag&&linest==59)
+////        if(ABS(differ)<=8&&linest==59)
+////      {
+////
+////if(endline>9)
+////{
+////    if(linest<=35&&ABS(differ)<=39)
+////    {
+////        real_hope_speed=(hope_speed);//
+////       hopessp=hope_speed;//
+////       Delta_PID(realspeed,hope_speed);//
+////    }
+////    else
+////    {
+////    real_hope_speed=(hope_speed);//
+////hopessp=hope_speed;//
+////Delta_PID(realspeed,hope_speed);//
+////    }
+////}
+////else{
+////        real_hope_speed=(hope_speed_straight);
+////        hopessp=hope_speed_straight;
+////
+////            //}
+////     //   buzzer(1);
+//////        if((int16)(real_hope_speed-realspeed)>=100)          //直道采用bang—bang加速     100
+//////        {
+//////          speedUp();
+//////        }
+//////        else
+//////        {
+//////            if(real_hope_speed<(int16)hope_speed_min)
+//////            {
+//////                real_hope_speed=hope_speed_min;
+//////            }
+////           Delta_PID(realspeed,real_hope_speed);
+////      //}
+////           }
+////      }
+////
+////    else
+////    {
+////
+////        if(endline>9)
+////        {
+////            if(linest<=35&&ABS(differ)<=39)
+////               {
+////                   real_hope_speed=(hope_speed);//
+////                  hopessp=hope_speed;//
+////                  Delta_PID(realspeed,hope_speed);//
+////               }
+////               else
+////               {
+////            real_hope_speed=(hope_speed);//
+////        hopessp=hope_speed;///
+////        Delta_PID(realspeed,hope_speed);//
+////               }
+////        }
+////        else
+////        {
+////        real_hope_speed=(int16)(hope_speed);
+////
+////        Delta_PID(realspeed,real_hope_speed);
+////        hopessp=real_hope_speed;//Dianji_pid_diff(real_hope_speed,realspeed);
+////        //speedDown() ;
+////        }
+////
+////
+////    }
+////
+////    }
+//else
+//{
+//if(ABS(differ<=9
+//        )&&endline<2)
+//{
+//    buzzer(0);
+//    real_hope_speed=(hope_speed_straight);//
+//                      hopessp=hope_speed_straight;//
+//                      Delta_PID(realspeed,hope_speed_straight);//
+//
+//   // pwm_duty( ATOM1_CH7_P02_7,3700);}
+//}
+//else if(ABS(differ)>=40)
+//{
+//    buzzer(0);
+//    real_hope_speed=(120);//
+//           hopessp=120;///
+//           Delta_PID(realspeed,120);//
+//}
+//else
+//{
+//    buzzer(0);
+//    real_hope_speed=(hope_speed);//
+//            hopessp=hope_speed;///
+//            Delta_PID(realspeed,hope_speed);//
+//    //pwm_duty( ATOM1_CH7_P02_7,3200);
+//}
+//}
+}
+
+void speedUp()
+{
+   // gpio_set(MOTOR2_DIR, 0) ;     //加速正转
+    pwm_duty(MOTOR2_PWM,2400);
+}
+void speedDown()    
+{
+   // gpio_set(MOTOR2_DIR, 1) ;      //急减速反转
+    pwm_duty(MOTOR2_PWM,2400);
+    pwm_duty(MOTOR1_PWM,0);
+}
+void speedStop()
+{
+   // gpio_set(MOTOR2_DIR, 0) ;
+    pwm_duty(MOTOR2_PWM,0);
+    pwm_duty( ATOM1_CH4_P02_4,0);//停车
+}
+
+void Dianji_pid_diff(int16 SpeedHope,uint16 MotorSpeed)   //差速控制
+{
+  nowErr = SpeedHope - MotorSpeed;
+  adjust += (int16) (motorKp * (nowErr - lastErr) + motorKi * nowErr+ motorKd * (nowErr + Err_prelast - 2 * lastErr));
+  Err_prelast= lastErr;
+  lastErr = nowErr;
+
+//if(nowErr>=90)        //bang bang 加速
+//{
+//    adjust=8000;
+//    gpio_set(MOTOR2_DIR, 0) ;     //加速正转
+//    pwm_duty(MOTOR2_PWM,adjust);
+//}
+//else
+//{
+ if (adjust <= range_pid_ctl_L)
+  {
+    adjust=-range_pid_ctl_L;
+   // gpio_set(MOTOR2_DIR, 0) ;     //加速正转
+    pwm_duty(MOTOR2_PWM,adjust);
+}
+ else if(adjust>= range_pid_ctl_H)
+ {
+    adjust=range_pid_ctl_H;
+    //gpio_set(MOTOR2_DIR, 0) ;     //加速正转
+    pwm_duty(MOTOR2_PWM,adjust);
+ }
+ else
+ {
+     //gpio_set(MOTOR2_DIR, 0) ;     //加速正转
+     pwm_duty(MOTOR2_PWM,adjust);
+ }
+//}
+
+}
+
+uint16 ABS(int16 a)
+{
+    if(a<0)
+    {
+     a=-a;
+    }
+    return a;
+
+}
+
+int  ercspe()
+{
+   return  hope_speed_straight-((0-differ)*(0-differ))*(hope_speed_straight-hope_speed)/2031;
+
+}

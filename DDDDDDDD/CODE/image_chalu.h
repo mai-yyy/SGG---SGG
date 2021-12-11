@@ -65,3 +65,4 @@ void ALL_fill(Maiy_characteristic_point* sc_char);
 void sec_fork_law(Maiy_characteristic_point *SewFork_char);
 void ShangCha(Maiy_characteristic_point* sc_char);
 void ShangCha_thr_law(Maiy_characteristic_point* sc_char);
+void ShangCha_fiv_law(Maiy_characteristic_point* sc_char);

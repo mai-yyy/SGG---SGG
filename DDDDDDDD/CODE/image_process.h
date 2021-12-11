@@ -167,7 +167,10 @@ typedef struct
   uint8 start_line;
 }center_C;
 
-
+extern double Lenth;
+extern int16 RealSpe_L;
+extern int16 RealSpe_R;
+extern int16 RealSpe;
 extern int16 dt_code;
 extern uint8 r_t_o;
 extern uint8 Island_flag;
@@ -213,3 +216,5 @@ void TEST3();
 void get_rest_line_2();
 void get_rest_line_dy();
 Maiy_2_dimensional GettangoP(int ST,int EN,int sequence);
+void get_midline_bc(void);
+uint8 Get_Angle(Maiy_2_dimensional A,Maiy_2_dimensional B,Maiy_2_dimensional C);

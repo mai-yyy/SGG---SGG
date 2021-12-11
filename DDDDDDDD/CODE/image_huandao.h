@@ -10,6 +10,8 @@ extern   uint16 LWhitePnt3 ;
  extern uint16 RWhitePnt1;
  extern  uint16 RWhitePnt2;
   extern uint16 RWhitePnt3 ;
+  extern   uint8 no_jid_flag;
+  extern uint8 no_jid;
 extern uint16 huan_L_flag;
 extern uint16 huanin_L_basic;
 extern uint16 huanin_L_point;

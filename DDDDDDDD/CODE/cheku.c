@@ -1,6 +1,9 @@
 #include "cheku.h"
 uint16 qipao_flag=0;
 uint16 qipao_time=0;
+uint16 go_no_time=0;
+uint8 go_no_flag=1;
+uint16 st_go_no_time=0;
 uint16 ku_R=0;
 uint16 ku_L=0;
 uint8 chuku_flag=0;    //1
@@ -20,9 +23,9 @@ qipao_line=0;
 if(!chuku_flag&&qipao_time<=1&&qipao_flag==0&&endline<=9&&!ku_L&&!ku_R&&!podao_flag&&!shizhiflag)
 {
 //    buzzer(1);
-for(uint8 j=15;j<45;j++)    //25-40
+for(uint8 j=25;j<40;j++)    //25-40
 {
-for(uint8 i=10;i<150;i++)
+for(uint8 i=20;i<145;i++)
 {
  if(w_to_b_cnt==0)
  {
@@ -73,6 +76,11 @@ else
 }
 
 
+}
+if(qipao_flag==1)
+{
+    st_go_no_time=1;
+    go_no_flag=0;
 }
 //ips200_showint16(30,11,first_change_ponit);
 if(qipao_flag==1&&qipao_time==0)

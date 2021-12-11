@@ -605,7 +605,7 @@ void ServoPDSet(float flag)
     {
         if(huan_L_flag==4)
         {
-            servoKp=1.34;
+            servoKp=1.32;
 
                          servoKd=80;
                          if(bx_flag_4)
@@ -641,7 +641,7 @@ void ServoPDSet(float flag)
         {
             if(huan_R_flag==4)
             {
-                servoKp=1.38;
+                servoKp=1.28;
                 if(bx_flag_4_r)
                 {
           servoKp+=0.17;
@@ -650,17 +650,17 @@ void ServoPDSet(float flag)
                                ServoControlDiffer(flag);
             }
             else if (huan_R_flag==3){
-                  servoKp=1.33;
+                  servoKp=1.56;
                        servoKd=20;
                          ServoControlDiffer(flag);
                   }
             else if (huan_R_flag==5){
-                        servoKp=1.3;
+                        servoKp=1.5;
                              servoKd=100;
                                ServoControlDiffer(flag);
                         }
             else if (huan_R_flag==6){
-                                  servoKp=1.1;
+                                  servoKp=1.5;
                                        servoKd=100;
                                          ServoControlDiffer(flag);
                                   }

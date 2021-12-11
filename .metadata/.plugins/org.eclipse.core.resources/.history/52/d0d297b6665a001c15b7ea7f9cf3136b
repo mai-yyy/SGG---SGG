@@ -1,0 +1,161 @@
+#include "cheku.h"
+uint16 qipao_flag=0;
+uint16 qipao_time=0;
+uint16 ku_R=0;
+uint16 ku_L=0;
+uint8 chuku_flag=0;    //1
+uint8 qipao_line=0;
+uint16 ruku_time=0;
+uint8 StepElse=0;
+int32 chuku_distance=0;
+uint16 time_ck=0;
+uint8 time_ck_fl=0;
+void qipao_find()    //车库寻找
+{
+uint8 w_to_b_cnt=0;
+uint8 first_change_ponit=0;
+qipao_line=0;
+
+
+if(!chuku_flag&&qipao_time<=1&&qipao_flag==0&&endline<=9&&!ku_L&&!ku_R&&!podao_flag&&!shizhiflag)
+{
+//    buzzer(1);
+for(uint8 j=25;j<40;j++)    //25-40
+{
+for(uint8 i=20;i<145;i++)
+{
+ if(w_to_b_cnt==0)
+ {
+  if(image_data[j][i]&&!image_data[j][i+1])   //寻找黑白跳变点数
+  {
+//      buzzer(1);
+      first_change_ponit=i;
+       w_to_b_cnt++;
+  }
+ }
+ else
+ {
+     if(image_data[j][i]&&!image_data[j][i+1])   //寻找黑白跳变点数
+     {
+       //  if((i-first_change_ponit)<=30&&(i-first_change_ponit)>=5)     //判断黑白跳变点之间间距
+          w_to_b_cnt++;
+     }
+
+ }
+}
+
+if(w_to_b_cnt>=4)
+{
+  w_to_b_cnt=0;
+  qipao_line++;
+  StepElse=1;
+
+  //buzzer(1);
+}
+else
+{
+  w_to_b_cnt=0;
+  StepElse=0;
+}
+} 
+
+if(qipao_line>=4)             //起跑线寻找需优化
+{
+ // buzzer(1);
+  qipao_flag=1;
+  huan_L_flag=0;
+    huan_R_flag=0;
+}
+else
+{
+  qipao_line=0;
+  
+}
+
+
+}
+//ips200_showint16(30,11,first_change_ponit);
+if(qipao_flag==1&&qipao_time==0)
+{
+    for(uint8 j=15;j<40;j++)    //20-25
+    {
+    for(uint8 i=20;i<140;i++)
+    {
+     if(w_to_b_cnt==0)
+     {
+      if(image_data[j][i]&&!image_data[j][i+1])   //寻找黑白跳变点数
+      {
+          first_change_ponit=i;
+           w_to_b_cnt++;
+      }
+     }
+     else
+     {
+         if(image_data[j][i]&&!image_data[j][i+1])   //寻找黑白跳变点数
+         {
+         //   if((i-first_change_ponit)<=30&&(i-first_change_ponit)>=5)     //判断黑白跳变点之间间距
+              w_to_b_cnt++;
+         }
+
+     }
+    }
+
+    if(w_to_b_cnt>=4)
+    {
+      w_to_b_cnt=0;
+      qipao_line++;
+      //buzzer(1);
+    }
+    else
+    {
+      w_to_b_cnt=0;
+    }
+    }
+    if(qipao_line==0&&left_all_lose_line<=10&&right_all_lose_line<=10)//越过起跑线
+    {
+        buzzer(0);
+        qipao_flag=0;
+        qipao_time++;
+        huan_L_flag=0;
+          huan_R_flag=0;
+          sanchacount=0;
+
+    }
+}
+
+if(qipao_flag==1&&qipao_time==1&&!ku_L&&!ku_R&&time_ck_fl)     //第二次判车库
+{
+    if(direction)
+    {
+        ku_R=1;
+    }
+    else
+    {
+        ku_L=1;
+    }
+}
+if(ku_R==1&&ruku_time>=25)   //25
+{
+    if(endline>=25)
+        ku_R=2;
+}
+else if(ku_L==1&&ruku_time>=25)
+{
+    if(endline>=25)
+        ku_L=2;
+}
+
+
+}
+void chuku()    //出库判断 陀螺仪积分
+{
+if(chuku_flag)
+{
+  if(endline<8)
+  {
+      chuku_flag=0;
+  }
+
+}
+
+}

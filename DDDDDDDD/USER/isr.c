@@ -1,11 +1,13 @@
     #include "isr_config.h"
     #include "isr.h"
 #define MASTERDEBUG 0  //开启调试电机 1
+
     uint16 car_time_1ms=0;
     uint16 car_time_10ms=0;
     uint16 car_time_1s=0;
     uint8 hdjudge_time=0;
     uint8 kushijian=0;
+
     float spp=0;
     uint8 djtime=0;
     uint16 sudutime=0;
@@ -27,8 +29,21 @@ uint8 show_time_flag=0;
         realspeed_l=get_speed_L();
         realspeed=get_speed();    //获取速度
                     teo_wheel_sp=(realspeed+realspeed_l)/2;
-                    if(huan_L_flag==6||huan_R_flag==6)
+//                    RealSpe=0;
+                    if(huan_L_flag==6||huan_R_flag==6||sancha_flag_left==2||sancha_flag_right==2||st_go_no_time||no_jid)
+                    {
                     dt_code+=teo_wheel_sp;
+                    }
+                    else
+                    {
+                        dt_code=0;
+                    }
+
+                    RealSpe=(teo_wheel_sp/11524.0f)*20000.0f;
+                    RealSpe_L=(realspeed_l/11524.0f)*20000.0f;
+                    RealSpe_R=(realspeed/11524.0f)*20000.0f;
+
+                    Lenth+=(double)RealSpe*DtSpeed;
 
 
 
@@ -97,7 +112,7 @@ uint8 show_time_flag=0;
         {
             real_hope_speed=(0);
                                               hopessp=0;//
-                                              Delta_PID(teo_wheel_sp,0);
+                                              Delta_PID(RealSpe,0);
 
 
         }
@@ -124,6 +139,13 @@ uint8 show_time_flag=0;
                time_ck_fl=1;
            }
        }
+
+if(st_go_no_time==1&&dt_code>=11520)
+{
+    go_no_flag=1;
+    st_go_no_time=0;
+
+}
 
              if(huan_L_flag==2)
                           {

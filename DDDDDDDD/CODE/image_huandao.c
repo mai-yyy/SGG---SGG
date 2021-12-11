@@ -9,6 +9,8 @@
    uint16 RWhitePnt2 ;
    uint16 RWhitePnt3 ;
    uint8 hz_l=0;
+   uint8 no_jid_flag=1;
+   uint8 no_jid=0;
    uint8 hz_r=0;
    uint8 R_2_time=0;
 uint8 bx_flag_4_r=0;
@@ -81,12 +83,12 @@ int16 L1_R0_row=0;
 void Huandao_Sec_Low()
 {
 
-     LWhitePnt1 = real_char.mylinest[4];
-      LWhitePnt2 = real_char.mylinest[8];
-      LWhitePnt3 = real_char.mylinest[12];
-      RWhitePnt1 = real_char.mylinest[150];
-       RWhitePnt2 = real_char.mylinest[154];
-       RWhitePnt3 = real_char.mylinest[158];
+     LWhitePnt1 = real_char.mylinest[2];
+      LWhitePnt2 = real_char.mylinest[3];
+      LWhitePnt3 = real_char.mylinest[4];
+      RWhitePnt1 = real_char.mylinest[157];
+       RWhitePnt2 = real_char.mylinest[158];
+       RWhitePnt3 = real_char.mylinest[159];
  uint8 R_diu_start=2;
  uint8 L_diu_start=2;
  uint8 L_out_count=0;
@@ -100,11 +102,17 @@ void Huandao_Sec_Low()
  Big_island_error2=0;
   hz_l=0;
      hz_r=0;
+     if(dt_code>=15000)
+     {
+         no_jid=0;
+                 no_jid_flag=1;
+     }
+
 // bx_flag_4=0;
         //放弃之前的思路，直接利用原始图像来做判断抗干扰强    11.17 v3.0
 //左环
 // if(dxL==1&&!chuku_flag&&endline==0&&huan_L_flag==0&&!qipao_flag&&!ku_L&&!ku_R&&!huan_R_flag&&!podao_flag&&!L_crossroad&&!R_crossroad&&!chalu_flag)   //确保在直道上才开始判断环岛
- if(!qipao_flag&&!chuku_flag&&!huan_L_flag&&!huan_R_flag&&!huan_R_flag&&!podao_flag&&!shizhiflag)   //确保在直道上才开始判断环岛
+ if(no_jid_flag&&go_no_flag&&!qipao_flag&&!chuku_flag&&!huan_L_flag&&!huan_R_flag&&!huan_R_flag&&!podao_flag&&!shizhiflag)   //确保在直道上才开始判断环岛
  {
 //     huaxun_flag=0;
 //     dxL=duanxi_L();     //防止二进环
@@ -138,6 +146,7 @@ void Huandao_Sec_Low()
 if(huan_L_cnt<=32&&huan_L_cnt>=18&&leftline[huan_L_fchange]!=0&&leftline[huan_L_fchange-3]!=0)
   {
     huan_L_flag=2;
+    ForkStep=0;
 //    buzzer(1);//环岛第一标志      最明显特征
   }
 else
@@ -355,6 +364,7 @@ if(huan_L_flag==5)
     if(!Island_flag1&&Left_line_swerve_L<=1)
     {
         huan_L_flag=6;
+
 buzzer(1);
     }
 
@@ -411,13 +421,16 @@ for(uint8 i=59;i>endline;i--)
   }
 //ips200_showint16(30,11,L_out_count);
 //ips200_showint16(50,8,finalrun);
-if((L_out_count>=59&&L_out_start>=55&&finalrun<=3&&dt_code>12000)||dt_code>13500)//小环11500
+if((L_out_count>=59&&L_out_start>=55&&finalrun<=3&&dt_code>12000)||dt_code>12500)//小环11500
     {
   huan_L_flag=0;          //完全出环
   buzzer(0);
   bx_flag_4=0;
   cyccy=0;
   hz_l=0;
+  no_jid=1;
+
+no_jid_flag=0;
 //  out_flag=8;
 //  out_flag=44;
     }
@@ -426,7 +439,7 @@ if((L_out_count>=59&&L_out_start>=55&&finalrun<=3&&dt_code>12000)||dt_code>13500
  
 
  //右环
-if(!chuku_flag&&!huan_R_flag&&!huan_R_flag&&!shizhiflag&&!qipao_flag)   //确保在直道上才开始判断环岛
+if(no_jid_flag&&go_no_flag&&!chuku_flag&&!huan_R_flag&&!huan_L_flag&&!shizhiflag&&!qipao_flag)   //确保在直道上才开始判断环岛
  {
 
     if(leftline[55]<leftline[50]&&leftline[45]<leftline[40]&&leftline[35]<leftline[30]&&leftline[25]<leftline[20]&&leftline[15]<leftline[10]
@@ -463,6 +476,7 @@ if(!chuku_flag&&!huan_R_flag&&!huan_R_flag&&!shizhiflag&&!qipao_flag)   //确保在
             if(huan_R_cnt>=20&&huan_R_cnt<=35&&rightline[huan_R_fchange]<=155&&rightline[huan_R_fchange-3]<=155)
               {
                   huan_R_flag=2;
+                  ForkStep=0;
 //                  buzzer(1);
 //                  out_flag=5;
               }
@@ -530,14 +544,18 @@ if(huan_R_flag==2)           //寻找环岛入口  改行宽度
 
 //
 
-    if(RWhitePnt1<=12&&RWhitePnt2<=12&&RWhitePnt3<=12)
+    if(RWhitePnt1<=12||RWhitePnt2<=12||RWhitePnt3<=12)
       {
 
           hz_r=1;
       }
+if(rightline[huan_L_fchange+2]<=150)
 
-
-    if(RWhitePnt1>=30&&RWhitePnt2>=30&&RWhitePnt3>=30&&hz_r)
+{
+    hz_r=1;
+}
+ips200_showint16(50,8,  hz_r);
+    if(RWhitePnt1>=25&&RWhitePnt2>=25&&RWhitePnt3>25&&hz_r)
     {
 
         huan_R_flag=3;
@@ -573,7 +591,7 @@ if(huan_R_flag==2)           //寻找环岛入口  改行宽度
                    * */
                }
 
-               if(Island_inflexion_row>=28)//大环岛半径较小时  减小15
+               if(Island_inflexion_row>=30)//大环岛半径较小时  减小15
                {
                    huan_R_flag=3;
    //                out_flag=5;
@@ -585,31 +603,31 @@ if(huan_R_flag==2)           //寻找环岛入口  改行宽度
 
 //}
                                                    
-if(huan_R_flag==3)   //寻找入环结束点
-{
- 
-if(!ru_R_process)
-{
-if(leftline[20]==0&&leftline[21]==0&&leftline[22]==0&&leftline[23]==0)    //脱离直道
-{
-  ru_R_process=1;
- }
-}
-
-
-if(ru_R_process)
-{
-if((leftline[48]>3&&leftline[50]>3&&leftline[51]>3&&leftline[53]>3&&leftline[54]>3&&leftline[56]>3&&endline>=15)||endline>=24)      //成功入环              条件过于简单   需修改
-{
-   buzzer(0);
-  huan_R_flag=4;
-  ru_R_process=0;
-}
-}
- }
+//if(huan_R_flag==3)   //寻找入环结束点
+//{
+//
+//if(!ru_R_process)
+//{
+//if(leftline[20]==0&&leftline[21]==0&&leftline[22]==0&&leftline[23]==0)    //脱离直道
+//{
+//  ru_R_process=1;
+// }
+//}
+//
+//
+//if(ru_R_process)
+//{
+//if((leftline[48]>3&&leftline[50]>3&&leftline[51]>3&&leftline[53]>3&&leftline[54]>3&&leftline[56]>3&&endline>=15)||endline>=24)      //成功入环              条件过于简单   需修改
+//{
+//   buzzer(0);
+//  huan_R_flag=4;
+//  ru_R_process=0;
+//}
+//}
+// }
 if(huan_R_flag==3)
 {
-if(icmdata.Yaw<=-30)
+if(icmdata.Yaw<=-40)
     huan_R_flag=4;
 }
 Left_line_swerve_R=0;
@@ -684,6 +702,7 @@ if(huan_R_flag==5)
            {
                huan_R_flag = 6;
                buzzer(1);
+
 //out_flag=33;
            }
    
@@ -727,13 +746,15 @@ for(uint8 i=59;i>endline+1;i--)
   }
   }
       
-if((R_out_count>=59&&R_out_start>=55&&finalrun_r<=3&&dt_code>12000)||dt_code>14500)
+if((R_out_count>=59&&R_out_start>=55&&finalrun_r<=3&&dt_code>12000)||dt_code>12500)
 //if(finalrun_r<=5)
     {
     buzzer(0);
     bx_flag_4_r=0;
   huan_R_flag=0;          //完全出环  
   hz_r=0;
+  no_jid_flag=0;
+                 no_jid=1;
     }
 
 

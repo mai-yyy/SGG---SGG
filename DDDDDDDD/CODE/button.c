@@ -949,7 +949,7 @@ else if(START_PAGE==START_CAR)
                                                                                                                      oled_page=0;
                                                                                                                            oled_option=0;
                                                                                                                        ips200_clear(IPS200_BGCOLOR);
-                                                                                                                       buzzer(1);
+//                                                                                                                       buzzer(1);
                                                                                                                        systick_delay_ms(STM0,2000);
 
 

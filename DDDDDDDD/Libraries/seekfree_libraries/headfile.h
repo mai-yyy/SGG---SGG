@@ -39,8 +39,8 @@
 
 #define base_p_z3 (base_p-9)
 #define base_p_y3 (base_p+9)
-
-
+#define DtSpeed 0.005f
+#define MATH_PI  3.1415926
 
 
 extern unsigned char  image_data[MT9V032_H][MT9V032_W];

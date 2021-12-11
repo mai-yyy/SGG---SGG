@@ -97,5 +97,9 @@ float PID_Realize(PID *sptr, float *PID, int32 NowData, int32 Point);
 int32 PID_Increase(PID *sptr, float *PID, int32 NowData, int32 Point);
 //去极值求平均
 int16 I_Median_Average_Filter(int16 *DATE);
+
+float OSG_Sqrt(float x);
+
+
 //void Jud() ;
 #endif

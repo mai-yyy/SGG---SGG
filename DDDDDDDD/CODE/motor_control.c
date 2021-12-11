@@ -56,30 +56,30 @@ void real_hopespeed_count()
         real_hope_speed=170;
             if(qipao_time==0)
                    {
-                CS_control(get_djj,170);
+                CS_control(get_djj,260);
                                                   if(differ<0)
-                                                                         { CSRDelta_PID(realspeed,170+Right_High_Speed);
-                                                                         CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                                         { CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
+                                                                         CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
                                                                          }
                                                                          else {
 
-                                                                                   CSRDelta_PID(realspeed,170+Right_High_Speed);
-                                                                                   CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                                                   CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
+                                                                                   CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
 
                                                                          }
                    }
            else if(qipao_time==1)
            {
 
-               CS_control(get_djj,170);
+               CS_control(get_djj,260);
                                   if(differ<0)
-                                                         { CSRDelta_PID(realspeed,170+Right_High_Speed);
-                                                         CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                         { CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
+                                                         CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
                                                          }
                                                          else {
 
-                                                                   CSRDelta_PID(realspeed,170+Right_High_Speed);
-                                                                   CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                                   CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
+                                                                   CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
 
                                                          }
            }
@@ -93,20 +93,20 @@ void real_hopespeed_count()
                 {
                     real_hope_speed=(230);//
                                                    hopessp=170;//
-                                                   Delta_PID(teo_wheel_sp,230);
+                                                   Delta_PID(RealSpe,Higher_str_speed);
                 }
         else if(huan_L_flag==3||huan_R_flag==3)
         {
             real_hope_speed=150;
-            CS_control(get_djj,150);
+            CS_control(get_djj,280);
                                if(differ<0)
-                                                      { CSRDelta_PID(realspeed,150+Right_High_Speed);
-                                                      CSLDelta_PID(realspeed_l,150+Left_High_Speed);
+                                                      { CSRDelta_PID(RealSpe_R,250+Right_High_Speed);
+                                                      CSLDelta_PID(RealSpe_L,250+Left_High_Speed);
                                                       }
                                                       else {
 
-                                                                CSRDelta_PID(realspeed,150+Right_High_Speed);
-                                                                CSLDelta_PID(realspeed_l,150+Left_High_Speed);
+                                                                CSRDelta_PID(RealSpe_R,250+Right_High_Speed);
+                                                                CSLDelta_PID(RealSpe_L,250+Left_High_Speed);
 
                                                       }
         }
@@ -115,27 +115,27 @@ void real_hopespeed_count()
 if(1)
 {
     real_hope_speed=150;
-    CS_control(get_djj,150);
+    CS_control(get_djj,260);
                               if(differ<0)
-                                                     { CSRDelta_PID(realspeed,150+Right_High_Speed);
-                                                     CSLDelta_PID(realspeed_l,150+Left_High_Speed);
+                                                     { CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
+                                                     CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
                                                      }
                                                      else {
 
-                                                               CSRDelta_PID(realspeed,150+Right_High_Speed);
-                                                               CSLDelta_PID(realspeed_l,150+Left_High_Speed);
+                                                               CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
+                                                               CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
     }}
 else{
     real_hope_speed=170;
-    CS_control(get_djj,170);
+    CS_control(get_djj,260);
                            if(differ<0)
-                                                  { CSRDelta_PID(realspeed,170+Right_High_Speed);
-                                                  CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                  { CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
+                                                  CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
                                                   }
                                                   else {
 
-                                                            CSRDelta_PID(realspeed,170+Right_High_Speed);
-                                                            CSLDelta_PID(realspeed_l,170+Left_High_Speed);
+                                                            CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
+                                                            CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
 
                                                   }
                }
@@ -145,7 +145,7 @@ else{
         {
             real_hope_speed=(170);//
                                                       hopessp=170;//
-                                                      Delta_PID(teo_wheel_sp,170);
+                                                      Delta_PID(RealSpe,280);
 
         }
 
@@ -156,7 +156,7 @@ if(ABS(differ)<=10)
 {
         real_hope_speed=(230);//
                                                  hopessp=170;//
-                                                 Delta_PID(teo_wheel_sp,230);
+                                                 Delta_PID(RealSpe,Higher_str_speed);
 }
 
 else
@@ -164,7 +164,7 @@ else
 
     real_hope_speed=(200);//
                                                     hopessp=170;//
-                                                    Delta_PID(teo_wheel_sp,200);
+                                                    Delta_PID(RealSpe,250);
 
 }
 //                                                 out_flag=8;
@@ -245,8 +245,8 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
 //                               way=in_left;
 //                                                                                   r_t_o=1;
 //                           }
-                           CSRDelta_PID(realspeed,Higher_ben_speed+Right_High_Speed);
-                                              CSLDelta_PID(realspeed_l,Higher_ben_speed+Left_High_Speed);
+                           CSRDelta_PID(RealSpe_R,Higher_ben_speed+Right_High_Speed);
+                                              CSLDelta_PID(RealSpe_L,Higher_ben_speed+Left_High_Speed);
                                               }
                                               else {
 //                                                  if(differ>=40&&endline>16)
@@ -259,8 +259,8 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
 //                                                      way=in_right;
 //                                                                                                     r_t_o=1;
 //                                                  }
-                                                  CSRDelta_PID(realspeed,Higher_ben_speed+Right_High_Speed);
-                                                        CSLDelta_PID(realspeed_l,Higher_ben_speed+Left_High_Speed);
+                                                  CSRDelta_PID(RealSpe_R,Higher_ben_speed+Right_High_Speed);
+                                                        CSLDelta_PID(RealSpe_L,Higher_ben_speed+Left_High_Speed);
 
                                               }
 
@@ -269,13 +269,14 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
     }
 //    }
 //else if((endline<=6&&ABS(differ)<=20)||ABS(differ<=15))
-    else if(type_str||(shizhiflag&&ABS(differ)<=18))
+    else if(type_str||(shizhiflag&&ABS(differ)<=10))
     {
-    buzzer(1);
+//    buzzer(1);
 
-                    if(teo_wheel_sp<=200||(endline<=2&&ABS(differ<=15))||endline==0||ABS(differ)<=10)
-                    {
-                        buzzer(1);
+//                    if(teo_wheel_sp<=200||(endline<=2&&ABS(differ<=15))||endline==0||ABS(differ)<=10)
+    if(0)
+    {
+//                        buzzer(1);
                         pwm_duty( ATOM1_CH7_P02_7,10000);
                                       pwm_duty( ATOM1_CH6_P02_6,0);
                                       pwm_duty( ATOM1_CH4_P02_4,10000);
@@ -286,7 +287,7 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
                         buzzer(0);
                  real_hope_speed=(Higher_str_speed);//
                                    hopessp=Higher_str_speed;//
-                                   Delta_PID(teo_wheel_sp,Higher_str_speed);
+                                   Delta_PID(RealSpe,Higher_str_speed);
                     }//
                                 //   pwm_duty( ATOM1_CH7_P02_7,3000);
              }
@@ -297,14 +298,14 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
               real_hope_speed=(Higher_ben_speed);//
                  CS_control(get_djj,Higher_ben_speed);
                         if(differ<0)
-                        { CSRDelta_PID(realspeed,Higher_ben_speed+Right_High_Speed);
+                        { CSRDelta_PID(RealSpe_R,Higher_ben_speed+Right_High_Speed);
 
-                        CSLDelta_PID(realspeed_l,Higher_ben_speed+Left_High_Speed);
+                        CSLDelta_PID(RealSpe_L,Higher_ben_speed+Left_High_Speed);
                         }
                         else {
 
-                                  CSRDelta_PID(realspeed,Higher_ben_speed+Right_High_Speed);
-                                  CSLDelta_PID(realspeed_l,Higher_ben_speed+Left_High_Speed);
+                                  CSRDelta_PID(RealSpe_R,Higher_ben_speed+Right_High_Speed);
+                                  CSLDelta_PID(RealSpe_L,Higher_ben_speed+Left_High_Speed);
 
                         }
                                                     //  pwm_duty( ATOM1_CH7_P02_7,4000);

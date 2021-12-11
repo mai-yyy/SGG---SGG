@@ -12,6 +12,10 @@ int16 Sec_jump_point_row;
 int16 Sec_jump_point_column;
 int16 curr_wid_hang;
 uint8 L_ea_diu_flag=0;
+double Lenth=0;
+int16 RealSpe=0;
+int16 RealSpe_L=0;
+int16 RealSpe_R=0;
 uint8 R_ea_diu_flag=0;
 uint8 cheak_cheak=0;
 uint8 R_L_ea_diu_flag=0;
@@ -91,12 +95,12 @@ Maiy_characteristic_point  real_char;
 //----------------------------------------------更上一层楼---------------
 
 float Outlier_lines[60]={
-        128, 126, 124, 122, 121, 118, 115, 113, 111, 109,
-        107, 105, 104, 102, 100, 98, 96, 94, 92, 91,
-        90, 88, 86, 84, 82, 81, 79, 77, 75, 73,
-        71, 69, 67, 64, 62, 60, 58, 56, 54, 53,
-        51, 49, 47, 45, 43, 42, 40, 38, 36, 35,
-        32, 30, 29, 27, 25, 22, 15, 10, 7, 3
+        3, 7, 10, 15, 22, 25, 27, 29, 30, 32,
+        35, 36, 38, 40, 42, 43, 45, 47, 49, 51,
+        53, 54, 56, 58, 60, 62, 64, 67, 69, 71,
+        73, 75, 77, 79, 81, 82, 84, 86, 88, 90,
+        91, 92, 94, 96, 98, 100, 102, 104, 105, 107,
+        109, 111, 113, 115, 118, 121, 122, 124, 126, 128
                            };
 
 
@@ -2530,12 +2534,12 @@ else if(huan_L_flag==4&&bx_flag_4)
 }
 else if(huan_R_flag==2)
 {
-    midline[i]=(leftline[i] - Single_L_line[i])+85;
+    midline[i]=(leftline[i] - Single_L_line[i])+79;
 
 }
 else if(huan_R_flag==6)
 {
-    midline[i]=(leftline[i] - Single_L_line[i])+82;
+    midline[i]=(leftline[i] - Single_L_line[i])+78;
     if(leftline[i] - Single_L_line[i]>158)    midline[i] =158;
 //    midline[i]=  midline[i]<=0?   0:  midline[i];
 }
@@ -2568,7 +2572,7 @@ else if(huan_R_flag==5)
 
 else if(huan_R_flag==3)
 {
-    midline[i]=(rightline[i] - Single_R_line[i])+84;
+    midline[i]=(rightline[i] - Single_R_line[i])+80;
     if(i<58)
       {
           if(midline[i]-midline[i+1]<=-2)
@@ -2651,6 +2655,46 @@ float Middle_Err_Filter(float middle_err)
     Middle_Err_Fltered = middle_err*0.8 + LastAverageCenter*0.2;
     return Middle_Err_Fltered;
 }
+
+
+void get_midline_bc(void)
+{
+  int hang=0;
+  for(hang=Row-2 ; hang>endline ;hang--)
+  {  //左丢右不丢
+    if(leftline[hang]<=2 && rightline[hang]<157)
+    {
+      leftline[hang] = rightline[hang] - Outlier_lines[hang] - 15;
+      if(leftline[hang]<=1)
+        leftline[hang]=1;
+      midline[hang] = (leftline[hang] + rightline[hang])/2;
+    }
+    //右丢左不丢
+    if(leftline[hang]>2 && rightline[hang]>=157)
+    {
+      rightline[hang] = leftline[hang] + Outlier_lines[hang] + 15;
+      if(rightline[hang]>=Col-2)
+        rightline[hang]=Col-2;
+      midline[hang] = (leftline[hang] + rightline[hang])/2;
+    }
+    //全丢
+    if(leftline[hang]<=2 && rightline[hang]>=157)
+    {
+      leftline[hang] = 1;
+      rightline[hang] = Col-2;
+      midline[hang]=(leftline[hang] + rightline[hang])/2;
+    }
+    //全不丢
+    if(leftline[hang]>2 && rightline[hang]<157)
+    {
+      midline[hang]=(leftline[hang] + rightline[hang])/2;
+    }
+  }
+}
+
+
+
+
 void get_differ(void)
 {
   WeightSum=0;
@@ -2679,8 +2723,8 @@ else if(qipao_flag==0&&sancha_flag_right)
           MidValue = MidSum/WeightSum;
           differ = MidValue - basic;
 //          differ=differ>60  ?  60:differ;
-//          differ=differ<45  ?  45:differ;
-//          differ=differ<30  ?  30:differ;
+          differ=differ<45  ?  45:differ;
+//     u6mjy765     differ=differ<40  ?  40:differ;
 
 }
 
@@ -2695,7 +2739,7 @@ else if(qipao_flag==1&&sancha_flag_left)
           MidValue = MidSum/WeightSum;
           differ = MidValue - basic;
 //          differ=differ>60  ?  60:differ;
-//          differ=differ<25  ?  25:differ;
+//          differ=differ>-25  ?  -25:differ;
 
 }
 else if(podao_flag)
@@ -2709,6 +2753,10 @@ else if(podao_flag)
     MidValue = MidSum/WeightSum;
     differ = MidValue - basic;
 }
+//else if(qipao_flag)
+//{
+//differ=   last_differ;
+//}
 //else if(shizhiflag)
 //{
 //    for(hang=real_char.my_final_tOptimalPoint.my_y+4; hang<=59 ; hang++)  //基础求偏差
@@ -2766,7 +2814,7 @@ else if(huan_R_flag==5)
 }
     else if(huan_R_flag==3)
     {
-        for(hang=59 ; hang>25 ; hang--)  //基础求偏差
+        for(hang=59 ; hang>20 ; hang--)  //基础求偏差
             {
 //            if(midline[hang]<90)
 //            {
@@ -2792,6 +2840,10 @@ else if(huan_L_flag==4||huan_R_flag==4)
           error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
           MidSum += midline[hang]*huandao[hang];
         }
+    if(huan_L_flag)
+        differ=(differ>=-30) ?   -30:differ;
+        if(huan_R_flag)
+           differ=(differ<=30) ?   30:differ;
 //    }
 //    else if(endline<=2){
 //        for(hang=59 ; hang>29 ; hang--)  //基础求偏差
@@ -2804,9 +2856,9 @@ else if(huan_L_flag==4||huan_R_flag==4)
     MidValue = MidSum/WeightSum;
     differ = MidValue - basic;
     if(huan_L_flag)
-    differ=(differ>=-30) ?   -30:differ;
+    differ=(differ>=-35) ?   -35:differ;
     if(huan_R_flag)
-       differ=(differ<=25) ?   25:differ;
+       differ=(differ<=32) ?   32:differ;
 //    if(differ>0&&differ<20)     //限幅
 //    {
 //        differ=20;
@@ -2838,11 +2890,16 @@ else if(huan_L_flag==6||huan_R_flag==6)
 //    }
     MidValue = MidSum/WeightSum;
     differ = MidValue - basic;
-//if(huan_L_flag)
-//{
-//differ=differ<=-30? -30:differ;
-//}
-//    if(differ>0&&differ<20)     //限幅
+if(huan_L_flag)
+{
+differ= differ<=-50? -50:differ;
+}
+else
+{
+    differ= differ>=55? 55:differ;
+}
+
+    //    if(differ>0&&differ<20)     //限幅
 //    {
 //        differ=20;
 //    }
@@ -4707,14 +4764,14 @@ if(str_danbx)   //右环
        {
            zuiflag=1;
            zuiyoudian=rightline[i];
-        midline[i]=(leftline[i] - Single_L_line[i])+76;
+        midline[i]=(leftline[i] - Single_L_line[i])+79;
        }
        }
        else
        {
            if(rightline[i]>=zuiyoudian&&leftline[i-1]-leftline[i]<7)
            {
-               midline[i]=(leftline[i] - Single_L_line[i])+76;
+               midline[i]=(leftline[i] - Single_L_line[i])+79;
 //               if((leftline[i] - Single_L_line[i])>0) midline[i]=79;
            }
        }
@@ -4777,3 +4834,22 @@ Maiy_2_dimensional GettangoP(int ST,int EN,int sequence)
     return Ret;
 }
 
+uint8 Get_Angle(Maiy_2_dimensional A,Maiy_2_dimensional B,Maiy_2_dimensional C)
+{
+
+    Maiy_2_dimensional Temp_Point[3]; //储存透视变换之后的点
+    Maiy_2_dimensional Vector[2];     //储存向量
+    float x = 0;
+    uint8 ang = 0;
+    Temp_Point[0] = A; //get_inv_img(A);
+    Temp_Point[1] = B; //get_inv_img(B);
+    Temp_Point[2] = C; //get_inv_img(C);
+    Vector[0].my_x = (Temp_Point[0].my_x - Temp_Point[1].my_x);
+    Vector[0].my_y = (Temp_Point[0].my_y - Temp_Point[1].my_y);
+    Vector[1].my_x = (Temp_Point[2].my_x - Temp_Point[1].my_x);
+    Vector[1].my_y = (Temp_Point[2].my_y - Temp_Point[1].my_y);
+    x = (float)((double)(Vector[0].my_x * Vector[1].my_x + Vector[0].my_y * Vector[1].my_y) / (double)(OSG_Sqrt((Vector[0].my_x * Vector[0].my_x + Vector[0].my_y * Vector[0].my_y) * (Vector[1].my_x * Vector[1].my_x + Vector[1].my_y * Vector[1].my_y))));
+    ang = (uint8)((acos(x) * 180) / MATH_PI);
+    return (ang);
+
+}

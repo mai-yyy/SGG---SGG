@@ -1,0 +1,1805 @@
+#include "image_chalu.h"
+
+
+int16 TriangRange[160]={0};
+uint8 sancha_flag_left=0;
+uint8 sancha_flag_right=0;
+uint8 diu_flag1=0;
+uint8 diu_flag2=0;
+uint8 jilu;
+uint8 Triang=0;
+uint8 one_add=0;
+int16 one_add_time=0;
+int16 ForkAngleLeft=0;
+int16 ForkAngleRight=0;
+uint8 XieRiCnt=0;
+uint8 XieLiCnt=0;
+_Bool XLFlag=0;
+_Bool XRFlag=0;
+uint8 flag22=0;
+int16 YLCnt=0;
+int16 YRCnt=0;
+int16 ColLcnt=0;
+uint8 OverAngleStep=0;
+int16 ColRcnt=0;
+uint8 cnt_fache1=0;
+uint16 cnt_black=0;
+uint16 sancha_stop=0;
+uint16 sanchacount=0;
+int16 cnt_1=0;
+int16 cnt_2=0;
+int16 cnt_11=0;
+int16 cnt_22=0;
+uint8 ColFlagL=0;
+uint8 ColFlagR=0;
+Maiy_2_dimensional ColPoint_L={0,0};
+Maiy_2_dimensional ColPoint_R={0,0};
+uint8 yes=0;
+uint8 dorg_l=0;
+uint8 dorg_r=0;
+Maiy_2_dimensional LowLeftJump={0,59};
+Maiy_2_dimensional LowRightJump={158,59};
+int16 point=0;
+//uint8 maxflag=0;
+//uint16 maxvalue=0;
+Maiy_2_dimensional TriangBlackPoint={0,0};
+uint8 ForkStep=0;
+uint8 sancha_flag1=0;
+uint8 nowait=0;
+_Bool ForkLeft=1;
+_Bool ForkRight=0;
+uint8 chalu_flag=0;
+uint8 end_count=0;
+uint8 chalu_dirction=0;
+uint8 chalu_turn_time=0;
+uint8 RFixLineFlag=0;
+ int16   RFixLineStart=0;
+uint8  LFixLineFlag=0;
+ int16  LFixLineStart=0;
+ int LLineSegmentST[10]={0};
+ int LLineSegmentEN[10]={0};
+ int  RLineSegmentST[10]={0};
+ uint8 ForkDirKsLe=0;
+ uint8 ForkDirKsRi=0;
+ int RLineSegmentEN[10]= {0};
+ uint8 ForkDir=0;
+int16 CurrentPos=56;
+uint8 fork_road=0;
+int16 tLCnt=0;
+int16 tRCnt=0;
+int16 tMCnt=0;
+Maiy_2_dimensional LMaxPoint;
+Maiy_2_dimensional RMaxPoint;
+Maiy_2_dimensional TEM_L;
+Maiy_2_dimensional TEM_R;
+Maiy_2_dimensional TpM;
+Maiy_2_dimensional TpL;
+Maiy_2_dimensional TpR;
+int LLineSegmentCnt=0;
+int LColCnt=0;
+ int RColCnt=0;
+  int RLineSegmentCnt=0;
+uint8 SFlag=0;
+void chalu()
+{
+uint8 lie_end[61]={0};
+   end_count=0;
+
+//      get_middle();
+      WeightSum=0;
+      MidSum=0;
+    for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+          {
+            WeightSum += weight[hang];
+            error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+            MidSum += midline[hang]*weight[hang];
+          }
+      MidValue = MidSum/WeightSum;
+      differ = MidValue - basic;
+   //判别第一次入岔路
+ if(!chuku_flag&&chalu_flag==0&&chalu_dirction<=1&&!huan_L_flag&&!huan_R_flag&&!podao_flag&&!qipao_flag&&!ku_L&&!ku_R&&!shizhiflag)
+ {
+     for(uint8 j=50;j<111;j++)
+    {
+        for(uint8 i=59;i>=1;i--)
+        {
+            if(!image_data[i][j]&&!image_data[i-1][j])      //一行连续两列为黑
+            {
+               lie_end[j-50]=i;
+               break;
+            }
+            else
+            {
+                lie_end[j-50]=0;
+            }
+        }
+
+    }
+
+for(uint8 i=0;i<61;i++)
+{
+    if(lie_end[i]<=10&&lie_end[i]>1)//(lie_end[i]<=10&&lie_end[i]!=0)
+    {
+        end_count++;
+    }
+
+}
+
+if(low_endline_count>=14&&end_count>=60&&endline<=3&&ABS(differ)<=10&&ABS(error[11])<=15&&ABS(error[13])<=15&&ABS(error[15])<=15)   //5  10
+{
+    chalu_flag=1;
+    buzzer(1);
+}
+
+ }
+
+ if(chalu_flag==1&&chalu_turn_time>=10)        //第一次入岔路
+ {
+//     get_middle();
+//     WeightSum=0;
+//     MidSum=0;
+//   for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+//         {
+//           WeightSum += weight[hang];
+//           error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//           MidSum += midline[hang]*weight[hang];
+//         }
+//     MidValue = MidSum/WeightSum;
+//     differ = MidValue - basic;
+
+
+     if(ABS(differ)>=20)    //15
+     {
+         chalu_flag=2;
+         chalu_speed_low=0;
+         chalu_turn_time=0;
+         buzzer(0);
+     }
+ }
+ if(chalu_flag==2)          //判别第一次出岔路
+ {
+     for(uint8 j=50;j<111;j++)
+      {
+          for(uint8 i=59;i>=1;i--)
+          {
+              if(!image_data[i][j]&&!image_data[i-1][j])      //一行连续两列为黑
+              {
+                 lie_end[j-50]=i;
+                 break;
+              }
+              else
+              {
+                  lie_end[j-50]=0;
+              }
+          }
+
+      }
+
+  for(uint8 i=0;i<61;i++)
+  {
+      if(lie_end[i]<=10&&lie_end[i]>1)//(lie_end[i]<=13&&lie_end[i]!=0)
+      {
+          end_count++;
+      }
+
+  }
+
+  if(low_endline_count>=14&&end_count>=60&&endline<=3&&ABS(differ)<=10&&ABS(error[11])<=15&&ABS(error[13])<=15&&ABS(error[15])<=15)   //5  10
+  {
+      chalu_flag=3;
+      buzzer(1);
+  }
+ }
+ if(chalu_flag==3&&chalu_turn_time>=10)      //第一次出岔路
+ {
+//     get_middle();
+//     WeightSum=0;
+//     MidSum=0;
+//   for(int8 hang=Row-1 ; hang>endline ; hang--)  //基础求偏差
+//         {
+//           WeightSum += weight[hang];
+//           error[hang]=midline[hang]-basic;//计算每行偏差值（截止行后不计）
+//           MidSum += midline[hang]*weight[hang];
+//         }
+//     MidValue = MidSum/WeightSum;
+//     differ = MidValue - basic;
+
+
+     if(ABS(differ)>=20)      //15
+          {
+              buzzer(0);
+              chalu_flag=0;
+              chalu_speed_low=0;
+              chalu_turn_time=0;
+              chalu_dirction++;
+          }
+ }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+void ALL_fill(Maiy_characteristic_point* sc_char)
+{
+
+    if(!huan_L_flag&&!huan_R_flag)//后面会把环岛也移走
+    {
+
+        memset(LLineSegmentST,0,sizeof(int)*10);
+        memset(LLineSegmentEN,0,sizeof(int)*10);
+        memset(RLineSegmentST,0,sizeof(int)*10);
+        memset(RLineSegmentEN,0,sizeof(int)*10);
+        for(int i=59;i>endline;i--)
+        {
+        if (leftline[i] < 142&&i<=57)
+                                {
+
+         if (leftline[i+1]- leftline[i+2]<3&&leftline[i+1]- leftline[i+2]>-3)
+
+
+        {
+           LFixLineFlag=1;
+           LFixLineStart=i;
+        }
+        }
+
+
+          if (rightline[i] > 16&&i<=57)
+                                {
+
+                                    if (rightline[i+1]-rightline[i+2]<3&&rightline[i+1]-rightline[i+2]>-3)
+                                    {
+                                     RFixLineFlag=1;
+                                       RFixLineStart=i;
+        }
+
+
+
+        }
+
+
+        }
+
+        for(CurrentPos=56;CurrentPos>1;CurrentPos--)
+            {
+
+                if(leftline[CurrentPos]>2)
+                {
+
+                    if(CurrentPos<=LFixLineStart)break;
+
+                    if(leftline[CurrentPos+1]>2)
+                    {
+                        if(leftline[CurrentPos]-leftline[CurrentPos+1]>=5||leftline[CurrentPos]-leftline[CurrentPos+1]<=-5)
+                        {
+                                                if(leftline[CurrentPos-1]>2)
+                            {
+                                if(leftline[CurrentPos]-leftline[CurrentPos-1]>=5||leftline[CurrentPos]-leftline[CurrentPos-1]<=-5)
+                                {
+                                   leftline[CurrentPos]=0;
+
+                                }
+                            }
+                            else
+                            {
+
+                                   leftline[CurrentPos]=0;
+                                                    }
+                        }
+                    }
+
+                    else             {
+                        if(leftline[CurrentPos-1]>2)
+                        {
+                            if(leftline[CurrentPos]-leftline[CurrentPos-1]>=5||leftline[CurrentPos]-leftline[CurrentPos-1]<=-5)
+                            {
+                                leftline[CurrentPos]=0;
+
+                            }
+                        }
+                        else
+                        {
+                            leftline[CurrentPos]=0;
+
+                        }
+                    }
+
+                }
+
+
+                else if(leftline[CurrentPos+1]>2)
+                {
+                                if(leftline[CurrentPos-1]>2)
+                    {
+                        if(leftline[CurrentPos+1]-leftline[CurrentPos-1]<4&&leftline[CurrentPos+1]-leftline[CurrentPos-1]>-4)
+                        {
+                            leftline[CurrentPos]=(leftline[CurrentPos+1]+leftline[CurrentPos-1])/2;
+                        }
+                    }
+                    else if(leftline[CurrentPos-2]>2)
+                    {
+                        if(leftline[CurrentPos+1]-leftline[CurrentPos-2]<8&&leftline[CurrentPos+1]-leftline[CurrentPos-2]>-8)
+                        {
+                            leftline[CurrentPos]=leftline[CurrentPos+1]+(leftline[CurrentPos-2]-leftline[CurrentPos+1])/3;                }
+                    }
+                }
+
+            }
+
+
+
+
+
+            for(int i=60-1;i>3;i--)
+            {
+                if(leftline[i]<=2&& i>3)
+                {
+                    if(leftline[i-1]>2&&leftline[i-2]>2&&leftline[i-3]<=2)
+                    {
+                        leftline[i-1]=0;
+        leftline[i-2]=0;
+                    }
+                }
+            }
+            for(int i=3;i>0;i--)
+            {
+                if(leftline[i+1]<=2 &&leftline[i]>2 && leftline[i-1]<=2)
+                {
+                   leftline[i]=0;
+                }
+            }
+
+
+
+
+
+
+
+
+        for(CurrentPos=56;CurrentPos>1;CurrentPos--)
+            {
+
+                if(rightline[CurrentPos]<156)
+                {
+
+                    if(CurrentPos<=RFixLineStart)break;
+
+                    if(rightline[CurrentPos+1]<156)
+                    {
+                        if(rightline[CurrentPos]-rightline[CurrentPos+1]>=5||rightline[CurrentPos]-rightline[CurrentPos+1]<=-5)
+                        {
+                                                if(rightline[CurrentPos-1]<156)
+                            {
+                                if((rightline[CurrentPos]-rightline[CurrentPos-1]>=5)||(rightline[CurrentPos]-rightline[CurrentPos-1]<=-5))
+                                {
+                                   rightline[CurrentPos]=0;
+
+                                }
+                            }
+                            else
+                            {
+
+                                   rightline[CurrentPos]=0;
+                                                    }
+                        }
+                    }
+
+                    else             {
+                        if(rightline[CurrentPos-1]<156)
+                        {
+                            if((rightline[CurrentPos]-rightline[CurrentPos-1]>=5)||(rightline[CurrentPos]-rightline[CurrentPos-1]<=-5))
+                            {
+                                rightline[CurrentPos]=0;
+
+                            }
+                        }
+                        else
+                        {
+                            rightline[CurrentPos]=0;
+
+                        }
+                    }
+
+                }
+
+
+                else if(rightline[CurrentPos+1]<156)
+                {
+
+
+                                if(rightline[CurrentPos-1]<156)
+                    {
+                        if((rightline[CurrentPos+1]-rightline[CurrentPos-1]<4)&&(rightline[CurrentPos+1]-rightline[CurrentPos-1]>-4))
+                        {
+                            rightline[CurrentPos]=(rightline[CurrentPos+1]+rightline[CurrentPos-1])/2;
+                        }
+                    }
+                    else if(rightline[CurrentPos-2]<156)
+                    {
+                        if((rightline[CurrentPos+1]-rightline[CurrentPos-2]<8)&&(rightline[CurrentPos+1]-rightline[CurrentPos-2]>-8))
+                        {
+                            rightline[CurrentPos]=rightline[CurrentPos+1]+(rightline[CurrentPos-2]-rightline[CurrentPos+1])/3;                }
+                    }
+                }
+
+            }
+
+
+
+
+
+            for(int i=60-1;i>3;i--)
+            {
+                if(rightline[i]>=156&& i>3)
+                {
+                    if(rightline[i-1]<156&&rightline[i-2]<156&&rightline[i-3]>=156)
+                    {
+                        rightline[i-1]=0;
+        rightline[i-2]=0;
+                    }
+                }
+            }
+            for(int i=3;i>0;i--)
+            {
+                if(rightline[i+1]>=156 &&rightline[i]<156 && rightline[i-1]>=156)
+                {
+                   rightline[i]=0;
+                }
+            }
+
+
+        LLineSegmentCnt=0;
+         RLineSegmentCnt=0;
+
+
+uint8 stf=0;
+
+stf=0;
+         for(int i=59;i>0;i--)
+                {
+                    if(leftline[i]>2)
+                    {
+                        if(stf==0)
+                        {
+                            stf=1;
+                          LLineSegmentST[LLineSegmentCnt]=i;
+                        }
+                        else if(i==1)
+                        {
+                            LLineSegmentEN[LLineSegmentCnt++]=i;
+                        }
+                        else if(leftline[i]>2&& leftline[i-1]>2)
+                        {
+                            if((leftline[i]-leftline[i-1]>=15)||(leftline[i]-leftline[i-1]<=-15))
+                            {
+                                if(  LLineSegmentST[LLineSegmentCnt]!=0)
+                                {
+                                    LLineSegmentEN[LLineSegmentCnt++]=i;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(LLineSegmentST[LLineSegmentCnt]!=0)
+                        {
+                             LLineSegmentEN[LLineSegmentCnt++]=i;
+                        }
+                    }
+                    if(rightline[i]<156)
+                    {
+                        if(RLineSegmentST[RLineSegmentCnt]==0)
+                        {
+                            RLineSegmentST[RLineSegmentCnt]=i;
+                        }
+                        else if(i==1)
+                        {
+                            RLineSegmentEN[RLineSegmentCnt++]=i;
+                        }
+                        else if(rightline[i]<156&&rightline[i-1]<156)//对跨度太大的段也做处理
+                        {
+                            if((rightline[i]-rightline[i-1]>=15)&&(rightline[i]-rightline[i-1])<=-15)
+                            {
+                                if( RLineSegmentST[RLineSegmentCnt]!=0)
+                                {
+                                   RLineSegmentEN[RLineSegmentCnt++]=i;
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(RLineSegmentST[RLineSegmentCnt]!=0)
+                        {
+
+                                   RLineSegmentEN[RLineSegmentCnt++]=i;
+                        }
+                    }
+                }
+
+
+
+          /*段滤波*/
+                if(LLineSegmentCnt>=3)
+                {
+                    int SegmentCnt=0;
+                    for(int i=0;i<LLineSegmentCnt;i++)
+                    {
+                        if(LLineSegmentST[i]-LLineSegmentEN[i]<=3)
+                        {
+                            for(int j=LLineSegmentST[i];j>LLineSegmentEN[i];j--)
+                            {
+                               leftline[i]=0;
+                            }
+                            LLineSegmentST[i]=0;
+        LLineSegmentEN[i]=0;
+                            SegmentCnt++;
+                        }
+                    }
+                    if(SegmentCnt!=0)
+                    {
+                        for(int i=0;i<LLineSegmentCnt;i++)
+                        {
+                            if(  LLineSegmentST[i]==0 && LLineSegmentEN[i]==0)
+                            {
+                                LLineSegmentST[i]=LLineSegmentST[i+1];
+        LLineSegmentEN[i]=LLineSegmentEN[i+1];
+                            LLineSegmentEN[i+1]=0;
+        LLineSegmentST[i+1]=0;
+                            }
+                        }
+                        LLineSegmentCnt-=SegmentCnt;
+                    }
+                }
+
+                if(RLineSegmentCnt>=3)
+                {
+                    int SegmentCnt=0;
+                    for(int i=0;i<RLineSegmentCnt;i++)
+                    {
+                        if(RLineSegmentST[i]-RLineSegmentEN[i]<=3)
+                        {
+                            for(int j=RLineSegmentST[i];j>RLineSegmentEN[i];j--)
+                            {
+                               rightline[i]=0;
+                            }
+                            RLineSegmentST[i]=0;
+        RLineSegmentEN[i]=0;
+                            SegmentCnt++;
+                        }
+                    }
+                    if(SegmentCnt!=0)
+                    {
+                        for(int i=0;i<RLineSegmentCnt;i++)
+                        {
+                            if(RLineSegmentEN[i]==0 && RLineSegmentST[i]==0)
+                            {
+                                RLineSegmentST[i]=RLineSegmentST[i+1];
+         RLineSegmentEN[i]=RLineSegmentEN[i+1];
+                                RLineSegmentEN[i+1]=0;
+        RLineSegmentST[i+1]=0;
+                            }
+                        }
+                        RLineSegmentCnt-=SegmentCnt;
+                    }
+                }
+
+
+    }
+
+
+  LMaxPoint=GettangoP( LLineSegmentST[0],LLineSegmentEN[0],1);
+
+  RMaxPoint=GettangoP( RLineSegmentST[0],RLineSegmentEN[0],2);
+  TEM_L=LMaxPoint;
+  TEM_R=RMaxPoint;
+  ips200_showint16(30,11, TEM_L.my_x);
+                               ips200_showint16(50,8,TEM_R.my_x);
+
+//  buzzer(1);
+    for(int i=TEM_L.my_y-1;i>0;i--)//防止段上点相同,我也遇见过，不处理会影响补线
+           {
+               if(i>0 && leftline[i]==TEM_L.my_x)
+               {
+                   LMaxPoint.my_x=leftline[i];
+                   LMaxPoint.my_y=i;
+               }
+               else
+               {
+                   break;
+               }
+           }
+           for(int i=TEM_R.my_y-1;i>endline;i--)
+           {
+               if(i>0 && rightline[i]==TEM_R.my_x)
+               {
+                   RMaxPoint.my_x=rightline[i];
+                   RMaxPoint.my_y=i;
+               }
+               else
+               {
+                   break;
+               }
+           }
+
+//           ips200_showint16(30,11, LMaxPoint.my_y);
+
+           if(!huan_L_flag&&
+                     !huan_R_flag&&!fork_road)
+             {
+
+
+                 if((LLineSegmentCnt && LLineSegmentST[0]==59 && LLineSegmentST[0]-LLineSegmentEN[0]>=8)
+                         ||(RLineSegmentCnt && RLineSegmentST[0]==59 && RLineSegmentST[0]-RLineSegmentEN[0]>=8))
+                 {
+                     if(TEM_L.my_y>=12 && TEM_R.my_y>=12
+                             && abs(TEM_L.my_y-TEM_R.my_y)<9
+                             && abs(TEM_L.my_x-TEM_R.my_x)>40)
+                     {
+
+                         TpM.my_x=(TEM_L.my_x+TEM_R.my_x)/2;
+                         TpM.my_y=(TEM_L.my_y+TEM_R.my_y)/2;
+                         TpL.my_x = (TEM_L.my_x+TpM.my_x)/2;
+                         TpL.my_y = TpM.my_y;/*确保起点相同*/
+                         TpR.my_x = (TEM_R.my_x+TpM.my_x)/2;
+                         TpR.my_y = TpM.my_y;/*确保起点相同*/
+                         SFlag=1;
+                     }
+                     else if(TEM_L.my_y>=12 || TEM_R.my_y>=12)
+                     {                   //左斜入应该右边大量丢线,但还有区分斜入十字   //36
+                         if((TEM_L.my_y>=12 && (!RLineSegmentCnt || RLineSegmentST[0]<LMaxPoint.my_y))&&right_all_lose_line>=27)
+                         {
+                             if(ABS(sc_char->my_final_tOptimalPoint.my_x-TEM_L.my_x)<20)
+                             {
+                                 TpR.my_x =158;
+                                 TpM.my_x=(sc_char->my_final_tOptimalPoint.my_x+TpR.my_x)/2;
+                                 TpM.my_y=(TEM_L.my_y);
+                                 TpL.my_x = (TEM_L.my_x+TpM.my_x)/2;
+                                 TpL.my_y = TpM.my_y;/*确保起点相同*/
+                                 TpR.my_x = (TpR.my_x+TpM.my_x)/2;
+                                 TpR.my_y = TpM.my_y;/*确保起点相同*/
+                             }
+                             else
+                             {
+                                 TpR.my_x = 158;
+                                 TpM.my_x=sc_char->my_final_tOptimalPoint.my_x;
+                                 TpM.my_y=(TEM_L.my_y);
+                                 TpL.my_x = (TEM_L.my_x+TpM.my_x)/2;
+                                 TpL.my_y = TpM.my_y;/*确保起点相同*/
+                                 TpR.my_x = (TpR.my_x+TpM.my_x)/2;
+                                 TpR.my_y = TpM.my_y;/*确保起点相同*/
+                             }
+                             SFlag=1;
+                         }
+                         else if(( TEM_R.my_y>=12 && (!LLineSegmentCnt || LLineSegmentST[0]<RMaxPoint.my_y))&&left_all_lose_line>=27)
+                         {
+                             if(ABS(sc_char->my_final_tOptimalPoint.my_x-TEM_R.my_x)<20)
+                             {
+                                 TpL.my_x=1;
+                                 TpM.my_x=(sc_char->my_final_tOptimalPoint.my_x+TpL.my_x)/2;
+                                 TpM.my_y=(TEM_R.my_y);
+                                 TpR.my_x = (TEM_R.my_x+TpM.my_x)/2;
+                                 TpR.my_y = TpM.my_y;/*确保起点相同*/
+                                 TpL.my_x = (TpL.my_x+TpM.my_x)/2;
+                                 TpL.my_y = TpM.my_y;/*确保起点相同*/
+                             }
+                             else
+                             {
+                                 TpL.my_x=1;
+                                 TpM.my_x=sc_char->my_final_tOptimalPoint.my_x;
+                                 TpM.my_y=TEM_R.my_y;
+                                 TpR.my_x=(TEM_R.my_x+TpM.my_x)/2;
+                                 TpR.my_y=TpM.my_y;/*确保起点相同*/
+                                 TpL.my_x=(TpL.my_x+TpM.my_x)/2;
+                                 TpL.my_y=TpM.my_y;/*确保起点相同*/
+                             }
+                             SFlag=1;
+                         }
+
+                     }
+                 }
+                     else
+                                    {
+                                        if(left_all_lose_line>=29&&right_all_lose_line>=29)
+                                        {
+
+                                            TpL.my_x=1;
+                           TpM.my_x=80;
+                           TpM.my_y=sc_char->mylinest[80]/2;//
+                                                                             TpR.my_x=(158+TpM.my_x)/2;
+                                                                             TpR.my_y=TpM.my_y;
+                                                                             TpL.my_x=(1+TpM.my_x)/2;
+                                                                             TpL.my_y=TpM.my_y;
+                                                                             SFlag=1;
+
+                                        }
+                                        else
+                                        {
+
+
+                                    }
+
+                 }
+
+
+                 tMCnt=0;
+                 tRCnt=0;
+                 tLCnt=0;
+                 if(1==SFlag)
+                 {
+                     /*判断这三条线构成的趋势--一段纵向扩充*/
+                     for(int i=TpM.my_y;i>0;i--)
+                     {
+                         if(255==image_data[i][TpM.my_x])
+                         {
+                             TpM.my_y=i;
+                             tMCnt++;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     for(int i=TpL.my_y;i>0;i--)
+                     {
+                         if(255==image_data[i][TpL.my_x])
+                         {
+                             tLCnt++;
+                             TpL.my_y=i+2;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     for(int i=TpR.my_y;i>0;i--)
+                     {
+                         if(255==image_data[i][TpR.my_x])
+                         {
+                             tRCnt++;
+                             TpR.my_y=i+2;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     /*横向搜索开始*/
+                      LColCnt=0;
+                      RColCnt=0;
+                     for(int i=TpL.my_x;i>0;i--)
+                     {
+                         if(255==image_data[TpL.my_y][i])
+                         {
+                             LColCnt++;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     for(int i=TpR.my_x;i<159;i++)
+                     {
+                         if(255==image_data[TpR.my_y][i])
+                         {
+                             RColCnt++;
+                         }
+                         else
+                         {
+                             break;
+                         }
+                     }
+                     if(tMCnt&&tRCnt&&tLCnt)
+                     {
+                         if(tMCnt<=tRCnt && tMCnt<=tLCnt && ((LColCnt>=15 && RColCnt>=5)||(LColCnt>=5 && RColCnt>=15)))
+                         {
+//                             if(TpM.my_y>sc_char->my_final_tOptimalPoint.my_y)
+                                 fork_road=1;
+//                             else
+//                                 fork_road=0;
+                         }
+                         else
+                         {
+                             fork_road=0;
+                         }
+                     }
+                     else
+                     {
+                         fork_road=0;
+                     }
+                 }
+                 else
+                 {
+                     fork_road=0;;
+                 }
+//               LMaxPoint=TpL;
+//               RMaxPoint=TpR;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+}
+
+
+
+
+
+
+
+void sec_fork_law(Maiy_characteristic_point *SewFork_char)
+{
+if(fork_road==1)
+{
+    if(SewFork_char->m_stCenterLinePoint.my_y>=18)
+    {
+
+        fork_road=2;
+        buzzer(1);
+    }
+
+}
+
+if(fork_road==2)
+{
+    int Y = 59;
+    const float step = (float)((double)(160 / 2) / (double)60);
+  if(ForkDir==0)  //le
+
+      while (Y--)
+              {
+                  if (ForkDir==1)
+                  {
+                   rightline[Y]=158;
+                      leftline[Y] = 160 / 2 + (int)((float)(60 - Y) * step);
+
+                  }
+                  if(ForkDir==0)
+                  {
+                    leftline[Y]=1;
+                      rightline[Y]= 160 / 2 - (int)((float)(60 - Y) * step);
+
+                  }
+              }
+
+
+
+
+
+}
+
+
+
+if (fork_road==2)
+       {
+    Left_line_swerve_L=0;
+    Right_line_swerve_R=0;
+    for(int i=59;i>endline;i--)
+    {
+     if(leftline[i]-leftline[i-1]>=0)
+                           Left_line_swerve_L++;//左线往左趋势
+      if(rightline[i]-rightline[i-1]<=0)
+                      Right_line_swerve_R++;//右线趋势往右
+    }
+           if ((Left_line_swerve_L <= 3||icmdata.Yaw>=30)&&ForkDir==0)
+           {
+               fork_road=0;
+               buzzer(0);
+                ++ForkDirKsLe;
+                if(ForkDirKsLe==2||ForkDirKsLe>2)
+                {
+                    ForkDir=1;
+                }
+
+           }
+
+
+           if ((Right_line_swerve_R<=3||icmdata.Yaw>=30)&&ForkDir==1)
+           {
+               fork_road=0;
+               ++ForkDirKsRi;
+               buzzer(0);
+               if(ForkDirKsRi==2||ForkDirKsRi>2)
+               {
+                   ForkDir=0;
+               }
+           }
+
+}
+
+}
+
+
+
+
+void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
+{
+    yes=0;
+    point=0;
+    XLFlag=0;
+
+        if(!sancha_flag_right&&!sancha_flag_left&&!huan_L_flag&&!huan_R_flag&&!shizhiflag&&endline<15)
+        {
+            for(int16 i=58;i>=20;i--)
+            {
+            if((leftline[i]-leftline[i-1]>=0&&leftline[i]-leftline[i-2]>=0&&leftline[i]-leftline[i-5]>0&&leftline[i]>=2))
+                {
+                LowLeftJump.my_x=leftline[i];
+                LowLeftJump.my_y=i;
+                ForkStep=1;
+                sancha_flag1=1;
+                break;
+                }
+            }
+            for(int16 i=58;i>=20;i--)
+            {
+            if((rightline[i-1]-rightline[i]>=0&&rightline[i-2]-rightline[i]>=0&&rightline[i-5]-rightline[i]>0&&rightline[i]<=157))
+                {
+                LowRightJump.my_x=rightline[i];
+                LowRightJump.my_y=i;
+                ForkStep=1;
+                sancha_flag1=1;
+                    break;
+                }
+            }
+//            if(ForkStep==1&&LowRightJump.my_x==0)
+//            {
+//                LowRightJump.my_x=158;
+//            }
+//buzzer(1);
+            if((leftline[58]<=2&&rightline[58]>=156)||(leftline[57]<=2&&rightline[57]>=156)||(leftline[56]<=2&&rightline[56]>=156)||(leftline[55]<=2&&rightline[55]>=156)||(leftline[54]<=2&&rightline[54]>=156)||(leftline[53]<=2&&rightline[53]>=156)||(leftline[52]<=2&&rightline[52]>=156)
+                    ||(leftline[51]<=2&&rightline[51]>=156)||(leftline[50]<=2&&rightline[50]>=156))
+            {
+                ForkStep=0;
+//                LowRightJump.my_x=120;
+//                                LowRightJump.my_y=30;
+//                                LowLeftJump.my_x=40;
+//                                               LowLeftJump.my_y=30;
+
+//                                               XLFlag=1;
+            }
+
+//            if (image_data[10][90]!=0 || image_data[10][70]!=0)
+//                    {
+//                  LowLeftJump.my_x =158;
+//                  LowLeftJump.my_y = 59;
+//                  LowRightJump.my_x = 0;
+//                  LowRightJump.my_y = 59;
+//                        ForkStep = 0;
+//
+//                    }
+        }
+
+//        ips200_showint16(50,8,  ForkStep);
+
+//                                                 ips200_showint16(30,11,LowLeftJump.my_x);
+        if (ForkStep == 1 &&
+           sancha_flag_left == 0 &&
+           sancha_flag_right == 0 &&
+           ((((LowLeftJump.my_x - leftline[59] >=6) || (LowLeftJump.my_x - leftline[59] >= 0 && leftline[59] >= 20)) &&leftline[59] != 0) ||
+           (((rightline[59] - LowRightJump.my_x >=6 )|| (rightline[59] - LowRightJump.my_x >= 0 && rightline[59] <= 140))&& rightline[59] <= 157)))
+//        if (ForkStep == 1 &&
+//                  sancha_flag_left == 0 &&
+//                  sancha_flag_right == 0)
+        {
+            yes=0;
+            TriangBlackPoint.my_x=0;
+            TriangBlackPoint.my_y=0;
+            XieLiCnt=0;
+            XieRiCnt=0;
+            XLFlag=0;
+            XRFlag=0;
+//            ips200_showint16(30,11, LowLeftJump.my_x);
+//            for(uint8 i=58;i>=40;i--)
+//      {
+//      if((rightline[i]>=150&&rightline[i-2]>=150&&leftline[i]<=10&&leftline[i-2]<=10)||XLFlag||XRFlag)
+//if(( LowRightJump.my_y>15&&LowLeftJump.my_y>15&&ABS(LowRightJump.my_y-LowLeftJump.my_y)<=18&&ABS(LowRightJump.my_x-LowLeftJump.my_x)>48))
+       if(leftline[58]>2&&rightline[58]<=156&&leftline[57]>2&&rightline[57]<156&&leftline[56]>2&&rightline[56]<156&& LowRightJump.my_y>15&&LowLeftJump.my_y>15)
+            {
+          memset(TriangRange,0,sizeof(int)*160);
+            for(int16 j=LowLeftJump.my_x;j<=LowRightJump.my_x;j++)
+      {
+            for(int16 k=59;k>=2;k--)
+            {
+                if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                {
+                    TriangRange[j]=k;
+                    if(TriangBlackPoint.my_y<=TriangRange[j]&&j<=80)
+                    {
+                        TriangBlackPoint.my_y=TriangRange[j];
+                        TriangBlackPoint.my_x=j;
+                    }
+                    if(TriangBlackPoint.my_y<TriangRange[j]&&j>=80)
+                    {
+                        TriangBlackPoint.my_y=TriangRange[j];
+                        TriangBlackPoint.my_x=j;
+                    }
+                    break;
+                }
+            }
+      }
+        }
+else if(LowLeftJump.my_y>=15&&right_all_lose_line>=30&&!XLFlag)
+//       else if(leftline[58]>2&&leftline[57]>2&&leftline[56]>2)
+{
+    LowRightJump.my_x=158;
+    LowRightJump.my_y=59;
+//    buzzer(1);
+    memset(TriangRange,0,sizeof(int)*160);
+               for(int16 j=LowLeftJump.my_x;j<=158;j++)
+         {
+               for(int16 k=59;k>=2;k--)
+               {
+                   if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                   {
+                       TriangRange[j]=k;
+                       if(TriangBlackPoint.my_y<=TriangRange[j]&&j<=80)
+                       {
+                           TriangBlackPoint.my_y=TriangRange[j];
+                           TriangBlackPoint.my_x=j;
+                       }
+                       if(TriangBlackPoint.my_y<TriangRange[j]&&j>=80)
+                       {
+                           TriangBlackPoint.my_y=TriangRange[j];
+                           TriangBlackPoint.my_x=j;
+                       }
+                       break;
+                   }
+               }
+         }
+}
+
+else if(LowRightJump.my_y>=15&&left_all_lose_line>=30&&!XLFlag)
+//       else if(rightline[58]<=156&&rightline[57]<=156&&rightline[56]<=156)
+{
+    LowLeftJump.my_x=0;
+    LowLeftJump.my_y=59;
+    memset(TriangRange,0,sizeof(int)*160);
+                   for(int16 j=LowRightJump.my_x;j>=1;j--)
+             {
+                   for(int16 k=59;k>=2;k--)
+                   {
+                       if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
+                       {
+                           TriangRange[j]=k;
+                           if(TriangBlackPoint.my_y<=TriangRange[j]&&j<=80)
+                           {
+                               TriangBlackPoint.my_y=TriangRange[j];
+                               TriangBlackPoint.my_x=j;
+                           }
+                           if(TriangBlackPoint.my_y<TriangRange[j]&&j>=80)
+                           {
+                               TriangBlackPoint.my_y=TriangRange[j];
+                               TriangBlackPoint.my_x=j;
+                           }
+                           break;
+                       }
+                   }
+             }
+}
+
+else
+{
+//    ForkStep=0;
+
+}
+
+
+             ColFlagL=0;
+             ColFlagR=0;
+             YLCnt=0;
+             YRCnt=0;
+             /*
+            for(int16 i=LowRightJump.my_y>=LowLeftJump.my_y ? LowRightJump.my_y:LowLeftJump.my_y;i>=3;i--)
+            {
+                if(image_data[i][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]&&image_data[i-1][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]==0&&image_data[i-2][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]==0)
+                {
+                    ColFlagL=1;
+                    ColPoint_L.my_y=i;
+//                    YLCnt=LowLeftJump.my_y-i;
+                }
+                if(image_data[i][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]&&image_data[i-1][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]==0&&image_data[i-2][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]==0)
+                                {
+                    ColFlagR=1;
+                    ColPoint_R.my_y=i;
+//                    YRCnt=LowRightJump.my_y-i;
+                                }
+                if(ColFlagR==1&&ColFlagL==1)
+                {
+                    break;
+                }
+
+            }
+            */
+            ColRcnt=0;
+            ColLcnt=0;
+            /*
+            if(ColFlagR==1&&ColFlagL==1)
+            {
+               for(int16 i=(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2);i<158;i++)
+               {
+                   if(image_data[ColPoint_R.my_y][i]!=0)
+                   {
+                       ColRcnt++;
+                   }
+                   else
+                   {
+                       break;
+                   }
+               }
+
+               for(int16 i=(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2);i>0;i--)
+                              {
+                                  if(image_data[ColPoint_L.my_y][i]!=0)
+                                  {
+                                      ColLcnt++;
+                                  }
+                                  else
+                                  {
+                                      break;
+                                  }
+                              }
+
+            }
+*/
+            ForkAngleLeft=0;
+            ForkAngleRight=0;
+            OverAngleStep=0;
+            for(int16 i=0;i<20;i++)
+            {
+                if(TriangRange[TriangBlackPoint.my_x+i]!=0&&TriangRange[TriangBlackPoint.my_x-i]!=0)
+                {
+                    OverAngleStep=1;
+                }
+                else
+                {
+                    OverAngleStep=0;
+                    break;
+                }
+            }
+            if(OverAngleStep!=0)
+            {
+                for(int16 i=0;i<15;i++)
+                            {
+                    ForkAngleLeft+=(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x-i]);
+
+                    ForkAngleRight+=(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+i]);
+                            }
+            }
+
+
+                        Maiy_2_dimensional A={TriangBlackPoint.my_x-5,TriangRange[TriangBlackPoint.my_x-5]};
+                        Maiy_2_dimensional C={TriangBlackPoint.my_x+5,TriangRange[TriangBlackPoint.my_x+5]};
+                        Triang= Get_Angle( A, TriangBlackPoint, C);
+
+
+//            ips200_showint16(50,8,  Triang);
+//
+                                           ips200_showint16(50,8,ForkAngleLeft);
+
+                        ips200_showint16(30,11,ForkAngleRight);
+
+//            if(ForkStep&&TriangBlackPoint.my_y>=10&&TriangBlackPoint.my_y<LowLeftJump.my_y&&((ForkAngleLeft+ForkAngleRight<=30)||(ForkAngleRight>=20&&ForkAngleLeft<=10)||(ForkAngleLeft>=20&&ForkAngleRight<=10)))
+//if(1)
+            if(ForkStep&&TriangBlackPoint.my_y>=15&&TriangBlackPoint.my_y<LowLeftJump.my_y&&Triang>=150)
+            {
+//                buzzer(1);
+            if(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+3]<=1
+                    &&TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x-3]<=1
+                    &&TriangRange[TriangBlackPoint.my_x+10]<=TriangRange[TriangBlackPoint.my_x]
+                    &&TriangRange[TriangBlackPoint.my_x-10]<=TriangRange[TriangBlackPoint.my_x]
+                    &&TriangBlackPoint.my_y<=40
+                    &&TriangRange[TriangBlackPoint.my_x+12]!=0
+                    &&TriangRange[TriangBlackPoint.my_x-12]!=0
+                    &&((ForkAngleLeft+ForkAngleRight<=30)||(ForkAngleRight>=20&&ForkAngleLeft<=10)||(ForkAngleLeft>=20&&ForkAngleRight<=10)))
+//    if(1)
+    {
+                dorg_l=1;
+//buzzer(1);
+              }
+            }
+if(sanchacount!=0)
+{
+    if(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+3]<=1&&TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x-3]<=1&&TriangRange[TriangBlackPoint.my_x+15]<TriangRange[TriangBlackPoint.my_x]&&TriangRange[TriangBlackPoint.my_x-15]<TriangRange[TriangBlackPoint.my_x]&&TriangBlackPoint.my_y<=40
+            &&TriangRange[TriangBlackPoint.my_x+15]!=0&&TriangRange[TriangBlackPoint.my_x-15]!=0&&ForkStep&&TriangBlackPoint.my_y>=20)
+    {
+        dorg_l=1;
+    }
+}
+//        }
+    }
+
+//if(dorg_l&&sc_char->mylinest[79]<=40)
+        if(dorg_l)
+{
+    sancha_flag_left=2;
+                  sancha_flag_right=2;
+                  buzzer(1);
+                  flag22=2;
+                  dorg_l=0;
+                  ForkStep=0;
+}
+//ips200_showint16(50,8, ColLcnt);
+//             ips200_showuint16(90,17,ColRcnt);
+
+            if(sancha_flag_left==2&&qipao_time==1&&ABS(icmdata.Yaw)>=20)
+           {
+//            for(int16 i=58;i>=58;i--)
+//      {
+
+//                    if(rightline[i]-rightline[i-1]>0&&rightline[i]-rightline[i-20]>0&&rightline[i]<=157&&rightline[i-10]<=157&&rightline[i-40]<=157&&rightline[i-30]<=157&&rightline[i-20]<=157)
+//
+//                {
+          sancha_flag_left=0;
+          buzzer(0);
+                sancha_flag_right=0;
+//                if( icmdata.Yaw>=35)
+                if(sanchacount>0)
+                {
+                    sanchacount=0;
+                }
+
+                sanchacount++;
+
+                if(ShangForkDir==0)
+                    ShangForkDir=2;
+                else if(ShangForkDir==2)
+                {
+                    ShangForkDir=0;
+                }
+                if(sanchacount>=4)
+                    cnt_fache1=1;
+//                break;
+//                        }
+      }
+
+//           }
+
+
+            if(sancha_flag_right==2&&qipao_time==0&&ABS(icmdata.Yaw)>=20)
+            {
+
+//                for(int16 i=58;i>=57;i--)
+//          {
+//
+//
+//                    if(
+//                                                leftline[i-1]-leftline[i]>0&&leftline[i-20]-leftline[i]>0&&leftline[i-40]!=0&&leftline[i-30]!=0&&leftline[i-20]!=0&&leftline[i-10]!=0&&leftline[i]!=0)
+//                    {
+              sancha_flag_right=0;
+                    sancha_flag_left=0;
+                if(ShangForkDir==0)
+                    ShangForkDir=3;
+                    else if(ShangForkDir==3)
+                    {
+                        ShangForkDir=0;
+                    }
+                if(sanchacount>0)
+                               {
+                                   sanchacount=0;
+                               }
+                 buzzer(0);
+
+                 sanchacount++;
+
+                    if(sanchacount>=4)
+                        cnt_fache1=1;
+//                    break;
+            }
+//          }
+
+//            }
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+void ShangCha_flo_law(Maiy_characteristic_point* sc_char)
+{
+
+
+    if (sancha_flag_right==0&&sancha_flag_left==0&&!qipao_flag&&!huan_L_flag&&!huan_R_flag&&!shizhiflag)
+    {
+         LowLeftJump.my_x =0;
+         LowLeftJump.my_y = 59;
+         LowRightJump.my_x = 158;
+         LowRightJump.my_y = 59;
+
+        for (int i = 58; i >= 20; i--)
+        {
+            if (leftline[i] - leftline[i - 1] >= 0 && leftline[i] - leftline[i - 2] >= 0 && leftline[i] - leftline[i - 5] > 0 && leftline[i] >= 2)
+            {
+                LowLeftJump.my_x = leftline[i];
+                LowLeftJump.my_y= i;
+                ForkStep = 1;
+//buzzer(1);
+                break;
+            }
+        }
+        for (int i = 58; i >= 20; i--)
+        {
+            if (rightline[i - 1] - rightline[i] >= 0 && rightline[i - 2] - rightline[i] >= 0 && rightline[i - 5] - rightline[i] > 0 && rightline[i] <= 157)
+            {
+                LowRightJump.my_x = rightline[i];
+                LowRightJump.my_y = i;
+                ForkStep = 1;
+//buzzer(1);
+                break;
+            }
+        }
+
+
+      if (ForkStep == 1 && LowRightJump.my_x == 0)
+        {
+          LowRightJump.my_x = 158;
+        }
+
+//  if (image_data[10][90]!=0 || image_data[10][70]!=0)
+//        {
+//      LowLeftJump.my_x =158;
+//      LowLeftJump.my_y = 59;
+//      LowRightJump.my_x = 0;
+//      LowRightJump.my_y = 59;
+//            ForkStep = 0;
+//
+//        }
+
+
+    }
+
+
+    if (ForkStep == 1 &&
+    sancha_flag_left == 0 &&
+    sancha_flag_right == 0 &&
+    ((((LowLeftJump.my_x - leftline[59] > 7) || (LowLeftJump.my_x - leftline[59] >= 0 && leftline[59] >= 30)) &&leftline[59] != 0) ||
+    (((rightline[59] - LowRightJump.my_x > 7 )|| (rightline[59] - LowRightJump.my_x >= 0 && rightline[59] <= 130))&& rightline[59] <= 157)))
+    {
+        yes = 0;
+        TriangBlackPoint.my_x = 79;
+        TriangBlackPoint.my_y = 0;
+
+
+        for (int i = 59; i >= 40; i--)
+        {
+if ((rightline[i] <= 156 &&
+    rightline[i - 2] <= 156 &&
+    leftline[i] > 2 && leftline[i - 2] > 2) ||
+    (rightline[i - 2] <= 151 && rightline[i] <= 151 && leftline[i] <= 2 && leftline[i - 2] <= 2) ||
+    (leftline[i] >= 10 && leftline[i - 2] >= 10 && rightline[i] >= 157 && rightline[i - 2] >= 157))
+            {
+                for (int ij = 0; ij >= 159; i++)
+                {
+                    TriangRange[ij] = 0;
+                }
+
+                for (int j = LowLeftJump.my_x; j <= LowRightJump.my_x; j++)
+                {
+                    for (int k =(LowLeftJump.my_y+LowRightJump.my_y)>>1; k >= 2; k--)
+                    {
+
+                        if (image_data[k][j]!=0&&image_data[k - 1][j]==0 && image_data[k - 2][j]==0)
+                        {
+
+                            TriangRange[j] = k;
+
+                            if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
+                            {
+
+                                TriangBlackPoint.my_y =TriangRange[j];
+
+                                TriangBlackPoint.my_x = j;
+
+                            }
+
+
+                            if (TriangBlackPoint.my_y <=TriangRange[j] && j > 80)
+                            {
+                                TriangBlackPoint.my_y = TriangRange[j];
+                                TriangBlackPoint.my_x = j;
+                            }
+                            break;
+
+                        }
+                    }
+                }
+
+            }
+
+
+            if (ForkStep!=0 && TriangBlackPoint.my_y >= 10 && TriangBlackPoint.my_y < LowLeftJump.my_y && TriangBlackPoint.my_y < LowRightJump.my_y && TriangBlackPoint.my_x >= 10 && TriangBlackPoint.my_x <= 149)
+            {
+                if (TriangRange[TriangBlackPoint.my_x] >= TriangRange[TriangBlackPoint.my_x + 15] && TriangRange[TriangBlackPoint.my_x] >= TriangRange[TriangBlackPoint.my_x - 15] && TriangRange[TriangBlackPoint.my_x + 10]!=0&& TriangRange[TriangBlackPoint.my_x -10]!=0 && TriangBlackPoint.my_y <= 40)
+
+
+                {
+                    dorg_l = 1;
+                    break;
+                }
+
+          }
+
+        }
+    }
+
+
+    if (dorg_l!=0 &&  sc_char->mylinest[79] <= 40)
+    {
+        sancha_flag_left = 2;
+        sancha_flag_right = 2;
+buzzer(1);
+        dorg_l = 0; //上位机使用
+        ForkStep = 0;
+    }
+    else
+    {
+
+                ForkStep = 0;
+    }
+
+
+
+    if (sancha_flag_left == 2&&qipao_time==1 )
+    {
+        for (int i = 58; i >= 58; i--)
+        {
+
+            if (rightline[i] - rightline[i - 1] > 0 && rightline[i] - rightline[i - 20] > 0 && rightline[i] <= 157 && rightline[i - 10] <= 157 && rightline[i - 40] <= 157 && rightline[i - 30] <= 157 && rightline[i - 20] <= 157)
+
+            {
+                buzzer(0);
+                sancha_flag_left = 0;
+
+                sancha_flag_right = 0;
+
+                if (sanchacount > 0)
+                {
+                    sanchacount = 0;
+                }
+
+                    sanchacount++;
+
+                break;
+            }
+        }
+
+    }
+
+
+    if (sancha_flag_right == 2&&qipao_time==0 )
+    {
+
+        for (int  i = 58; i >= 58; i--)
+        {
+
+
+            if (
+                leftline[i - 1] - leftline[i] > 0 && leftline[i - 20] - leftline[i] > 0 && leftline[i - 40] != 0 && leftline[i - 30] != 0 && leftline[i - 20] != 0 && leftline[i - 10] != 0 && leftline[i] != 0)
+            {
+                sancha_flag_right = 0;
+                sancha_flag_left = 0;
+                buzzer(0);
+                if (sanchacount > 0)
+                {
+                    sanchacount = 0;
+                }
+
+
+                    sanchacount++;
+
+
+                break;
+            }
+        }
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+void ShangCha_fiv_law(Maiy_characteristic_point* sc_char)
+{
+/*
+uint8 Tan90Left=0;
+uint8 Tan90Right=0;
+uint8 StepForkOne=0;
+
+if (sancha_flag_right==0&&sancha_flag_left==0&&!qipao_flag&&!huan_L_flag&&!huan_R_flag&&!shizhiflag)
+    {
+    for(int i=BOTTOM;i>BOTTOM-1;i--)    //累了 确定三叉定轴偏向位  界定十字的条件之一
+    {
+        if(leftline[i]<=2&&leftline[i-1]<=2&&leftline[i-2]<=2)
+        {
+            Tan90Left=1;
+        }
+        if(rightline[i]>=157&&rightline[i-2]>=157&&rightline[i-1]>=157)
+        {
+            Tan90Right=1;
+        }
+        if(Tan90Left==1&&Tan90Right==1)
+        {
+            StepForkOne=1;
+        }
+    }
+
+
+    if(StepForkOne==0)
+    {
+
+    }
+
+
+
+
+
+
+
+
+    }
+
+
+
+    if (sancha_flag_right==0&&sancha_flag_left==0&&!qipao_flag&&!huan_L_flag&&!huan_R_flag&&!shizhiflag)
+    {
+         LowLeftJump.my_x =0;
+         LowLeftJump.my_y = 59;
+         LowRightJump.my_x = 158;
+         LowRightJump.my_y = 59;
+
+        for (int i = 58; i >= 20; i--)
+        {
+            if (leftline[i] - leftline[i - 1] >= 0 && leftline[i] - leftline[i - 2] >= 0 && leftline[i] - leftline[i - 5] > 0 && leftline[i] >= 2)
+            {
+                LowLeftJump.my_x = leftline[i];
+                LowLeftJump.my_y= i;
+                ForkStep = 1;
+
+                break;
+            }
+        }
+        for (int i = 58; i >= 20; i--)
+        {
+            if (rightline[i - 1] - rightline[i] >= 0 && rightline[i - 2] - rightline[i] >= 0 && rightline[i - 5] - rightline[i] > 0 && rightline[i] <= 157)
+            {
+                LowRightJump.my_x = rightline[i];
+                LowRightJump.my_y = i;
+                ForkStep = 1;
+
+                break;
+            }
+        }
+
+
+      if (ForkStep == 1 && LowRightJump.my_x == 0)
+        {
+          LowRightJump.my_x = 158;
+        }
+
+//  if (image_data[10][90]!=0 || image_data[10][70]!=0)
+//        {
+//      LowLeftJump.my_x =158;
+//      LowLeftJump.my_y = 59;
+//      LowRightJump.my_x = 0;
+//      LowRightJump.my_y = 59;
+//            ForkStep = 0;
+//
+//        }
+
+
+    }
+
+
+    if (ForkStep == 1 &&
+    sancha_flag_left == 0 &&
+    sancha_flag_right == 0 &&
+    ((((LowLeftJump.my_x - leftline[59] > 7) || (LowLeftJump.my_x - leftline[59] >= 0 && leftline[59] >= 30)) &&leftline[59] != 0) ||
+    (((rightline[59] - LowRightJump.my_x > 7 )|| (rightline[59] - LowRightJump.my_x >= 0 && rightline[59] <= 130))&& rightline[59] <= 157)))
+    {
+        yes = 0;
+        TriangBlackPoint.my_x = 79;
+        TriangBlackPoint.my_y = 0;
+
+
+        for (int i = 59; i >= 40; i--)
+        {
+if ((rightline[i] <= 156 &&
+    rightline[i - 2] <= 156 &&
+    leftline[i] > 2 && leftline[i - 2] > 2) ||
+    (rightline[i - 2] <= 151 && rightline[i] <= 151 && leftline[i] <= 2 && leftline[i - 2] <= 2) ||
+    (leftline[i] >= 10 && leftline[i - 2] >= 10 && rightline[i] >= 157 && rightline[i - 2] >= 157))
+            {
+                for (int ij = 0; ij >= 159; i++)
+                {
+                    TriangRange[ij] = 0;
+                }
+
+                for (int j = LowLeftJump.my_x; j <= LowRightJump.my_x; j++)
+                {
+                    for (int k =(LowLeftJump.my_y+LowRightJump.my_y)>>1; k >= 2; k--)
+                    {
+
+                        if (image_data[k][j]!=0&&image_data[k - 1][j]==0 && image_data[k - 2][j]==0)
+                        {
+
+                            TriangRange[j] = k;
+
+                            if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
+                            {
+
+                                TriangBlackPoint.my_y =TriangRange[j];
+
+                                TriangBlackPoint.my_x = j;
+
+                            }
+
+
+                            if (TriangBlackPoint.my_y <=TriangRange[j] && j > 80)
+                            {
+                                TriangBlackPoint.my_y = TriangRange[j];
+                                TriangBlackPoint.my_x = j;
+                            }
+                            break;
+
+                        }
+                    }
+                }
+
+            }
+
+
+            if (ForkStep!=0 && TriangBlackPoint.my_y >= 10 && TriangBlackPoint.my_y < LowLeftJump.my_y && TriangBlackPoint.my_y < LowRightJump.my_y && TriangBlackPoint.my_x >= 10 && TriangBlackPoint.my_x <= 149)
+            {
+                if (TriangRange[TriangBlackPoint.my_x] >= TriangRange[TriangBlackPoint.my_x + 15] && TriangRange[TriangBlackPoint.my_x] >= TriangRange[TriangBlackPoint.my_x - 15] && TriangRange[TriangBlackPoint.my_x + 10]!=0&& TriangRange[TriangBlackPoint.my_x -10]!=0 && TriangBlackPoint.my_y <= 40)
+
+
+                {
+                    dorg_l = 1;
+                    break;
+                }
+
+          }
+
+        }
+    }
+
+
+    if (dorg_l!=0 &&  sc_char->mylinest[79] <= 40)
+    {
+        sancha_flag_left = 2;
+        sancha_flag_right = 2;
+//buzzer(1);
+        dorg_l = 0; //上位机使用
+        ForkStep = 0;
+    }
+    else
+    {
+
+                ForkStep = 0;
+    }
+
+
+
+    if (sancha_flag_left == 2&&qipao_time==1 )
+    {
+        for (int i = 58; i >= 58; i--)
+        {
+
+            if (rightline[i] - rightline[i - 1] > 0 && rightline[i] - rightline[i - 20] > 0 && rightline[i] <= 157 && rightline[i - 10] <= 157 && rightline[i - 40] <= 157 && rightline[i - 30] <= 157 && rightline[i - 20] <= 157)
+
+            {
+                buzzer(0);
+                sancha_flag_left = 0;
+
+                sancha_flag_right = 0;
+
+                if (sanchacount > 0)
+                {
+                    sanchacount = 0;
+                }
+
+                    sanchacount++;
+
+                break;
+            }
+        }
+
+    }
+
+
+    if (sancha_flag_right == 2&&qipao_time==0 )
+    {
+
+        for (int  i = 58; i >= 58; i--)
+        {
+
+
+            if (
+                leftline[i - 1] - leftline[i] > 0 && leftline[i - 20] - leftline[i] > 0 && leftline[i - 40] != 0 && leftline[i - 30] != 0 && leftline[i - 20] != 0 && leftline[i - 10] != 0 && leftline[i] != 0)
+            {
+                sancha_flag_right = 0;
+                sancha_flag_left = 0;
+                buzzer(0);
+                if (sanchacount > 0)
+                {
+                    sanchacount = 0;
+                }
+
+
+                    sanchacount++;
+
+
+                break;
+            }
+        }
+
+
+
+
+    }
+
+
+
+
+
+
+*/
+
+
+
+
+
+}
+
+
