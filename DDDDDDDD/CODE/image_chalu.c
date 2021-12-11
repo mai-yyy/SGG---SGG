@@ -957,7 +957,7 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
             }
             for(int16 i=58;i>=20;i--)
             {
-            if((rightline[i-1]-rightline[i]>=0&&rightline[i-2]-rightline[i]>=0&&rightline[i-5]-rightline[i]>0&&rightline[i]<=157))
+            if((rightline[i-1]-rightline[i]>=1&&rightline[i-2]-rightline[i]>=1&&rightline[i-5]-rightline[i]>0&&rightline[i]<156&&rightline[i-1]<156&&rightline[i-2]<156))
                 {
                 LowRightJump.my_x=rightline[i];
                 LowRightJump.my_y=i;
@@ -1197,11 +1197,11 @@ else
                         Triang= Get_Angle( A, TriangBlackPoint, C);
 
 
-//            ips200_showint16(50,8,  Triang);
+//            ips200_showint16(50,8,  LowLeftJump.my_x);
 //
-                                           ips200_showint16(50,8,ForkAngleLeft);
+//                                           ips200_showint16(50,8,TriangRange[TriangBlackPoint.my_x+10]-TriangRange[TriangBlackPoint.my_x-10]);
 
-                        ips200_showint16(30,11,ForkAngleRight);
+                        ips200_showint16(30,11,  LowRightJump.my_x);
 
 //            if(ForkStep&&TriangBlackPoint.my_y>=10&&TriangBlackPoint.my_y<LowLeftJump.my_y&&((ForkAngleLeft+ForkAngleRight<=30)||(ForkAngleRight>=20&&ForkAngleLeft<=10)||(ForkAngleLeft>=20&&ForkAngleRight<=10)))
 //if(1)
@@ -1217,6 +1217,7 @@ else
                     &&TriangRange[TriangBlackPoint.my_x-12]!=0
                     &&((ForkAngleLeft+ForkAngleRight<=30)||(ForkAngleRight>=20&&ForkAngleLeft<=10)||(ForkAngleLeft>=20&&ForkAngleRight<=10))
                     &&ColLcnt>10&&ColRcnt>10)
+//                    )
 //    if(1)
     {
                 dorg_l=1;

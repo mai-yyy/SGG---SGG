@@ -168,7 +168,7 @@ void cpu0_initialize(void)                      //≥ı ºªØ
         CSRDJPID_init();
         ips200_init();
         Read_information(&parameter);
-        gpio_init(P33_10, GPO, 0, PUSHPULL);
+//        gpio_init(P33_10, GPO, 0, PUSHPULL);
         pit_interrupt_ms(CCU6_0, PIT_CH1,20);
 
         while(!gpio_get(P33_13)&&!start_car_flag)
