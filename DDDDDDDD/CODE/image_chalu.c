@@ -8,6 +8,8 @@ uint8 diu_flag1=0;
 uint8 diu_flag2=0;
 uint8 jilu;
 uint8 Triang=0;
+uint8 Triang1=0;
+uint8 Triang2=0;
 uint8 one_add=0;
 int16 one_add_time=0;
 int16 ForkAngleLeft=0;
@@ -941,7 +943,8 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
     yes=0;
     point=0;
     XLFlag=0;
-
+int IsBottomRightJupm=0;
+int IsBottomLeftJupm=0;
         if(!sancha_flag_right&&!sancha_flag_left&&!huan_L_flag&&!huan_R_flag&&!shizhiflag&&endline<15)
         {
             for(int16 i=58;i>=20;i--)
@@ -952,6 +955,7 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
                 LowLeftJump.my_y=i;
                 ForkStep=1;
                 sancha_flag1=1;
+                IsBottomLeftJupm=1;
                 break;
                 }
             }
@@ -963,6 +967,8 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
                 LowRightJump.my_y=i;
                 ForkStep=1;
                 sancha_flag1=1;
+
+                IsBottomRightJupm=1;
                     break;
                 }
             }
@@ -979,19 +985,20 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
 //                                LowRightJump.my_y=30;
 //                                LowLeftJump.my_x=40;
 //                                               LowLeftJump.my_y=30;
-
+                IsBottomLeftJupm=0;
+                IsBottomRightJupm=0;
 //                                               XLFlag=1;
             }
 
-            if (image_data[10][90]!=0 || image_data[10][70]!=0)
-                    {
-                  LowLeftJump.my_x =158;
-                  LowLeftJump.my_y = 59;
-                  LowRightJump.my_x = 0;
-                  LowRightJump.my_y = 59;
-                        ForkStep = 0;
-
-                    }
+//            if (image_data[10][90]!=0 || image_data[10][70]!=0)
+//                    {
+//                  LowLeftJump.my_x =158;
+//                  LowLeftJump.my_y = 59;
+//                  LowRightJump.my_x = 0;
+//                  LowRightJump.my_y = 59;
+//                        ForkStep = 0;
+//
+//                    }
         }
 
 //        ips200_showint16(50,8,  ForkStep);
@@ -1018,7 +1025,8 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
 //      {
 //      if((rightline[i]>=150&&rightline[i-2]>=150&&leftline[i]<=10&&leftline[i-2]<=10)||XLFlag||XRFlag)
 //if(( LowRightJump.my_y>15&&LowLeftJump.my_y>15&&ABS(LowRightJump.my_y-LowLeftJump.my_y)<=18&&ABS(LowRightJump.my_x-LowLeftJump.my_x)>48))
-       if(leftline[58]>2&&rightline[58]<=156&&leftline[57]>2&&rightline[57]<156&&leftline[56]>2&&rightline[56]<156&& LowRightJump.my_y>15&&LowLeftJump.my_y>15)
+//       if(leftline[58]>2&&rightline[58]<=156&&leftline[57]>2&&rightline[57]<156&&leftline[56]>2&&rightline[56]<156&& LowRightJump.my_y>15&&LowLeftJump.my_y>15)
+            if (IsBottomRightJupm == 1 && IsBottomLeftJupm == 1)
             {
           memset(TriangRange,0,sizeof(int)*160);
             for(int16 j=LowLeftJump.my_x;j<=LowRightJump.my_x;j++)
@@ -1043,7 +1051,7 @@ void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
             }
       }
         }
-else if(LowLeftJump.my_y>=15&&right_all_lose_line>=30&&!XLFlag)
+else if(IsBottomLeftJupm==1&&IsBottomRightJupm==0&&right_all_lose_line>=5)
 //       else if(leftline[58]>2&&leftline[57]>2&&leftline[56]>2)
 {
     LowRightJump.my_x=158;
@@ -1073,7 +1081,7 @@ else if(LowLeftJump.my_y>=15&&right_all_lose_line>=30&&!XLFlag)
          }
 }
 
-else if(LowRightJump.my_y>=15&&left_all_lose_line>=30&&!XLFlag)
+else if(IsBottomLeftJupm==0&&IsBottomRightJupm==1&&left_all_lose_line>=5)
 //       else if(rightline[58]<=156&&rightline[57]<=156&&rightline[56]<=156)
 {
     LowLeftJump.my_x=0;
@@ -1108,7 +1116,7 @@ else
 
 }
 
-
+       /*
              ColFlagL=0;
              ColFlagR=0;
              YLCnt=0;
@@ -1165,7 +1173,7 @@ else
                               }
 
             }
-
+*/
             ForkAngleLeft=0;
             ForkAngleRight=0;
             OverAngleStep=0;
@@ -1197,7 +1205,7 @@ else
                         Triang= Get_Angle( A, TriangBlackPoint, C);
 
 
-            ips200_showint16(50,8, Triang);
+//            ips200_showint16(50,8, Triang);
 //
 //                                           ips200_showint16(50,8,TriangRange[TriangBlackPoint.my_x+10]-TriangRange[TriangBlackPoint.my_x-10]);
 
@@ -1215,8 +1223,9 @@ else
                     &&TriangBlackPoint.my_y<=40
                     &&TriangRange[TriangBlackPoint.my_x+12]!=0
                     &&TriangRange[TriangBlackPoint.my_x-12]!=0
-                    &&((ForkAngleLeft+ForkAngleRight<=30)||(ForkAngleRight>=20&&ForkAngleLeft<=10)||(ForkAngleLeft>=20&&ForkAngleRight<=10))
-                    &&ColLcnt>10&&ColRcnt>10)
+                    &&(((ForkAngleLeft>=20&&ForkAngleRight<=15)||(ForkAngleLeft<=15&& ForkAngleRight>=20)||(ForkAngleLeft + ForkAngleRight <= 30&&ForkAngleLeft + ForkAngleRight>=10))&&ABS(ForkAngleLeft- ForkAngleRight)<=35)
+//                    &&ColLcnt>10&&ColRcnt>10)
+                    )
 //                    )
 //    if(1)
     {
@@ -1252,7 +1261,7 @@ if(sanchacount!=0)
 //ips200_showint16(50,8, ColLcnt);
 //             ips200_showuint16(90,17,ColRcnt);
 
-            if(sancha_flag_left==2&&qipao_time==1&&ABS(icmdata.Yaw)>=10)
+            if(sancha_flag_left==2&&qipao_time==1&&ABS(icmdata.Yaw)>=10&&dt_code>=5500)
            {
 //            for(int16 i=58;i>=58;i--)
 //      {
@@ -1286,7 +1295,7 @@ if(sanchacount!=0)
 //           }
 
 
-            if(sancha_flag_right==2&&qipao_time==0&&ABS(icmdata.Yaw)>=10)
+            if(sancha_flag_right==2&&qipao_time==0&&ABS(icmdata.Yaw)>=10&&dt_code>5500)
             {
 
 //                for(int16 i=58;i>=57;i--)
@@ -1808,4 +1817,210 @@ if ((rightline[i] <= 156 &&
 
 }
 
+void test_chalu(Maiy_characteristic_point* sc_char)
+{
+    int IsBottomLeftJupm = 0;
+    int IsBottomRightJupm = 0;
+    if (endline < 15)
+    {
+        for (int16 i = 58; i >= 20; i--)
+                {
+                    if ((leftline[i] - leftline[i - 1] >= 0 && leftline[i] - leftline[i - 2] >= 0 && leftline[i] - leftline[i - 5] > 0 && leftline[i] >= 2 && leftline[i - 1] >= 2 && leftline[i - 2] >= 2))
+                    {
+                        LowLeftJump.my_x = leftline[i];
+                        LowLeftJump.my_y = i;
+                IsBottomLeftJupm = 1;
+                break;
+            }
+        }
+        for (int16 i = 58; i >= 20; i--)
+                {
+                    if ((rightline[i - 1] - rightline[i] >= 1 && rightline[i - 2] - rightline[i] >= 1 && rightline[i - 5] - rightline[i] > 0 && rightline[i] < 156 && rightline[i - 1] < 156 && rightline[i - 2] < 156))
+                    {
+                        LowRightJump.my_x = rightline[i];
+                        LowRightJump.my_y = i;
+                IsBottomRightJupm = 1;
+                break;
+            }
+        }
+        if ((leftline[58] <= 2 && rightline[58] >= 156) || (leftline[57] <= 2 && rightline[57] >= 156) || (leftline[56] <= 2 && rightline[56] >= 156) || (leftline[55] <= 2 && rightline[55] >= 156) || (leftline[54] <= 2 && rightline[54] >= 156) || (leftline[53] <= 2 && rightline[53] >= 156) || (leftline[52] <= 2 && rightline[52] >= 156)
+            || (leftline[51] <= 2 && rightline[51] >= 156) || (leftline[50] <= 2 && rightline[50] >= 156))
+        {
+            IsBottomLeftJupm = 0;
+            IsBottomRightJupm = 0;
+        }
+    }
+
+
+
+
+    if ((IsBottomRightJupm == 1 || IsBottomLeftJupm == 1))
+
+    {
+        if (IsBottomRightJupm == 1 && IsBottomLeftJupm == 1)
+        {
+            memset(TriangRange, 0, sizeof(int) * 160);
+            for (int j = LowLeftJump.my_x; j <= LowRightJump.my_x; j++)
+            {
+                for (int k = (LowLeftJump.my_y + LowRightJump.my_y) >> 1; k >= 2; k--)
+                {
+                    if (image_data[k][j] && !image_data[k - 1][j] && !image_data[k - 2][j])
+                                        {
+                                            TriangRange[j] = k;
+                                            if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
+                                            {
+                                                TriangBlackPoint.my_y = TriangRange[j];
+                                                TriangBlackPoint.my_x = j;
+                                            }
+                                            if (TriangBlackPoint.my_y < TriangRange[j] && j >= 80)
+                                            {
+                                                TriangBlackPoint.my_y = TriangRange[j];
+                                                TriangBlackPoint.my_x = j;
+                                            }
+                                            break;
+                                        }
+                    }
+                }
+            }
+
+        }
+
+
+        else if (IsBottomRightJupm == 1 && IsBottomLeftJupm != 1 && left_all_lose_line >= 5)
+        {
+            memset(TriangRange, 0, sizeof(int) * 160);
+            for (int j = 20; j <= LowRightJump.my_x; j++)
+            {
+                for (int k = LowRightJump.my_y; k >= 2; k--)
+                {
+                    if (image_data[k][j] && !image_data[k - 1][j] && !image_data[k - 2][j])
+                                        {
+                                            TriangRange[j] = k;
+                                            if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
+                                            {
+                                                TriangBlackPoint.my_y = TriangRange[j];
+                                                TriangBlackPoint.my_x = j;
+                                            }
+                                            if (TriangBlackPoint.my_y < TriangRange[j] && j >= 80)
+                                            {
+                                                TriangBlackPoint.my_y = TriangRange[j];
+                                                TriangBlackPoint.my_x = j;
+                                            }
+                                            break;
+                                        }
+                }
+            }
+
+        }
+
+
+        else if (IsBottomLeftJupm == 1 && IsBottomRightJupm != 1 && right_all_lose_line >= 5)
+        {
+            memset(TriangRange, 0, sizeof(int) * 160);
+            for (int j = LowLeftJump.my_x; j <= 140; j++)
+            {
+                for (int k = LowLeftJump.my_y; k >= 2; k--)
+                {
+                    if (image_data[k][j] && !image_data[k - 1][j] && !image_data[k - 2][j])
+                                       {
+                                           TriangRange[j] = k;
+                                           if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
+                                           {
+                                               TriangBlackPoint.my_y = TriangRange[j];
+                                               TriangBlackPoint.my_x = j;
+                                           }
+                                           if (TriangBlackPoint.my_y < TriangRange[j] && j >= 80)
+                                           {
+                                               TriangBlackPoint.my_y = TriangRange[j];
+                                               TriangBlackPoint.my_x = j;
+                                           }
+                                           break;
+                                       }
+                }
+            }
+
+        }
+
+
+
+
+    else
+    {
+        IsBottomRightJupm = 0;
+
+
+        IsBottomLeftJupm = 0;
+    }
+    if ((IsBottomRightJupm == 1 && IsBottomLeftJupm == 1 && TriangBlackPoint.my_y - LowLeftJump.my_y<= -5 && TriangBlackPoint.my_y - LowRightJump.my_y <= -5)
+        || (IsBottomRightJupm == 1 && IsBottomLeftJupm == 0 && TriangBlackPoint.my_y - LowRightJump.my_y <= -5)
+        || (IsBottomRightJupm == 0 && IsBottomLeftJupm == 1 && TriangBlackPoint.my_y - LowLeftJump.my_y <= -5))
+    {
+
+        ForkAngleLeft = 0;
+                ForkAngleRight = 0;
+                OverAngleStep = 0;
+                for (int16 i = 0; i < 20; i++)
+                {
+                    if (TriangRange[TriangBlackPoint.my_x + i] != 0 && TriangRange[TriangBlackPoint.my_x - i] != 0)
+                    {
+                        OverAngleStep = 1;
+                    }
+                    else
+                    {
+                        OverAngleStep = 0;
+                        break;
+                    }
+                }
+                if (OverAngleStep != 0)
+                {
+                    for (int16 i = 0; i < 15; i++)
+                    {
+                        ForkAngleLeft += (TriangRange[TriangBlackPoint.my_x] - TriangRange[TriangBlackPoint.my_x - i]);
+
+                        ForkAngleRight += (TriangRange[TriangBlackPoint.my_x] - TriangRange[TriangBlackPoint.my_x + i]);
+                    }
+                }
+        if (((ForkAngleLeft>=30&& ForkAngleRight<=20)||(ForkAngleLeft<=20&& ForkAngleRight>=30)||(ForkAngleLeft + ForkAngleRight <= 30&&ForkAngleLeft + ForkAngleRight>=10))&&ABS(ForkAngleLeft- ForkAngleRight)<=35)
+        {
+            dorg_l=1;
+
+        }
+if(dorg_l==1&&sc_char->mylinest[79]<=45)
+{
+    buzzer(1);
+                if (qipao_time == 0)
+                {
+                    sancha_flag_right = 2;
+                }
+                else
+                {
+                    sancha_flag_left = 2;
+                }
+                dorg_l=0;
+}
+else
+{
+    dorg_l=0;
+}
+
+if (sancha_flag_left == 2 && qipao_time == 1 && ABS(icmdata.Yaw) >= 10)
+   {
+       sancha_flag_left = 0;
+       sancha_flag_right = 0;
+
+   }
+
+
+   if (sancha_flag_right == 2 && qipao_time == 0 && ABS(icmdata.Yaw) >= 10)
+   {
+       sancha_flag_right = 0;
+       sancha_flag_left = 0;
+   }
+
+
+
+
+    }
+
+}
 

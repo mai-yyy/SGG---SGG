@@ -7,6 +7,6 @@ DAS init done
 ::Checking address map .......... (Done)
 ::Flash memory erase .......... (Done)
 ::Flash memory program .......... (Done)
-Overall time: 1937 ms
+Overall time: 1767 ms
 AurixFlasher Exit Status: pass
 Flashing was successfull

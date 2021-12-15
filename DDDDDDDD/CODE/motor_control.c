@@ -56,30 +56,30 @@ void real_hopespeed_count()
         real_hope_speed=170;
             if(qipao_time==0)
                    {
-                CS_control(get_djj,260);
+                CS_control(get_djj,240);
                                                   if(differ<0)
-                                                                         { CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
-                                                                         CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
+                                                                         { CSRDelta_PID(RealSpe_R,240+Right_High_Speed);
+                                                                         CSLDelta_PID(RealSpe_L,240+Left_High_Speed);
                                                                          }
                                                                          else {
 
-                                                                                   CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
-                                                                                   CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
+                                                                                   CSRDelta_PID(RealSpe_R,240+Right_High_Speed);
+                                                                                   CSLDelta_PID(RealSpe_L,240+Left_High_Speed);
 
                                                                          }
                    }
            else if(qipao_time==1)
            {
 
-               CS_control(get_djj,260);
+               CS_control(get_djj,240);
                                   if(differ<0)
-                                                         { CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
-                                                         CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
+                                                         { CSRDelta_PID(RealSpe_R,240+Right_High_Speed);
+                                                         CSLDelta_PID(RealSpe_L,240+Left_High_Speed);
                                                          }
                                                          else {
 
-                                                                   CSRDelta_PID(RealSpe_R,260+Right_High_Speed);
-                                                                   CSLDelta_PID(RealSpe_L,260+Left_High_Speed);
+                                                                   CSRDelta_PID(RealSpe_R,240+Right_High_Speed);
+                                                                   CSLDelta_PID(RealSpe_L,240+Left_High_Speed);
 
                                                          }
            }
@@ -98,7 +98,7 @@ void real_hopespeed_count()
         else if(huan_L_flag==3||huan_R_flag==3)
         {
             real_hope_speed=150;
-            CS_control(get_djj,280);
+            CS_control(get_djj,250);
                                if(differ<0)
                                                       { CSRDelta_PID(RealSpe_R,250+Right_High_Speed);
                                                       CSLDelta_PID(RealSpe_L,250+Left_High_Speed);

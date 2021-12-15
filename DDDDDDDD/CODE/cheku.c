@@ -121,7 +121,7 @@ if(qipao_flag==1&&qipao_time==0)
     }
     if(qipao_line==0&&left_all_lose_line<=10&&right_all_lose_line<=10)//越过起跑线
     {
-        buzzer(0);
+//        buzzer(0);
         qipao_flag=0;
         qipao_time++;
         huan_L_flag=0;

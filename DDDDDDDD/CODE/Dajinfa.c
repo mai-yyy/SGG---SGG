@@ -226,15 +226,20 @@ void get_road(void)
 //    huandao_find();
     qipao_find();
 //    huan_L_flag=6;
+
      Huandao_Sec_Low();
+//     FlowerPoint();
+//     GlobalAnglePoint();
+//     GlobalAnglePoint();
      Double_no_line();
+     ShangCha_thr_law(&real_char);
 //    huan_L_entr_count();
    // crossroad_find();
-
+//     test_chalu(&real_char);
 //     chalu();
 //     if(deb_delt_p)
 //     {
-     ShangCha_thr_law(&real_char);
+//     ShangCha_thr_law(&real_char);
 //     }
 //     if(debug_speed>0&&once_blu==0)
 //     {

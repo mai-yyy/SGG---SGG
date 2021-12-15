@@ -13,6 +13,7 @@ extern short int midline[Row];
 extern short int endline;
 extern float differ;
 extern int16 final_Optimalpoint_get;
+extern  uint8 TrainglrNum;
 extern float WeightSum;
 extern uint8 box_right;
 extern uint8 box_left;
@@ -66,6 +67,12 @@ typedef enum
     cross_rode,
     not_straight,
 }WAY_STATUS;
+
+typedef enum
+{
+  T,
+  Z,
+}Line_Staue;
 
 typedef struct image_info_2_dimensional_point       //二维点的结构体
 {
@@ -179,6 +186,14 @@ extern int16 Island_time;
 extern int16 Island_change_time;
 extern  Maiy_characteristic_point  real_char;
 extern volatile WAY_STATUS  way;
+extern int blackColLeftCnt;
+extern int blackColRightCnt;
+
+extern int blackColLeftCntx ;
+extern int blackColRightCntx ;
+extern     int blackColLeftCnty;
+extern     int blackColRightCnty;
+
 extern int16 WidthROWNum;
 extern int16 OutWidthStart;
 extern int16   OutWidthEnd;
@@ -192,6 +207,8 @@ extern unsigned char low_endline_count;
 extern center_C center_calu;
 extern uint8 c_shizhiflag;
 extern saidao_tezhen saidao;
+extern  Line_Staue LeftLineStaue[60];
+extern Line_Staue RightLineStaue[60];
 void get_bottom_line();
 void get_rest_line();
 void  get_endline_R() ;
@@ -218,3 +235,6 @@ void get_rest_line_dy();
 Maiy_2_dimensional GettangoP(int ST,int EN,int sequence);
 void get_midline_bc(void);
 uint8 Get_Angle(Maiy_2_dimensional A,Maiy_2_dimensional B,Maiy_2_dimensional C);
+void GlobalAnglePoint();
+void GlobalAnglePoint_TWO() ;
+void FlowerPoint();

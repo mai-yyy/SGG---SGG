@@ -600,7 +600,13 @@ void ServoPDSet(float flag)
         ServoControlDiffer(flag);
     //  buzzer(1);
     }
+   else if(sancha_flag_right||sancha_flag_left)
+       {
 
+           servoKp=2.1;
+                servoKd=20;
+                  ServoControlDiffer(flag);
+       }
     else if(huan_L_flag)
     {
         if(huan_L_flag==4)

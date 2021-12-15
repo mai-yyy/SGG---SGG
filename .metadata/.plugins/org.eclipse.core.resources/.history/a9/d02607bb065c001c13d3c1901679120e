@@ -1,0 +1,336 @@
+#include "headfile.h"
+
+
+uint8 image_threshold;  //图像阈值
+uint32 use_time;   
+uint8 image_data[MT9V032_H][MT9V032_W]={1};
+uint8 image_threshold1;
+uint8 image_threshold2;
+uint8 image_threshold3;
+uint16 wpoint=0;
+uint8 once_blu=0;
+void HUdudeal(uint8 th)
+{
+    int16 i=59;
+     int16 count_t=78,count_tl=78,count_tr=78;
+     int16 lcount=78;
+     float result=20;
+     int32 aa=0,zz=0;
+     while((i--)>0)
+     {
+         //aa++;
+         //这里逻辑顺序如下，首先从中间列开始向左搜索，没有碰到大于阈值的边界点就赋值白色值，碰到后
+         //就直接进入循环把左边所有点赋值，与此同时count_t的值更改直接跳出左边搜线程序，同时
+         //重新对count_t赋值，以进入新的右边搜线循环
+         //左边
+        while((count_t--)>1)
+        {
+            result=fabs(500.0*(mt9v03x_image[i][count_t]-mt9v03x_image[i][count_t-1])/
+                    (mt9v03x_image[i][count_t]+mt9v03x_image[i][count_t-1]));
+            image_data[i][count_t]=1;
+            if(result>th)
+            {
+                zz=result;
+                count_tl=count_t;
+                while((count_t--)>0)
+                {
+                    image_data[i][count_t]=0;
+                }
+            }
+        }
+        count_t=lcount;
+        //右边
+              while((count_t++)<158)
+              {
+                  result=fabs((500.0*(mt9v03x_image[i][count_t]-mt9v03x_image[i][count_t-1])/
+                          (mt9v03x_image[i][count_t]+mt9v03x_image[i][count_t-1])));
+                  image_data[i][count_t]=1;
+                  if(result>th)
+                  {
+                      count_tr=count_t;
+                      while((count_t++)<=159)
+                      {
+                          image_data[i][count_t]=0;
+                      }
+                  }
+              }
+              lcount=(int16)((count_tr+count_tl)/2);
+              count_t=lcount;
+
+              ips200_showint16(30,9,result);
+              mt9v03x_finish_flag = 0;
+             // ips200_showint16(30,8,zz);
+     }
+
+
+}
+
+void gray_binaryzation(void)   /*灰度二值化*/
+{
+  uint8 *p;
+  uint32 i,j;
+  
+
+
+   // image_threshold = otsuThreshold(mt9v03x_image[0],MT9V032_W,MT9V032_H);  //大津法计算阈值
+//    if(image_threshold<100)
+//    {
+//        image_threshold=100;
+//    }
+//       
+  image_threshold =  otsuThreshold(mt9v03x_image,MT9V03X_W,MT9V03X_H);
+    p = mt9v03x_image[0];
+    
+
+    for(i=0; i<MT9V032_W*MT9V032_H; i++)
+    {
+      if(p[i]>image_threshold)
+      {
+        image_data[i/MT9V032_W][i%MT9V032_W] = 255;
+      }
+      else   
+      {
+        image_data[i/MT9V032_W][i%MT9V032_W] = 0;
+      }
+    }
+    mt9v03x_finish_flag = 0;
+ Bin_Image_Filter ();
+}
+//液晶屏显示二值化图像函数
+void oled_disp_image(Maiy_characteristic_point* show_char)
+{
+  uint8 i,j;
+for(j=0;j<160;j++)
+  {
+    for(i=0;i<60;i++)
+    {
+    if(image_data[i][j])
+        ips200_drawpoint(j+40,i+5,WHITE);
+    else
+        ips200_drawpoint(j+40,i+5,YELLOW);
+    }
+//    for(i=0;i<30;i++)
+//        ips200_drawpoint(120,i+5,YELLOW);
+}
+//  二值化图像
+for(i=0;i<60;i++)// 边线
+{
+    ips200_drawpoint(leftline[i]+40,i+5,BLACK);
+    ips200_drawpoint(midline[i]+40,i+5,GREEN);
+    ips200_drawpoint(rightline[i]+40,i+5,RED);
+}
+
+for(i=0;i<160;i++)//超宽行 截止
+{
+    ips200_drawpoint(40+i,OutWidthStart+5,BLUE);
+    ips200_drawpoint(40+i,OutWidthEnd+5,BLUE);
+    ips200_drawpoint(40+i,endline+5,PURPLE);
+
+
+}
+  for(i=0;i<20;i++)
+  {
+      ips200_drawpoint(show_char->my_final_tOptimalPoint.my_x+i,i+5,RED);
+  }
+
+}
+
+
+void cpu0_initialize(void)                      //初始化
+{
+        disableInterrupts();
+        get_clk();
+
+
+//        gtm_pwm_init(Steer_Pin, 50, servoPoint);//664
+        HDDJPID_init();
+        DJPID_init();
+        ADC_ALL_init();
+//        icm20602_init();
+        icm20602_init_spi();
+        gtm_pwm_init( ATOM1_CH7_P02_7,10000,0);
+              gtm_pwm_init( ATOM1_CH6_P02_6,10000,0);
+              gtm_pwm_init( ATOM1_CH4_P02_4,10000,0);
+                    gtm_pwm_init( ATOM1_CH5_P02_5,10000,0);
+             pwm_duty( ATOM1_CH7_P02_7,0);
+              pwm_duty( ATOM1_CH6_P02_6,0);
+              pwm_duty( ATOM1_CH4_P02_4,0);
+                      pwm_duty( ATOM1_CH5_P02_5,0);
+
+
+        encoder_init();
+        uart_init(UART_User,9600,UART_TX_Pin,UART_RX_Pin);
+        seekfree_wireless_init();
+        Boma_init();
+        buton_init();
+        InitMH();
+        CSLDJPID_init();
+        CSRDJPID_init();
+        ips200_init();
+        Read_information(&parameter);
+        gpio_init(P33_10, GPO, 0, PUSHPULL);
+        pit_interrupt_ms(CCU6_0, PIT_CH1,20);
+
+        while(!gpio_get(P33_13)&&!start_car_flag)
+          {button_opreation();
+          gtm_pwm_init(Steer_Pin, 50, servoPoint);
+          }
+             Write_information(&parameter);
+
+      //  gpio_init(P20_9, GPO, 0, PUSHPULL);
+
+
+        mt9v03x_init();
+//        gpio_set(P33_10,1);
+
+//
+        pit_interrupt_ms(CCU6_0, PIT_CH0,5);
+//        pit_interrupt_ms(CCU6_0, PIT_CH1,20);
+
+
+
+
+
+        IfxCpu_emitEvent(&g_cpuSyncEvent);
+        IfxCpu_waitEvent(&g_cpuSyncEvent, 0xFFFF);
+
+        enableInterrupts();
+
+        //读取参数        只读一次
+//        BOMA1=!gpio_get(P33_13);     //left
+//               BOMA2=!gpio_get(P33_12); //right
+//        way=straight;
+
+
+}
+
+void get_road(void)
+{
+
+    gray_binaryzation();
+
+
+    get_endline_R();
+
+//     get_rest_line_dy();
+
+    optimal_v20_get();
+    get_bottom_line();
+    get_rest_line();
+
+
+ //   podao_find();
+//    chuku();
+
+   // get_td();
+//    huandao_find();
+    qipao_find();
+//    huan_L_flag=6;
+
+     Huandao_Sec_Low();
+//     GlobalAnglePoint();
+     GlobalAnglePoint_TWO();
+//     Double_no_line();
+//     ShangCha_thr_law(&real_char);
+//    huan_L_entr_count();
+   // crossroad_find();
+
+//     chalu();
+//     if(deb_delt_p)
+//     {
+//     ShangCha_thr_law(&real_char);
+//     }
+//     if(debug_speed>0&&once_blu==0)
+//     {
+//         once_blu=1;
+//         sancha_flag_right=2;
+//                            sancha_flag_left=2;
+//     }
+
+//    bu_xian();
+//    ALL_fill(&real_char);
+//    sec_fork_law(&real_char);
+    get_middle(&real_char);
+   danbianhuandao_bx();
+    Straight_Test_2();
+
+    center_inflect_p_n();
+
+  //  zhiruwan();
+    get_differ();
+    road_type(&real_char);
+//    chujie();
+//    my_pack_send_phone(12);
+
+
+
+}
+
+
+
+void showips()
+{
+    oled_disp_image(&real_char);
+
+//       ips200_displayimage032(mt9v03x_image[0], MT9V03X_W, MT9V03X_H);
+               ips200_showstr(0,10,"differ");
+               ips200_showint16(90,10,differ);
+               ips200_showstr(0,12,"endline");
+               ips200_showuint16(90,12,endline);
+//               ips200_showstr(0,9,"dj");
+//               ips200_showint16(90,9,get_djj);
+
+               ips200_showstr(0,15,"WidEnd");
+                              ips200_showuint8(90,15,OutWidthEnd);
+                              ips200_showstr(0,14,"WidSta");
+                              ips200_showuint8(90,14,OutWidthStart);
+//                              ips200_showstr(0,15,"LPnt3");
+//                              ips200_showuint16(90,15,LWhitePnt3);
+                              ips200_showstr(0,16,"LD");
+                              ips200_showuint16(90,16,left_all_lose_line);
+                              ips200_showstr(0,17,"RD");
+                              ips200_showuint16(90,17,right_all_lose_line);
+//
+//                              ips200_showstr(0,11,"RPnt3");
+//                                          ips200_showuint16(90,11,RWhitePnt3);
+
+                                          ips200_showstr(0,18,"R_huan");
+                                                        ips200_showuint16(90,18,huan_R_flag);
+
+                                                        ips200_showstr(0,19,"L_huan");
+                                                                                 ips200_showuint16(90,19,huan_L_flag);
+
+               /*
+               ips200_showstr(0,18,"sr");
+               ips200_showuint8(90,18,L_cross_entry);
+               ips200_showstr(0,14,"rop");
+               ips200_showuint8(90,14,real_char.my_right_OptimalPoint.my_y);
+               ips200_showstr(0,15,"lop");
+               ips200_showuint16(90,15,real_char.my_left_LOptimalPoint.my_y );
+               ips200_showstr(0,16,"R_huan");
+               ips200_showuint16(90,16,huan_R_flag);
+               ips200_showstr(0,17,"shiz");
+               ips200_showuint16(90,17,shizhiflag);
+
+               ips200_showstr(0,11,"L_huan");
+                           ips200_showuint16(90,11,huan_L_flag);
+               ips200_showstr(0,13,"type_s");
+               ips200_showuint8(90,13,type_str);
+               ips200_showstr(0,18,"way");
+               ips200_showuint8(90,18,way);*/
+//               ips200_showstr(0,19,"top_xr");
+//               ips200_showuint8(90,19,(rightline[center_calu.OVER_base_y_straight3-1]-rightline[endline+1])/(center_calu.OVER_base_y_straight3-endline-1)*10);
+   //            ips200_showstr(0,19,"podao_time");
+   //            ips200_showuint8(90,19,podao_time);
+
+
+
+
+
+
+}
+
+
+
+
+

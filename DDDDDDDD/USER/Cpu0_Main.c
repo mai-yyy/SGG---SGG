@@ -25,8 +25,11 @@ for(; ;)
             get_road();
 //            Time1=systick_getval_ms(STM1);
 //            ips200_showint32(30,11,dt_code,6);
-//                               ips200_showint16(50,8,qipao_time);
+//                               ips200_showint16(50,8,TrainglrNum);
 //
+            ips200_showint16(50,8,Triang);
+//              ips200_showint16(30,11,ForkAngleLeft);
+//              ips200_showint16(90,10,Triang2);
 //                               ips200_showint16(30,11,qipao_flag);
         if(!gpio_get(P33_12))
         {           showips();}        }   }   }   }
