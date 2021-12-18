@@ -554,7 +554,7 @@ if(rightline[huan_L_fchange+2]<=150)
 {
     hz_r=1;
 }
-ips200_showint16(50,8,  hz_r);
+//ips200_showint16(50,8,  hz_r);
     if(RWhitePnt1>=25&&RWhitePnt2>=25&&RWhitePnt3>25&&hz_r)
     {
 

@@ -106,7 +106,10 @@ extern uint16 chuwan;
 extern int16 get_djj;
 extern uint32 Kp_L_15;
 extern uint32 Kd_L_15;
-
+extern float servoK2p;
+extern float servoK2d;
+extern float servoKpAdd;
+extern float servoKdAdd;
 extern uint32 Kp_S;
 extern uint32 Kd_S;
 extern uint16 hhe;
@@ -116,6 +119,6 @@ extern uint16 hhh;
 void ServoPDSet(float flag);
 
 void fuzz_to_nor();
-
+void duubleSevPd(float flag);
                 //c车可以考虑不分左右，b车分左右属实没办法
 //#endif

@@ -24,13 +24,17 @@ uint16 wan_to_line=0;
 #define FMAX  100
 float servoKp=0;
 float servoKd=0;
+float servoK2p=0;
+float servoK2d=0;
+float servoKpAdd=0;
+float servoKdAdd=0;
 uint16 chuwan=1;
 int fuzzy_txt[10];
 int32 fuzlastErr=0;
 uint8 fuzz_tem_flag=0;
 //Which_turn which_go;
 //  Which_turn  turn_redev;
-
+int errBuffer[2]={0,0};
 FUzz_rule_par DJ_fuzz_par;
 //新模糊 E和endline的模糊
 #define H_Min   5
@@ -603,7 +607,7 @@ void ServoPDSet(float flag)
    else if(sancha_flag_right||sancha_flag_left)
        {
 
-           servoKp=2.1;
+           servoKp=1.5;
                 servoKd=20;
                   ServoControlDiffer(flag);
        }
@@ -711,14 +715,6 @@ void ServoPDSet(float flag)
                                ServoControlDiffer(flag);
 //
 }
-//else if(flag>5&&endline>=3)
-//{
-////    fuzz_tem_flag=2;
-//    buzzer(0);
-//               servoKd=(float)(0.5*40);
-//               DuoJi_GetP(endline, (int16)flag);
-//                  ServoControlDiffer(flag);
-//}
 
 else           //直道
 {
@@ -731,177 +727,31 @@ else           //直道
 }
 }
 
-//void ServoPDSet(float flag)
-//{
-//
-////    ips200_showint16(30,11,servoKp*100);
-//  //  if(((straightFlag||ABS(flag)<=15)&&endline<4))/*||(endline==0&&ABS(flag<=15))*/   //15      //模糊时删去
-//    if(((endline<=5&&ABS(flag)<=20)||endline<=2))
-//
-//
-////   if(ABS(flag)<5)
-//    {
-////        buzzer(0);
-//      //  gogo->State_fuzz=No_fuzz;
-////        servoKp=(float)(0.01*75);
-////      servoKd=(float)(0.1*165);
-//       servoKp=0.9;
-//      servoKd=80;
-//        ServoControlDiffer(flag);
-//    //  buzzer(1);
-//    }
-//
-////    else if(huan_L_flag)
-////    {
-////        if(huan_L_flag==4||huan_L_flag==6)
-////        {
-////            servoKp=0.8;
-////                         servoKd=80;
-////                           ServoControlDiffer(flag);
-////        }
-////        else{
-////        servoKp=1.15;
-////             servoKd=20;
-////               ServoControlDiffer(flag);
-////        }
-////    }
-////    else if(huan_R_flag)
-////    {
-////        if(huan_R_flag==4||huan_R_flag==6)
-////        {
-////            servoKp=0.8;
-////                         servoKd=80;
-////                           ServoControlDiffer(flag);
-////        }
-////        else{
-////        servoKp=1.15;
-////             servoKd=20;
-////               ServoControlDiffer(flag);
-////        }
-////    }
-//    else if(flag>20)
-//    {
-//    //    fuzz_tem_flag=2;
-////        buzzer(0);
-//                   servoKd=(float)(60);
-//                   if(!shizhiflag&&(way==out_left||way==out_right))
-//                      {
-//////                          servoKp=0.70;
-//                               servoKd=80;
-//////                                 ServoControlDiffer(flag);
-//                      }
-//                   DuoJi_GetP(endline, (int16)flag);
-////                   servoKp=4.80;
-//                      ServoControlDiffer(flag);
-//    }
-//    else if(flag<-20)
-//{
-////        fuzz_tem_flag=1;
-////    buzzer(0);
-//     //   which_go.State_fuzz=Fuzz_L;
-////    servoKp=(float)(1.0);
-//
-//                            servoKd=(float)(60);
-////                            servoKp=0.7;
-//                            if(!shizhiflag&&(way==out_left||way==out_right))
-//                               {
-////                                   servoKp=0.70;
-//                                        servoKd=80;
-////                                          ServoControlDiffer(flag);
-//                               }
-//                            DuoJi_GetP(endline, (int16)flag);
-////                               servoKp=4.8;
-//                               ServoControlDiffer(flag);
-////
-//}
-////else if(flag>5&&endline>=3)
-////{
-//////    fuzz_tem_flag=2;
-////    buzzer(0);
-////               servoKd=(float)(0.5*40);
-////               DuoJi_GetP(endline, (int16)flag);
-////                  ServoControlDiffer(flag);
-////}
-//
-//else           //直道
-//{
-////    fuzz_tem_flag=0;
-//    servoKp=0.9;
-// servoKd=80;
-// ServoControlDiffer(flag);
-//// buzzer(1);
-//
-//}
-//}
+
 
 void zhiruwan()
 {
-//    wan_to_line=0;
-//    uint16 once=0;
-//    real_turn=0;
-//    uint16 i;
-//    uint16 now_mid=0;
-//    if(endline<=4)
-//    {
-//        once=0;
-//      //  line_wan_flag=0;
-//        for(i=59;i>=endline;i--)
-//        {
-//
-//        if((midline[i]-80)<=5&&(midline[i]-80)>=-5)
-//          //  if(leftline[i]>=3&&rightline[i]<=157)
-//        {
-//
-//            wan_to_line++;
-//        }
-//        }
-//        if(once==0&&wan_to_line<=40&&wan_to_line>=20)
-//        {
-//            once=1;
-//            turn_point=wan_to_line;
-//         //   wan_to_line=0;
-//           // break;
-//        }
-//        else
-//        {
-//            once=0;
-//            buzzer(0);
-//          //  line_wan_flag=0;
-//            turn_point=0;
-//        }
+}
 
-//        if(once==1)
-//        {
-//            if(rightline[10]+leftline[10]>160)//right
-//            {
-//                for(i=turn_point;i>endline;i--)
-//                {
-//                    if(rightline[i]<=157&&(rightline[i]-rightline[i+2])<-3&&(rightline[i]-rightline[i-2])<-3)
-//                    {
-//                        real_turn=i;
-//                        line_wan_flag=1;
-//                        break;
-//                    }
-//                }
-//            }
-//            else if(rightline[10]+leftline[10]<160)
-//            {
-//                for(i=turn_point;i>endline;i--)
-//                               {
-//                                   if(leftline[i]!=0&&(leftline[i]-leftline[i-2])>3&&(leftline[i]-leftline[i+2])>3)
-//                                   {
-//                                       real_turn=i;
-//                                       line_wan_flag=1;
-//                                       break;
-//                                   }
-//                               }
-//            }
-//            else
-//            {
-//                line_wan_flag=0;
-//                real_turn=0;
-//            }
+void duubleSevPd(float flag)
+{
+    float  tempp,tempd;
+    errBuffer[0]=flag;
+    if(endline>=10||ABS(flag)>15)
+    {
+        servoKp = servoK2p* (errBuffer[0] * errBuffer[0]) / 5000 +servoKp; //4900  方便计算，改成5000算了
+        servoKd = servoKp;
 
-      //  }
-  //  }
+        servoKp += servoKpAdd;
+        servoKd += servoKdAdd;
+
+    }
+    else
+    {
+        tempp=servoKp;
+        tempd=servoKd;
+        servoKp=tempp;
+        servoKd=tempd;
+    }
+    errBuffer[1]=flag;
 }

@@ -5,10 +5,13 @@
 #pragma section all "cpu0_dsram"
 #define open_buff_img 0//说高级点 图传使能
 #define open_blue_data 0//蓝牙使能
+
+
 uint32 Time=0;
 uint32 Time1=0;
 void core0_main(void)
 {   cpu0_initialize();
+
 for(; ;)
     {    buzzer(0);    InitMH(); ips200_clear(IPS200_BGCOLOR);
     while (TRUE)
@@ -16,6 +19,7 @@ for(; ;)
 //            Time = systick_getval_ms(STM1);
 
 #if open_buff_img>0
+        #pragma message("_Over")
             seekfree_sendimg_my(WIRELESS_UART,image_data[0],MT9V032_W,MT9V032_H);
 #endif
 
@@ -23,14 +27,18 @@ for(; ;)
             my_pack_send_phone();
 #endif
             get_road();
-//            Time1=systick_getval_ms(STM1);
-//            ips200_showint32(30,11,dt_code,6);
-//                               ips200_showint16(50,8,TrainglrNum);
-//
-            ips200_showint16(50,8,Triang);
+//            ips200_showint16(50,8,OverAngleStep);
 //              ips200_showint16(30,11,ForkAngleLeft);
-//              ips200_showint16(90,10,Triang2);
-//                               ips200_showint16(30,11,qipao_flag);
         if(!gpio_get(P33_12))
-        {           showips();}        }   }   }   }
+        {
+
+            SD_Read_Send_Picture();
+//            buzzer(0);
+        }
+        else{
+//            buzzer(1);
+            SD_UpLoad_And_Picture_Save();
+
+        }
+    }   }   }   }
 #pragma section all restore

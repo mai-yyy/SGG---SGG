@@ -1,0 +1,165 @@
+/*********************************************************************************************************************
+ * COPYRIGHT NOTICE
+ * Copyright (c) 2020,逐飞科技
+ * All rights reserved.
+ * 技术讨论QQ群：三群：824575535
+ *
+ * 以下所有内容版权均属逐飞科技所有，未经允许不得用于商业用途，
+ * 欢迎各位使用并传播本程序，修改内容时必须保留逐飞科技的版权声明。
+ *
+ * @file            headfile
+ * @company         成都逐飞科技有限公司
+ * @author          逐飞科技(QQ3184284598)
+ * @version         查看doc内version文件 版本说明
+ * @Software        ADS v1.2.2
+ * @Target core     TC264D
+ * @Taobao          https://seekfree.taobao.com/
+ * @date            2020-3-23
+ ********************************************************************************************************************/
+ 
+#ifndef _headfile_h
+#define _headfile_h
+
+#define basic 80
+#define Row 60
+#define Col 160
+#define MT9V032_H 60
+#define LCDH 60
+#define LCDW 80
+#define MT9V032_W 160
+#define USART_0 UART_0
+#define BOTTOM  59
+#define base_p saidao.center[BOTTOM]
+
+#define base_p_zuo (base_p-20)
+#define base_p_you (base_p+20)
+
+#define base_p_z (base_p-40)
+#define base_p_y (base_p+40)
+
+#define base_p_z3 (base_p-9)
+#define base_p_y3 (base_p+9)
+#define DtSpeed 0.005f
+#define MATH_PI  3.1415926
+
+
+extern unsigned char  image_data[MT9V032_H][MT9V032_W];
+extern unsigned char  image_data2[LCDH][LCDW];
+extern unsigned char time_10ms_flag;
+
+#include "SEEKFREE_PRINTF.h"
+
+#include "zf_assert.h"
+#include "stdio.h"
+#include "math.h"
+//官方头文件
+#include "ifxAsclin_reg.h"
+#include "SysSe/Bsp/Bsp.h"
+#include "IfxCcu6_Timer.h"
+#include "IfxScuEru.h"
+
+//------逐飞科技单片机外设驱动头文件
+#include "zf_gpio.h"
+#include "zf_gtm_pwm.h"
+#include "zf_uart.h"
+#include "zf_ccu6_pit.h"
+#include "zf_stm_systick.h"
+#include "zf_spi.h"
+#include "zf_eru.h"
+#include "zf_eru_dma.h"
+#include "zf_vadc.h"
+#include "zf_gpt12.h"
+#include "zf_eeprom.h"
+
+//------逐飞科技产品驱动头文件
+#include "SEEKFREE_18TFT.h"
+#include "SEEKFREE_FONT.h"
+#include "SEEKFREE_FUN.h"
+#include "SEEKFREE_IIC.h"
+#include "SEEKFREE_IPS114_SPI.h"
+#include "SEEKFREE_OLED.h"
+#include "SEEKFREE_VIRSCO.h"
+#include "SEEKFREE_MT9V03X.h"
+#include "SEEKFREE_ICM20602.h"
+#include "SEEKFREE_MPU6050.h"
+#include "SEEKFREE_MMA8451.h"
+#include "SEEKFREE_L3G4200D.h"
+#include "SEEKFREE_WIRELESS.h"
+#include "SEEKFREE_IPS200_PARALLEL8.h"
+#include "SEEKFREE_7725.h"
+#include "SEEKFREE_RDA5807.h"
+#include "SEEKFREE_7725_UART.h"
+
+/*****自己添加的头文件********************/
+#include  "speed.h"//电机相关控制
+#include "Standing.h"//陀螺仪相关控制
+#include "Function.h" //功能函数
+#include "image_process.h"
+#include "motor_control.h"
+#include "servo_control.h"
+#include "MH_Lower_Computer.h"
+#include "Uart_SendData.h"
+#include "encoder.h"
+#include "Boma.h"
+#include "button.h"
+#include "cheku.h"
+#include "image_huandao.h"
+#include "podao.h"
+#include "image_shizi.h"
+#include "image_chalu.h"
+#include"mm.h"
+#include "phone_BL.h"
+#include "adc.h"
+
+/*****************使用的硬件引脚定义*********
+ 注意电机、编码器、串口等的定时器分配问题
+按键：339---3310---3311---3312   拨码开关：2011----2012----2013
+蜂鸣器：3313
+ADC接口：A0到A7
+干簧管：145
+陀螺仪：221----220
+TFT屏幕：15.3---15.5---15.1---15.0--15.2---15.4
+串口：14.0---14.1---14.2
+*********************************************/
+//电机引脚  ATOM0
+
+//舵机引脚   ATOM1
+extern uint8 chisu;
+extern int16 adsum;
+extern int16 chazhi;
+extern int16 AD[2];
+extern uint8 kt;
+extern float spp;
+extern float td;
+extern uint8 tdflag;
+
+//extern uint8 BOMA1;
+//extern uint8 BOMA2;
+//#define BOMA1 !gpio_get(P33_13)
+//#define  BOMA2 !gpio_get(P33_12)
+
+#define Steer_Pin    ATOM1_CH1_P33_9 //ATOM1_CH2_P20_14   ATOM1_CH1_P33_9
+//ADC电磁引脚  使用ADC0   从左到右按顺序接线
+#define Left_ADC_Pin      ADC0_CH0_A0   //ADC0_CH0_A0
+#define LeftXie_ADC_Pin   ADC0_CH1_A1    //ADC0_CH2_A2
+#define Mid_ADC_Pin       ADC0_CH2_A2   //ADC0_CH4_A4
+#define RightXie_ADC_Pin  ADC0_CH3_A3    //ADC0_CH3_A3
+#define Right_ADC_Pin     ADC0_CH4_A4     //ADC0_CH1_A1
+//#define MOTOR1_PWM        ATOM0_CH1_P21_3   //ATOM0_CH0_P21_2  ATOM0_CH2_P21_4
+//#define MOTOR2_PWM        ATOM0_CH3_P21_5  //ATOM0_CH1_P21_3  ATOM0_CH3_P21_5
+#define MOTOR1_PWM        ATOM1_CH6_P02_6   //ATOM0_CH0_P21_2  ATOM0_CH2_P21_4
+#define MOTOR2_PWM        ATOM1_CH7_P02_7  //ATOM0_CH1_P21_3  ATOM0_CH3_P21_5
+#define MOTOR1_DIR        P02_6
+#define MOTOR2_DIR        P02_7
+
+//编码器引脚  GPT12_T2
+#define Ecoder_Pin1      GPT12_T6INA_P20_3
+#define Ecoder_Pin2      GPT12_T6EUDA_P20_0
+
+//串口引脚   UART2_TX_A14  UART2_RX_A15
+#define UART_User         UART_0         //UART_0  UART_2
+#define UART_TX_Pin       UART0_TX_P14_0   //UART0_TX_P15_2  UART0_TX_P14_0  UART2_TX_P10_5
+#define UART_RX_Pin       UART0_RX_P14_1   //UART0_RX_P15_3  UART0_RX_P14_1  UART2_RX_P10_6
+// MPU6050陀螺仪引脚  请到 #include "SEEKFREE_IIC.h"文件修改
+#endif
+

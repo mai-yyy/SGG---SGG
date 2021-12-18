@@ -1,6 +1,7 @@
 #include "image_chalu.h"
 
-
+uint8 isOnTheCross=0;
+uint8 isOnTheSlopeCross=0;
 int16 TriangRange[160]={0};
 uint8 sancha_flag_left=0;
 uint8 sancha_flag_right=0;
@@ -82,6 +83,10 @@ int LColCnt=0;
  int RColCnt=0;
   int RLineSegmentCnt=0;
 uint8 SFlag=0;
+
+
+
+
 void chalu()
 {
 uint8 lie_end[61]={0};
@@ -219,16 +224,6 @@ if(low_endline_count>=14&&end_count>=60&&endline<=3&&ABS(differ)<=10&&ABS(error[
 
 
 }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -847,12 +842,6 @@ stf=0;
 
 }
 
-
-
-
-
-
-
 void sec_fork_law(Maiy_characteristic_point *SewFork_char)
 {
 if(fork_road==1)
@@ -937,14 +926,15 @@ if (fork_road==2)
 
 
 
-
 void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
 {
     yes=0;
     point=0;
     XLFlag=0;
-int IsBottomRightJupm=0;
-int IsBottomLeftJupm=0;
+ IsBottomRightJupm=0;
+ IsBottomLeftJupm=0;
+isOnTheCross=0;
+isOnTheSlopeCross=0;
         if(!sancha_flag_right&&!sancha_flag_left&&!huan_L_flag&&!huan_R_flag&&!shizhiflag&&endline<15)
         {
             for(int16 i=58;i>=20;i--)
@@ -972,46 +962,29 @@ int IsBottomLeftJupm=0;
                     break;
                 }
             }
-//            if(ForkStep==1&&LowRightJump.my_x==0)
-//            {
-//                LowRightJump.my_x=158;
-//            }
-//buzzer(1);
+//三叉应该不会有
             if((leftline[58]<=2&&rightline[58]>=156)||(leftline[57]<=2&&rightline[57]>=156)||(leftline[56]<=2&&rightline[56]>=156)||(leftline[55]<=2&&rightline[55]>=156)||(leftline[54]<=2&&rightline[54]>=156)||(leftline[53]<=2&&rightline[53]>=156)||(leftline[52]<=2&&rightline[52]>=156)
                     ||(leftline[51]<=2&&rightline[51]>=156)||(leftline[50]<=2&&rightline[50]>=156))
             {
                 ForkStep=0;
-//                LowRightJump.my_x=120;
-//                                LowRightJump.my_y=30;
-//                                LowLeftJump.my_x=40;
-//                                               LowLeftJump.my_y=30;
-                IsBottomLeftJupm=0;
-                IsBottomRightJupm=0;
-//                                               XLFlag=1;
+                if(IsBottomLeftJupm==1&&IsBottomRightJupm==1)
+                {
+                    isOnTheCross=1;
+                }
+//                IsBottomLeftJupm=0;
+//                IsBottomRightJupm=0;
             }
 
-//            if (image_data[10][90]!=0 || image_data[10][70]!=0)
-//                    {
-//                  LowLeftJump.my_x =158;
-//                  LowLeftJump.my_y = 59;
-//                  LowRightJump.my_x = 0;
-//                  LowRightJump.my_y = 59;
-//                        ForkStep = 0;
-//
-//                    }
+
         }
 
-//        ips200_showint16(50,8,  ForkStep);
 
-//                                                 ips200_showint16(30,11,LowLeftJump.my_x);
         if (ForkStep == 1 &&
            sancha_flag_left == 0 &&
            sancha_flag_right == 0 &&
            ((((LowLeftJump.my_x - leftline[59] >=6) || (LowLeftJump.my_x - leftline[59] >= 0 && leftline[59] >= 20)) &&leftline[59] != 0) ||
            (((rightline[59] - LowRightJump.my_x >=6 )|| (rightline[59] - LowRightJump.my_x >= 0 && rightline[59] <= 140))&& rightline[59] <= 157)))
-//        if (ForkStep == 1 &&
-//                  sancha_flag_left == 0 &&
-//                  sancha_flag_right == 0)
+
         {
             yes=0;
             TriangBlackPoint.my_x=0;
@@ -1020,12 +993,7 @@ int IsBottomLeftJupm=0;
             XieRiCnt=0;
             XLFlag=0;
             XRFlag=0;
-//            ips200_showint16(30,11, LowLeftJump.my_x);
-//            for(uint8 i=58;i>=40;i--)
-//      {
-//      if((rightline[i]>=150&&rightline[i-2]>=150&&leftline[i]<=10&&leftline[i-2]<=10)||XLFlag||XRFlag)
-//if(( LowRightJump.my_y>15&&LowLeftJump.my_y>15&&ABS(LowRightJump.my_y-LowLeftJump.my_y)<=18&&ABS(LowRightJump.my_x-LowLeftJump.my_x)>48))
-//       if(leftline[58]>2&&rightline[58]<=156&&leftline[57]>2&&rightline[57]<156&&leftline[56]>2&&rightline[56]<156&& LowRightJump.my_y>15&&LowLeftJump.my_y>15)
+
             if (IsBottomRightJupm == 1 && IsBottomLeftJupm == 1)
             {
           memset(TriangRange,0,sizeof(int)*160);
@@ -1052,11 +1020,11 @@ int IsBottomLeftJupm=0;
       }
         }
 else if(IsBottomLeftJupm==1&&IsBottomRightJupm==0&&right_all_lose_line>=5)
-//       else if(leftline[58]>2&&leftline[57]>2&&leftline[56]>2)
+
 {
     LowRightJump.my_x=158;
     LowRightJump.my_y=59;
-//    buzzer(1);
+
     memset(TriangRange,0,sizeof(int)*160);
                for(int16 j=LowLeftJump.my_x;j<=158;j++)
          {
@@ -1082,7 +1050,7 @@ else if(IsBottomLeftJupm==1&&IsBottomRightJupm==0&&right_all_lose_line>=5)
 }
 
 else if(IsBottomLeftJupm==0&&IsBottomRightJupm==1&&left_all_lose_line>=5)
-//       else if(rightline[58]<=156&&rightline[57]<=156&&rightline[56]<=156)
+
 {
     LowLeftJump.my_x=0;
     LowLeftJump.my_y=59;
@@ -1112,72 +1080,14 @@ else if(IsBottomLeftJupm==0&&IsBottomRightJupm==1&&left_all_lose_line>=5)
 
 else
 {
-//    ForkStep=0;
+
 
 }
 
-       /*
-             ColFlagL=0;
-             ColFlagR=0;
-             YLCnt=0;
-             YRCnt=0;
-
-            for(int16 i=LowRightJump.my_y>=LowLeftJump.my_y ? LowRightJump.my_y:LowLeftJump.my_y;i>=3;i--)
-            {
-                if(image_data[i][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]&&image_data[i-1][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]==0&&image_data[i-2][(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2)]==0)
-                {
-                    ColFlagL=1;
-                    ColPoint_L.my_y=i;
-//                    YLCnt=LowLeftJump.my_y-i;
-                }
-                if(image_data[i][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]&&image_data[i-1][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]==0&&image_data[i-2][(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2)]==0)
-                                {
-                    ColFlagR=1;
-                    ColPoint_R.my_y=i;
-//                    YRCnt=LowRightJump.my_y-i;
-                                }
-                if(ColFlagR==1&&ColFlagL==1)
-                {
-                    break;
-                }
-
-            }
-
-            ColRcnt=0;
-            ColLcnt=0;
-
-            if(ColFlagR==1&&ColFlagL==1)
-            {
-               for(int16 i=(int)((LowRightJump.my_x+TriangBlackPoint.my_x)/2);i<158;i++)
-               {
-                   if(image_data[ColPoint_R.my_y][i]!=0)
-                   {
-                       ColRcnt++;
-                   }
-                   else
-                   {
-                       break;
-                   }
-               }
-
-               for(int16 i=(int)((LowLeftJump.my_x+TriangBlackPoint.my_x)/2);i>0;i--)
-                              {
-                                  if(image_data[ColPoint_L.my_y][i]!=0)
-                                  {
-                                      ColLcnt++;
-                                  }
-                                  else
-                                  {
-                                      break;
-                                  }
-                              }
-
-            }
-*/
             ForkAngleLeft=0;
             ForkAngleRight=0;
             OverAngleStep=0;
-            for(int16 i=0;i<20;i++)
+            for(int16 i=0;i<23;i++)
             {
                 if(TriangRange[TriangBlackPoint.my_x+i]!=0&&TriangRange[TriangBlackPoint.my_x-i]!=0)
                 {
@@ -1204,18 +1114,8 @@ else
                         Maiy_2_dimensional C={TriangBlackPoint.my_x+5,TriangRange[TriangBlackPoint.my_x+5]};
                         Triang= Get_Angle( A, TriangBlackPoint, C);
 
-
-//            ips200_showint16(50,8, Triang);
-//
-//                                           ips200_showint16(50,8,TriangRange[TriangBlackPoint.my_x+10]-TriangRange[TriangBlackPoint.my_x-10]);
-
-//                        ips200_showint16(30,11,  LowRightJump.my_x);
-
-//            if(ForkStep&&TriangBlackPoint.my_y>=10&&TriangBlackPoint.my_y<LowLeftJump.my_y&&((ForkAngleLeft+ForkAngleRight<=30)||(ForkAngleRight>=20&&ForkAngleLeft<=10)||(ForkAngleLeft>=20&&ForkAngleRight<=10)))
-//if(1)
             if(ForkStep&&TriangBlackPoint.my_y>=15&&TriangBlackPoint.my_y<LowLeftJump.my_y&&Triang>=150)
             {
-//                buzzer(1);
             if(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+3]<=1
                     &&TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x-3]<=1
                     &&TriangRange[TriangBlackPoint.my_x+10]<=TriangRange[TriangBlackPoint.my_x]
@@ -1224,55 +1124,71 @@ else
                     &&TriangRange[TriangBlackPoint.my_x+12]!=0
                     &&TriangRange[TriangBlackPoint.my_x-12]!=0
                     &&(((ForkAngleLeft>=20&&ForkAngleRight<=15)||(ForkAngleLeft<=15&& ForkAngleRight>=20)||(ForkAngleLeft + ForkAngleRight <= 30&&ForkAngleLeft + ForkAngleRight>=10))&&ABS(ForkAngleLeft- ForkAngleRight)<=35)
-//                    &&ColLcnt>10&&ColRcnt>10)
                     )
-//                    )
-//    if(1)
+
     {
                 dorg_l=1;
-//buzzer(1);
+
               }
+            else
+            {
+                if(IsBottomLeftJupm==1&&IsBottomRightJupm==1)
+                               {
+                                   isOnTheCross=1;
+                               }
+                else{
+                isOnTheSlopeCross=1;      //一步一步，都有可能;
             }
-if(sanchacount!=0)
-{
-    if(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+3]<=1&&TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x-3]<=1&&TriangRange[TriangBlackPoint.my_x+15]<TriangRange[TriangBlackPoint.my_x]&&TriangRange[TriangBlackPoint.my_x-15]<TriangRange[TriangBlackPoint.my_x]&&TriangBlackPoint.my_y<=40
-            &&TriangRange[TriangBlackPoint.my_x+15]!=0&&TriangRange[TriangBlackPoint.my_x-15]!=0&&ForkStep&&TriangBlackPoint.my_y>=20)
-    {
-        dorg_l=1;
-    }
-}
-//        }
+            }
+            }
+            else
+            {
+                if(IsBottomLeftJupm==1&&IsBottomRightJupm==1)
+                               {
+                                   isOnTheCross=1;
+                               }
+                else{
+                isOnTheSlopeCross=1;
+            }
+            }
+//if(sanchacount!=0)//感觉不是特别需要，还是先放在这里
+//{
+//    if(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+3]<=1&&TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x-3]<=1&&TriangRange[TriangBlackPoint.my_x+15]<TriangRange[TriangBlackPoint.my_x]&&TriangRange[TriangBlackPoint.my_x-15]<TriangRange[TriangBlackPoint.my_x]&&TriangBlackPoint.my_y<=40
+//            &&TriangRange[TriangBlackPoint.my_x+15]!=0&&TriangRange[TriangBlackPoint.my_x-15]!=0&&ForkStep&&TriangBlackPoint.my_y>=20)
+//    {
+//        dorg_l=1;
+//    }
+//}
+
     }
 
 //if(dorg_l&&sc_char->mylinest[79]<=40)
         if(dorg_l)
 {
+            flag22=2;
+                            dorg_l=0;
+                            ForkStep=0;
             if(qipao_time==0)
-            {sancha_flag_right=2;}
+            {
+                sancha_flag_right=2;
+            }
             else
-            {sancha_flag_left=2;}
+            {
+                sancha_flag_left=2;
+            }
 
 
-                  buzzer(1);
-                  flag22=2;
-                  dorg_l=0;
-                  ForkStep=0;
+
+
 }
-//ips200_showint16(50,8, ColLcnt);
-//             ips200_showuint16(90,17,ColRcnt);
 
-            if(sancha_flag_left==2&&qipao_time==1&&ABS(icmdata.Yaw)>=10&&dt_code>=5500)
+
+            if(sancha_flag_left==2&&qipao_time==1&&ABS(icmdata.Yaw)>=10&&dt_code>=4500)
            {
-//            for(int16 i=58;i>=58;i--)
-//      {
-
-//                    if(rightline[i]-rightline[i-1]>0&&rightline[i]-rightline[i-20]>0&&rightline[i]<=157&&rightline[i-10]<=157&&rightline[i-40]<=157&&rightline[i-30]<=157&&rightline[i-20]<=157)
-//
-//                {
           sancha_flag_left=0;
-          buzzer(0);
+//          buzzer(0);
                 sancha_flag_right=0;
-//                if( icmdata.Yaw>=35)
+
                 if(sanchacount>0)
                 {
                     sanchacount=0;
@@ -1288,23 +1204,13 @@ if(sanchacount!=0)
                 }
                 if(sanchacount>=4)
                     cnt_fache1=1;
-//                break;
-//                        }
+
       }
 
-//           }
 
 
-            if(sancha_flag_right==2&&qipao_time==0&&ABS(icmdata.Yaw)>=10&&dt_code>5500)
+            if(sancha_flag_right==2&&qipao_time==0&&ABS(icmdata.Yaw)>=10&&dt_code>=4500)
             {
-
-//                for(int16 i=58;i>=57;i--)
-//          {
-//
-//
-//                    if(
-//                                                leftline[i-1]-leftline[i]>0&&leftline[i-20]-leftline[i]>0&&leftline[i-40]!=0&&leftline[i-30]!=0&&leftline[i-20]!=0&&leftline[i-10]!=0&&leftline[i]!=0)
-//                    {
               sancha_flag_right=0;
                     sancha_flag_left=0;
                 if(ShangForkDir==0)
@@ -1317,38 +1223,19 @@ if(sanchacount!=0)
                                {
                                    sanchacount=0;
                                }
-                 buzzer(0);
+//                 buzzer(0);
 
                  sanchacount++;
 
                     if(sanchacount>=4)
                         cnt_fache1=1;
-//                    break;
+
             }
-//          }
-
-//            }
-
-
-
-
-
-
-
-
-
-
-
 
 }
 
-
-
-
-
 void ShangCha_flo_law(Maiy_characteristic_point* sc_char)
 {
-
 
     if (sancha_flag_right==0&&sancha_flag_left==0&&!qipao_flag&&!huan_L_flag&&!huan_R_flag&&!shizhiflag)
     {
@@ -1562,465 +1449,4 @@ buzzer(1);
 }
 
 
-
-
-void ShangCha_fiv_law(Maiy_characteristic_point* sc_char)
-{
-/*
-uint8 Tan90Left=0;
-uint8 Tan90Right=0;
-uint8 StepForkOne=0;
-
-if (sancha_flag_right==0&&sancha_flag_left==0&&!qipao_flag&&!huan_L_flag&&!huan_R_flag&&!shizhiflag)
-    {
-    for(int i=BOTTOM;i>BOTTOM-1;i--)    //累了 确定三叉定轴偏向位  界定十字的条件之一
-    {
-        if(leftline[i]<=2&&leftline[i-1]<=2&&leftline[i-2]<=2)
-        {
-            Tan90Left=1;
-        }
-        if(rightline[i]>=157&&rightline[i-2]>=157&&rightline[i-1]>=157)
-        {
-            Tan90Right=1;
-        }
-        if(Tan90Left==1&&Tan90Right==1)
-        {
-            StepForkOne=1;
-        }
-    }
-
-
-    if(StepForkOne==0)
-    {
-
-    }
-
-
-
-
-
-
-
-
-    }
-
-
-
-    if (sancha_flag_right==0&&sancha_flag_left==0&&!qipao_flag&&!huan_L_flag&&!huan_R_flag&&!shizhiflag)
-    {
-         LowLeftJump.my_x =0;
-         LowLeftJump.my_y = 59;
-         LowRightJump.my_x = 158;
-         LowRightJump.my_y = 59;
-
-        for (int i = 58; i >= 20; i--)
-        {
-            if (leftline[i] - leftline[i - 1] >= 0 && leftline[i] - leftline[i - 2] >= 0 && leftline[i] - leftline[i - 5] > 0 && leftline[i] >= 2)
-            {
-                LowLeftJump.my_x = leftline[i];
-                LowLeftJump.my_y= i;
-                ForkStep = 1;
-
-                break;
-            }
-        }
-        for (int i = 58; i >= 20; i--)
-        {
-            if (rightline[i - 1] - rightline[i] >= 0 && rightline[i - 2] - rightline[i] >= 0 && rightline[i - 5] - rightline[i] > 0 && rightline[i] <= 157)
-            {
-                LowRightJump.my_x = rightline[i];
-                LowRightJump.my_y = i;
-                ForkStep = 1;
-
-                break;
-            }
-        }
-
-
-      if (ForkStep == 1 && LowRightJump.my_x == 0)
-        {
-          LowRightJump.my_x = 158;
-        }
-
-//  if (image_data[10][90]!=0 || image_data[10][70]!=0)
-//        {
-//      LowLeftJump.my_x =158;
-//      LowLeftJump.my_y = 59;
-//      LowRightJump.my_x = 0;
-//      LowRightJump.my_y = 59;
-//            ForkStep = 0;
-//
-//        }
-
-
-    }
-
-
-    if (ForkStep == 1 &&
-    sancha_flag_left == 0 &&
-    sancha_flag_right == 0 &&
-    ((((LowLeftJump.my_x - leftline[59] > 7) || (LowLeftJump.my_x - leftline[59] >= 0 && leftline[59] >= 30)) &&leftline[59] != 0) ||
-    (((rightline[59] - LowRightJump.my_x > 7 )|| (rightline[59] - LowRightJump.my_x >= 0 && rightline[59] <= 130))&& rightline[59] <= 157)))
-    {
-        yes = 0;
-        TriangBlackPoint.my_x = 79;
-        TriangBlackPoint.my_y = 0;
-
-
-        for (int i = 59; i >= 40; i--)
-        {
-if ((rightline[i] <= 156 &&
-    rightline[i - 2] <= 156 &&
-    leftline[i] > 2 && leftline[i - 2] > 2) ||
-    (rightline[i - 2] <= 151 && rightline[i] <= 151 && leftline[i] <= 2 && leftline[i - 2] <= 2) ||
-    (leftline[i] >= 10 && leftline[i - 2] >= 10 && rightline[i] >= 157 && rightline[i - 2] >= 157))
-            {
-                for (int ij = 0; ij >= 159; i++)
-                {
-                    TriangRange[ij] = 0;
-                }
-
-                for (int j = LowLeftJump.my_x; j <= LowRightJump.my_x; j++)
-                {
-                    for (int k =(LowLeftJump.my_y+LowRightJump.my_y)>>1; k >= 2; k--)
-                    {
-
-                        if (image_data[k][j]!=0&&image_data[k - 1][j]==0 && image_data[k - 2][j]==0)
-                        {
-
-                            TriangRange[j] = k;
-
-                            if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
-                            {
-
-                                TriangBlackPoint.my_y =TriangRange[j];
-
-                                TriangBlackPoint.my_x = j;
-
-                            }
-
-
-                            if (TriangBlackPoint.my_y <=TriangRange[j] && j > 80)
-                            {
-                                TriangBlackPoint.my_y = TriangRange[j];
-                                TriangBlackPoint.my_x = j;
-                            }
-                            break;
-
-                        }
-                    }
-                }
-
-            }
-
-
-            if (ForkStep!=0 && TriangBlackPoint.my_y >= 10 && TriangBlackPoint.my_y < LowLeftJump.my_y && TriangBlackPoint.my_y < LowRightJump.my_y && TriangBlackPoint.my_x >= 10 && TriangBlackPoint.my_x <= 149)
-            {
-                if (TriangRange[TriangBlackPoint.my_x] >= TriangRange[TriangBlackPoint.my_x + 15] && TriangRange[TriangBlackPoint.my_x] >= TriangRange[TriangBlackPoint.my_x - 15] && TriangRange[TriangBlackPoint.my_x + 10]!=0&& TriangRange[TriangBlackPoint.my_x -10]!=0 && TriangBlackPoint.my_y <= 40)
-
-
-                {
-                    dorg_l = 1;
-                    break;
-                }
-
-          }
-
-        }
-    }
-
-
-    if (dorg_l!=0 &&  sc_char->mylinest[79] <= 40)
-    {
-        sancha_flag_left = 2;
-        sancha_flag_right = 2;
-//buzzer(1);
-        dorg_l = 0; //上位机使用
-        ForkStep = 0;
-    }
-    else
-    {
-
-                ForkStep = 0;
-    }
-
-
-
-    if (sancha_flag_left == 2&&qipao_time==1 )
-    {
-        for (int i = 58; i >= 58; i--)
-        {
-
-            if (rightline[i] - rightline[i - 1] > 0 && rightline[i] - rightline[i - 20] > 0 && rightline[i] <= 157 && rightline[i - 10] <= 157 && rightline[i - 40] <= 157 && rightline[i - 30] <= 157 && rightline[i - 20] <= 157)
-
-            {
-                buzzer(0);
-                sancha_flag_left = 0;
-
-                sancha_flag_right = 0;
-
-                if (sanchacount > 0)
-                {
-                    sanchacount = 0;
-                }
-
-                    sanchacount++;
-
-                break;
-            }
-        }
-
-    }
-
-
-    if (sancha_flag_right == 2&&qipao_time==0 )
-    {
-
-        for (int  i = 58; i >= 58; i--)
-        {
-
-
-            if (
-                leftline[i - 1] - leftline[i] > 0 && leftline[i - 20] - leftline[i] > 0 && leftline[i - 40] != 0 && leftline[i - 30] != 0 && leftline[i - 20] != 0 && leftline[i - 10] != 0 && leftline[i] != 0)
-            {
-                sancha_flag_right = 0;
-                sancha_flag_left = 0;
-                buzzer(0);
-                if (sanchacount > 0)
-                {
-                    sanchacount = 0;
-                }
-
-
-                    sanchacount++;
-
-
-                break;
-            }
-        }
-
-
-
-
-    }
-
-
-
-
-
-
-*/
-
-
-
-
-
-}
-
-void test_chalu(Maiy_characteristic_point* sc_char)
-{
-    int IsBottomLeftJupm = 0;
-    int IsBottomRightJupm = 0;
-    if (endline < 15)
-    {
-        for (int16 i = 58; i >= 20; i--)
-                {
-                    if ((leftline[i] - leftline[i - 1] >= 0 && leftline[i] - leftline[i - 2] >= 0 && leftline[i] - leftline[i - 5] > 0 && leftline[i] >= 2 && leftline[i - 1] >= 2 && leftline[i - 2] >= 2))
-                    {
-                        LowLeftJump.my_x = leftline[i];
-                        LowLeftJump.my_y = i;
-                IsBottomLeftJupm = 1;
-                break;
-            }
-        }
-        for (int16 i = 58; i >= 20; i--)
-                {
-                    if ((rightline[i - 1] - rightline[i] >= 1 && rightline[i - 2] - rightline[i] >= 1 && rightline[i - 5] - rightline[i] > 0 && rightline[i] < 156 && rightline[i - 1] < 156 && rightline[i - 2] < 156))
-                    {
-                        LowRightJump.my_x = rightline[i];
-                        LowRightJump.my_y = i;
-                IsBottomRightJupm = 1;
-                break;
-            }
-        }
-        if ((leftline[58] <= 2 && rightline[58] >= 156) || (leftline[57] <= 2 && rightline[57] >= 156) || (leftline[56] <= 2 && rightline[56] >= 156) || (leftline[55] <= 2 && rightline[55] >= 156) || (leftline[54] <= 2 && rightline[54] >= 156) || (leftline[53] <= 2 && rightline[53] >= 156) || (leftline[52] <= 2 && rightline[52] >= 156)
-            || (leftline[51] <= 2 && rightline[51] >= 156) || (leftline[50] <= 2 && rightline[50] >= 156))
-        {
-            IsBottomLeftJupm = 0;
-            IsBottomRightJupm = 0;
-        }
-    }
-
-
-
-
-    if ((IsBottomRightJupm == 1 || IsBottomLeftJupm == 1))
-
-    {
-        if (IsBottomRightJupm == 1 && IsBottomLeftJupm == 1)
-        {
-            memset(TriangRange, 0, sizeof(int) * 160);
-            for (int j = LowLeftJump.my_x; j <= LowRightJump.my_x; j++)
-            {
-                for (int k = (LowLeftJump.my_y + LowRightJump.my_y) >> 1; k >= 2; k--)
-                {
-                    if (image_data[k][j] && !image_data[k - 1][j] && !image_data[k - 2][j])
-                                        {
-                                            TriangRange[j] = k;
-                                            if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
-                                            {
-                                                TriangBlackPoint.my_y = TriangRange[j];
-                                                TriangBlackPoint.my_x = j;
-                                            }
-                                            if (TriangBlackPoint.my_y < TriangRange[j] && j >= 80)
-                                            {
-                                                TriangBlackPoint.my_y = TriangRange[j];
-                                                TriangBlackPoint.my_x = j;
-                                            }
-                                            break;
-                                        }
-                    }
-                }
-            }
-
-        }
-
-
-        else if (IsBottomRightJupm == 1 && IsBottomLeftJupm != 1 && left_all_lose_line >= 5)
-        {
-            memset(TriangRange, 0, sizeof(int) * 160);
-            for (int j = 20; j <= LowRightJump.my_x; j++)
-            {
-                for (int k = LowRightJump.my_y; k >= 2; k--)
-                {
-                    if (image_data[k][j] && !image_data[k - 1][j] && !image_data[k - 2][j])
-                                        {
-                                            TriangRange[j] = k;
-                                            if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
-                                            {
-                                                TriangBlackPoint.my_y = TriangRange[j];
-                                                TriangBlackPoint.my_x = j;
-                                            }
-                                            if (TriangBlackPoint.my_y < TriangRange[j] && j >= 80)
-                                            {
-                                                TriangBlackPoint.my_y = TriangRange[j];
-                                                TriangBlackPoint.my_x = j;
-                                            }
-                                            break;
-                                        }
-                }
-            }
-
-        }
-
-
-        else if (IsBottomLeftJupm == 1 && IsBottomRightJupm != 1 && right_all_lose_line >= 5)
-        {
-            memset(TriangRange, 0, sizeof(int) * 160);
-            for (int j = LowLeftJump.my_x; j <= 140; j++)
-            {
-                for (int k = LowLeftJump.my_y; k >= 2; k--)
-                {
-                    if (image_data[k][j] && !image_data[k - 1][j] && !image_data[k - 2][j])
-                                       {
-                                           TriangRange[j] = k;
-                                           if (TriangBlackPoint.my_y <= TriangRange[j] && j <= 80)
-                                           {
-                                               TriangBlackPoint.my_y = TriangRange[j];
-                                               TriangBlackPoint.my_x = j;
-                                           }
-                                           if (TriangBlackPoint.my_y < TriangRange[j] && j >= 80)
-                                           {
-                                               TriangBlackPoint.my_y = TriangRange[j];
-                                               TriangBlackPoint.my_x = j;
-                                           }
-                                           break;
-                                       }
-                }
-            }
-
-        }
-
-
-
-
-    else
-    {
-        IsBottomRightJupm = 0;
-
-
-        IsBottomLeftJupm = 0;
-    }
-    if ((IsBottomRightJupm == 1 && IsBottomLeftJupm == 1 && TriangBlackPoint.my_y - LowLeftJump.my_y<= -5 && TriangBlackPoint.my_y - LowRightJump.my_y <= -5)
-        || (IsBottomRightJupm == 1 && IsBottomLeftJupm == 0 && TriangBlackPoint.my_y - LowRightJump.my_y <= -5)
-        || (IsBottomRightJupm == 0 && IsBottomLeftJupm == 1 && TriangBlackPoint.my_y - LowLeftJump.my_y <= -5))
-    {
-
-        ForkAngleLeft = 0;
-                ForkAngleRight = 0;
-                OverAngleStep = 0;
-                for (int16 i = 0; i < 20; i++)
-                {
-                    if (TriangRange[TriangBlackPoint.my_x + i] != 0 && TriangRange[TriangBlackPoint.my_x - i] != 0)
-                    {
-                        OverAngleStep = 1;
-                    }
-                    else
-                    {
-                        OverAngleStep = 0;
-                        break;
-                    }
-                }
-                if (OverAngleStep != 0)
-                {
-                    for (int16 i = 0; i < 15; i++)
-                    {
-                        ForkAngleLeft += (TriangRange[TriangBlackPoint.my_x] - TriangRange[TriangBlackPoint.my_x - i]);
-
-                        ForkAngleRight += (TriangRange[TriangBlackPoint.my_x] - TriangRange[TriangBlackPoint.my_x + i]);
-                    }
-                }
-        if (((ForkAngleLeft>=30&& ForkAngleRight<=20)||(ForkAngleLeft<=20&& ForkAngleRight>=30)||(ForkAngleLeft + ForkAngleRight <= 30&&ForkAngleLeft + ForkAngleRight>=10))&&ABS(ForkAngleLeft- ForkAngleRight)<=35)
-        {
-            dorg_l=1;
-
-        }
-if(dorg_l==1&&sc_char->mylinest[79]<=45)
-{
-    buzzer(1);
-                if (qipao_time == 0)
-                {
-                    sancha_flag_right = 2;
-                }
-                else
-                {
-                    sancha_flag_left = 2;
-                }
-                dorg_l=0;
-}
-else
-{
-    dorg_l=0;
-}
-
-if (sancha_flag_left == 2 && qipao_time == 1 && ABS(icmdata.Yaw) >= 10)
-   {
-       sancha_flag_left = 0;
-       sancha_flag_right = 0;
-
-   }
-
-
-   if (sancha_flag_right == 2 && qipao_time == 0 && ABS(icmdata.Yaw) >= 10)
-   {
-       sancha_flag_right = 0;
-       sancha_flag_left = 0;
-   }
-
-
-
-
-    }
-
-}
 

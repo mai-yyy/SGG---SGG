@@ -15,6 +15,10 @@ int16 left_all_lose_line=0;
 int16 right_all_lose_line=0;
 int16 start_lose_l=0;
 int16 start_lose_r=0;
+int16 YStartFixPointCross = 0;
+int16 YPonitLeft = 0;
+int16 YPointRight = 0;
+int16 StepLonth =0;
 
 void PreWhitePoint()
 {
@@ -397,12 +401,9 @@ if( shizhiflag&&!huan_L_flag&&!huan_R_flag)
         L_cross_entry--;              //纠正上拐点
 
     }
-//    while(leftline[L_cro_point_fir]==0&&L_cro_point_fir<=58)
-//       {
-//
-//        L_cro_point_fir++;
-//
-//       }
+
+
+
        delt_x=leftline[L_cross_entry]-leftline[L_cro_point_fir];
 
        delt_y=L_cro_point_fir-L_cross_entry;  //why reverse is that keeping zhengshu
@@ -555,4 +556,237 @@ void cross_fight(Maiy_characteristic_point* cross_fake)
 {
 
 }
+
+
+//later
+
+void trianglePointCross()
+{
+
+
+    if (((IsBottomLeftJupm == 1 && IsBottomRightJupm == 0) || (IsBottomLeftJupm == 0 && IsBottomRightJupm == 1)) && sancha_flag_right == 0 && sancha_flag_left == 0)  //斜入
+{
+
+    StepLonth = 0;
+int FormSize=2;
+        if (((IsBottomLeftJupm == 1 && IsBottomRightJupm == 0) || (IsBottomLeftJupm == 0 && IsBottomRightJupm == 1)) && sancha_flag_right == 0 && sancha_flag_left == 0)  //斜入
+        {
+            YPonitLeft = 0;
+            if (IsBottomLeftJupm == 1 && IsBottomRightJupm == 0)
+            {
+                FormSize = 2;
+                for (int i = LowLeftJump.my_y; i > 2; i--)
+                {
+                    if (image_data[i][LowLeftJump.my_x] != 0 && image_data[i - 1][LowLeftJump.my_x] == 0)
+                    {
+                        TriangBlackPoint.my_y = i - 1;
+                        TriangBlackPoint.my_x = LowLeftJump.my_x;
+                        break;
+                    }
+
+                }
+
+                YStartFixPointCross = TriangBlackPoint.my_y - FormSize;
+                for (int i = TriangBlackPoint.my_x; i < 156; i++)
+                {
+                    if (image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i + 1] != 0)
+                    {
+                        YPonitLeft = i + 1;
+
+                    }
+                    if (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i + 1]== 0)
+                                       {
+                                           YPointRight = i + 1;
+                                           break;
+                                       }
+                    if ((image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i + 1] == 0) || (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i + 1] != 0))
+                    {
+
+                        StepLonth++;
+                    }
+
+                    if (StepLonth >= 60)
+                    {
+                        IsBottomLeftJupm = 0;
+                        IsBottomRightJupm = 0;
+                        break;
+                    }
+
+                }
+
+            }
+            if (IsBottomLeftJupm == 0 && IsBottomRightJupm == 1)
+            {
+
+                FormSize = 2;
+
+                for (int i = LowRightJump.my_y - 3; i > 2; i--)
+                {
+                    if (image_data[i][LowRightJump.my_y] != 0
+                        && image_data[i - 1][LowRightJump.my_y] == 0)
+                    {
+                        yes = i + 1;
+                        TriangBlackPoint.my_y = i - 1;
+                        TriangBlackPoint.my_y = LowRightJump.my_x;
+                        break;
+                    }
+
+                }
+
+                YStartFixPointCross = TriangBlackPoint.my_y - FormSize;
+                for (int i = TriangBlackPoint.my_x; i > 1; i--)
+                {
+                    if (image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i - 1] != 0)
+                    {
+                        YPonitLeft = i + 1;
+
+                    }
+                    if ((image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i - 1] == 0) || (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i - 1] != 0))
+                    {
+
+                        StepLonth++;
+                    }
+                    if (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i - 1] == 0)
+                                        {
+                                            YPonitLeft = i + 1;
+                                            break;
+                                        }
+
+                    if (StepLonth >= 60)
+                    {
+                        IsBottomLeftJupm = 0;
+                        IsBottomRightJupm = 0;
+                        break;
+                    }
+
+                }
+
+
+
+
+            }
+
+
+
+
+            if (YPonitLeft > 2 && YPointRight < 157)
+            {
+                if (IsBottomLeftJupm == 1 && IsBottomRightJupm == 0)
+                {
+
+                    Straight_Thru(LowRightJump.my_x,LowRightJump.my_y, YPointRight, YStartFixPointCross, 1, YStartFixPointCross, LowRightJump.my_y);
+                    Straight_Thru(LowLeftJump.my_x,LowLeftJump.my_y, YPonitLeft, YStartFixPointCross, 0, YStartFixPointCross, LowLeftJump.my_y);
+                    buzzer(1);
+                }
+
+
+                if (IsBottomLeftJupm == 0 && IsBottomRightJupm == 1)
+                {
+
+                    Straight_Thru(LowRightJump.my_x,LowRightJump.my_y, YPointRight, YStartFixPointCross, 1, YStartFixPointCross, LowRightJump.my_y);
+                                        Straight_Thru(LowLeftJump.my_x,LowLeftJump.my_y, YPonitLeft, YStartFixPointCross, 0, YStartFixPointCross, LowLeftJump.my_y);
+                                        buzzer(1);
+                }
+
+            }
+
+
+
+
+        }
+
+
+
+
+}
+
+else if(IsBottomLeftJupm == 1 && IsBottomRightJupm == 1 && sancha_flag_right == 0 && sancha_flag_left == 0 && TriangBlackPoint.my_x< 140 && TriangBlackPoint.my_x>20)
+{
+
+    YStartFixPointCross = 0;
+       YPonitLeft = 0;
+       YPointRight = 0;
+       int FormSize = 3;//该变量影响补线的线对近处或远处的信任;
+       //开始十字
+
+       if (IsBottomLeftJupm == 1 && IsBottomRightJupm == 1 && sancha_flag_right == 0 && sancha_flag_left == 0 && TriangBlackPoint.my_x < 140 && TriangBlackPoint.my_x>20)
+       {
+           if (LowLeftJump.my_y <= LowRightJump.my_y)
+           {
+               FormSize = LowRightJump.my_y- LowLeftJump.my_y;
+           }
+           else
+           {
+               FormSize = -(LowRightJump.my_y- LowLeftJump.my_y);
+           }
+
+           if (FormSize <= 3)
+           {
+               FormSize = 3;
+           }
+           if (FormSize >= 7)
+           {
+               FormSize = 7;
+           }
+
+           YStartFixPointCross = TriangBlackPoint.my_y - FormSize;
+           //判断一波趋势
+           if (TriangBlackPoint.my_x - LowLeftJump.my_x <= LowRightJump.my_x - TriangBlackPoint.my_x)   //左偏
+           {
+               for (int i = TriangBlackPoint.my_x; i < 156; i++)
+               {
+                   if (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i + 1] == 0)
+                   {
+                       YPointRight = i - 1;
+                       break;
+                   }
+                   if (image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i + 1] != 0)
+                   {
+                       YPonitLeft = i + 1;
+
+                   }
+               }
+           }
+           else
+           {
+
+               for (int i = TriangBlackPoint.my_x + 1; i > 3; i--)
+               {
+                   if (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i - 1] == 0)
+                   {
+                       YPonitLeft = i - 1;
+                       break;
+                   }
+                   if (image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i - 1] != 0)
+                   {
+                       YPointRight = i + 1;
+                   }
+               }
+
+           }
+
+           //show
+
+           if (YPonitLeft > 2 && YPointRight < 157)
+           {
+       Straight_Thru(LowLeftJump.my_x,LowLeftJump.my_y, YPonitLeft, YStartFixPointCross, 0, YStartFixPointCross, LowLeftJump.my_y);
+       Straight_Thru(LowRightJump.my_x,LowRightJump.my_y, YPointRight, YStartFixPointCross, 1, YStartFixPointCross, LowRightJump.my_y);
+       buzzer(1);
+           }
+
+       }
+
+
+
+    }
+    else
+    {
+
+        buzzer(0);
+    }
+}
+
+
+
+
 

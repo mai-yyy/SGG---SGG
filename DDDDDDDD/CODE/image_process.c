@@ -90,8 +90,8 @@ volatile WAY_STATUS  way;
 float current_width[60]={0};
  Line_Staue LeftLineStaue[60];
  Line_Staue RightLineStaue[60];
- int IsBottomLeftJupm = 0;
- int IsBottomRightJupm = 0;  //用来双丢线是否需要辅助判断
+ uint8 IsBottomLeftJupm = 0;
+ uint8 IsBottomRightJupm = 0;
  int BottomLeftJupmx = 0;//折点
  int BottomLeftJupmy = 0;//折点
  int BottomRightJupmx = 0;
@@ -657,7 +657,7 @@ break;
        {
            //判断宽度,不考虑边线(m_i16y)是否存在,因为无论什么情况,边界都会被赋值
 //           t_i16Width = (p_stBorder->m_stRPnt[t_i16LoopY].m_i16x - p_stBorder->m_stLPnt[t_i16LoopY].m_i16x);
-           if (current_width[curr_wid_hang] > (Outlier_lines[curr_wid_hang] + MT9V032_W * 0.2)) //正常超宽行数
+           if (current_width[curr_wid_hang] > (Outlier_lines[curr_wid_hang] + MT9V032_W * 0.3)) //正常超宽行数
            {
               WidthROWNum++;
                if (!OutWidthStart)
@@ -1547,9 +1547,9 @@ if(R_basic_slope_flag||slop_R_go==TRUE)
 }
 
 
-ips200_showint16(30,11, L_basic_slope);
-               ips200_showint16(50,8, R_basic_slope);
-
+//ips200_showint16(30,11, L_basic_slope);
+//               ips200_showint16(50,8, R_basic_slope);
+//
 
 
 
@@ -2747,7 +2747,7 @@ else if(qipao_flag==0&&sancha_flag_right)
           MidValue = MidSum/WeightSum;
           differ = MidValue - basic;
 //          differ=differ>60  ?  60:differ;
-          differ=differ<45  ?  45:differ;
+//          differ=differ<45  ?  45:differ;
 //     u6mjy765     differ=differ<40  ?  40:differ;
 
 }
@@ -3363,9 +3363,12 @@ crossroad_deal();
                 }
             }
             }
+
+
         vary=(float)(158-jump_j1)/(59-jump_i1);
-//            if(vary<1)
-//                vary=1;
+
+            if(vary<1)
+                vary=1;
         rightline[jump_i1]=jump_j1;
         for(uint8 i=jump_i1;i<=58;i++)
         {
@@ -3415,8 +3418,8 @@ crossroad_deal();
             }
 
         vary=(float)(jump_j1)/(59-jump_i1);
-//            if(vary<1)
-//                vary=1;
+            if(vary<1)
+                vary=1;
         leftline[jump_i1]=jump_j1;
         for(uint8 i=jump_i1;i>=1;i--)
         {
@@ -4741,5 +4744,162 @@ Island_flag=1;
 
 
 
+// 0左线，1右线
+     void Straight_Thru(int x1, int y1, int x2, int y2, uint8_t Direction, int low, int hight)
+     {
+         double k = 0;
+         double b = 0;
+         uint8_t Str_i = 0;
 
+         if (x1 == x2) //如果两个点在一列上，直接连线
+         {
+             if (y1 <= y2)
+             {
+                 for (Str_i = (uint8_t)y1; Str_i <= y2; Str_i++)
+                 {
+                     if (Direction == 0)
+                         leftline[Str_i] = (uint8_t)x1;
+                     else if (Direction == 1)
+                         rightline[Str_i] = (uint8_t)x1;
+                 }
+                 return;
+             }
+             else
+             {
+                 for (Str_i = (uint8_t)y2; Str_i <= y1; Str_i++)
+                 {
+                     if (Direction == 0)
+                         leftline[Str_i] = (uint8_t)x1;
+                     else if (Direction == 1)
+                         rightline[Str_i] = (uint8_t)x1;
+                 }
+                 return;
+             }
+         }
+         else if (x1 > x2 && y1 > y2)
+         {
+             k = (double)(y1 - y2) / (x1 - x2);
+         }
+         else if (x1 > x2 && y1 < y2)
+         {
+             k = -(double)(y2 - y1) / (x1 - x2);
+         }
+         else if (x1 < x2 && y1 > y2)
+         {
+             k = -(double)(y1 - y2) / (x2 - x1);
+         }
+         else if (x1 < x2 && y1 < y2)
+         {
+             k = (double)(y2 - y1) / (x2 - x1);
+         }
 
+         if (k != 0)
+         {
+             b = (double)(y1 - x1 * k);
+         }
+
+         //-----------------补线----------------------
+         if (Direction == 0)
+         {
+             for (Str_i = (uint8_t)low; Str_i <= hight; Str_i++)
+             {
+                 leftline[Str_i] = (uint8_t)((int)((Str_i - b) / k));
+             }
+         }
+         else if (Direction == 1)
+         {
+             for (Str_i = (uint8_t)low; Str_i <= hight; Str_i++)
+             {
+                 rightline[Str_i] = (uint8_t)((int)((Str_i - b) / k));
+             }
+         }
+     }
+
+     /// <summary>
+           /// 最小二乘法拟合直线函数
+           /// </summary>
+           /// <param name="type">0:中 1:左 2:右</param>
+           /// <param name="startline">计算的起始行</param>
+           /// <param name="endline">计算的结束行</param>
+           void Regression_ky(int type, int startline, int endline)
+           {
+               int i = 0;
+               int sumlines = endline - startline;
+               int sumX = 0;
+               int sumY = 0;
+               float averageX = 0;
+               float averageY = 0;
+               float sumUp = 0;
+               float sumDown = 0;
+               int Regression_K_M=0;
+               int Regression_B_M=0;
+               int Regression_K_L=0;
+               int Regression_B_L=0;
+               int Regression_K_R=0;
+               int Regression_B_R=0;
+               if (type == 0)      //拟合中线
+               {
+                   for (i = startline; i < endline; i++)
+                   {
+                       sumX += i;
+                       sumY += midline[i];
+                   }
+                   if (sumlines != 0)
+                   {
+                       averageX = sumX / sumlines;     //x的平均值
+                       averageY = sumY / sumlines;     //y的平均值
+                   }
+                   else
+                   {
+                       averageX = 0;     //x的平均值
+                       averageY = 0;     //y的平均值
+                   }
+                   for (i = startline; i < endline; i++)
+                   {
+                       sumUp += (midline[i] - averageY) * (i - averageX);
+                       sumDown += (i - averageX) * (i - averageX);
+                   }
+                   if (sumDown == 0) Regression_K_M = 0;
+                   else Regression_K_M = sumUp / sumDown;
+                   Regression_B_M = averageY - Regression_K_M * averageX;
+               }
+               else if (type == 1)//拟合左线
+               {
+                   for (i = startline; i < endline; i++)
+                   {
+                       sumX += i;
+                       sumY += leftline[i];
+                   }
+                   if (sumlines == 0) sumlines = 1;
+                   averageX = sumX / sumlines;     //x的平均值
+                   averageY = sumY / sumlines;     //y的平均值
+                   for (i = startline; i < endline; i++)
+                   {
+                       sumUp += (leftline[i] - averageY) * (i - averageX);
+                       sumDown += (i - averageX) * (i - averageX);
+                   }
+                   if (sumDown == 0) Regression_K_L = 0;
+                   else Regression_K_L = sumUp / sumDown;
+                   Regression_B_L = averageY - Regression_K_L * averageX;
+               }
+               else if (type == 2)//拟合右线
+               {
+                   for (i = startline; i < endline; i++)
+                   {
+                       sumX += i;
+                       sumY += rightline[i];
+                   }
+                   if (sumlines == 0) sumlines = 1;
+                   averageX = sumX / sumlines;     //x的平均值
+                   averageY = sumY / sumlines;     //y的平均值
+                   for (i = startline; i < endline; i++)
+                   {
+                       sumUp += (rightline[i] - averageY) * (i - averageX);
+                       sumDown += (i - averageX) * (i - averageX);
+                   }
+                   if (sumDown == 0) Regression_K_R = 0;
+                   else Regression_K_R = sumUp / sumDown;
+                   Regression_B_R = averageY - Regression_K_R * averageX;
+
+               }
+           }

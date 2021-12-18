@@ -193,7 +193,8 @@ extern int blackColLeftCntx ;
 extern int blackColRightCntx ;
 extern     int blackColLeftCnty;
 extern     int blackColRightCnty;
-
+extern uint8 IsBottomRightJupm;
+extern uint8 IsBottomLeftJupm;
 extern int16 WidthROWNum;
 extern int16 OutWidthStart;
 extern int16   OutWidthEnd;

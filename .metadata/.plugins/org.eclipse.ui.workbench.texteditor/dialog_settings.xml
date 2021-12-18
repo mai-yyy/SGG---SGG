@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="image_data"/>
+		<item key="selection" value="Direction"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
+			<item value="direction"/>
 			<item value="PicPro.img"/>
 			<item value="BLACK"/>
 			<item value="Row"/>
@@ -22,9 +23,9 @@
 			<item value="temporarily_char"/>
 			<item value="1"/>
 			<item value="CS_RR"/>
-			<item value="pDelta_PIDStructrre"/>
 		</list>
 		<list key="replacehistory">
+			<item value="Direction"/>
 			<item value="image_data"/>
 			<item value="0"/>
 			<item value="row"/>

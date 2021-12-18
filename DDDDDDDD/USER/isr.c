@@ -336,10 +336,10 @@ if(st_go_no_time==1&&dt_code>=11520)
     }
     IFX_INTERRUPT(uart0_rx_isr, 0, UART0_RX_INT_PRIO)
     {
-            uint8 ch=0;
+          //  uint8 ch=0;
            enableInterrupts();//¿ªÆôÖÐ¶ÏÇ¶Ì×
-           uart_query(UART_0,&ch);
-           my_pack_come_phone_uart_handle(ch,1);
+          // uart_query(UART_0,&ch);
+        //   my_pack_come_phone_uart_handle(ch,1);
            IfxAsclin_Asc_isrReceive(&uart0_handle);
     }
     IFX_INTERRUPT(uart0_er_isr, 0, UART0_ER_INT_PRIO)

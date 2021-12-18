@@ -7,7 +7,10 @@ C_SRCS += \
 ../CODE/Boma.c \
 ../CODE/Dajinfa.c \
 ../CODE/Function.c \
+../CODE/MH_Lower_Computer.c \
+../CODE/MH_SDSPI.c \
 ../CODE/Standing.c \
+../CODE/Uart_SendData.c \
 ../CODE/adc.c \
 ../CODE/button.c \
 ../CODE/cheku.c \
@@ -27,7 +30,10 @@ OBJS += \
 ./CODE/Boma.o \
 ./CODE/Dajinfa.o \
 ./CODE/Function.o \
+./CODE/MH_Lower_Computer.o \
+./CODE/MH_SDSPI.o \
 ./CODE/Standing.o \
+./CODE/Uart_SendData.o \
 ./CODE/adc.o \
 ./CODE/button.o \
 ./CODE/cheku.o \
@@ -47,7 +53,10 @@ COMPILED_SRCS += \
 ./CODE/Boma.src \
 ./CODE/Dajinfa.src \
 ./CODE/Function.src \
+./CODE/MH_Lower_Computer.src \
+./CODE/MH_SDSPI.src \
 ./CODE/Standing.src \
+./CODE/Uart_SendData.src \
 ./CODE/adc.src \
 ./CODE/button.src \
 ./CODE/cheku.src \
@@ -67,7 +76,10 @@ C_DEPS += \
 ./CODE/Boma.d \
 ./CODE/Dajinfa.d \
 ./CODE/Function.d \
+./CODE/MH_Lower_Computer.d \
+./CODE/MH_SDSPI.d \
 ./CODE/Standing.d \
+./CODE/Uart_SendData.d \
 ./CODE/adc.d \
 ./CODE/button.d \
 ./CODE/cheku.d \

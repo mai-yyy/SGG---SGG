@@ -160,22 +160,23 @@ void cpu0_initialize(void)                      //初始化
 
         encoder_init();
         uart_init(UART_User,9600,UART_TX_Pin,UART_RX_Pin);
-        seekfree_wireless_init();
+//        seekfree_wireless_init();
         Boma_init();
         buton_init();
         InitMH();
         CSLDJPID_init();
         CSRDJPID_init();
-        ips200_init();
+//        ips200_init();
+
         Read_information(&parameter);
         gpio_init(P33_10, GPO, 0, PUSHPULL);
         pit_interrupt_ms(CCU6_0, PIT_CH1,20);
 
-        while(!gpio_get(P33_13)&&!start_car_flag)
-          {button_opreation();
-          gtm_pwm_init(Steer_Pin, 50, servoPoint);
-          }
-             Write_information(&parameter);
+//        while(!gpio_get(P33_13)&&!start_car_flag)
+//          {button_opreation();
+//          gtm_pwm_init(Steer_Pin, 50, servoPoint);
+//          }
+//             Write_information(&parameter);
 
       //  gpio_init(P20_9, GPO, 0, PUSHPULL);
 
@@ -189,6 +190,8 @@ void cpu0_initialize(void)                      //初始化
 
 
 
+
+        SD_MODE_Send_Picture_Init();
 
 
         IfxCpu_emitEvent(&g_cpuSyncEvent);
@@ -233,6 +236,7 @@ void get_road(void)
 //     GlobalAnglePoint();
      Double_no_line();
      ShangCha_thr_law(&real_char);
+//     trianglePointCross();
 //    huan_L_entr_count();
    // crossroad_find();
 //     test_chalu(&real_char);
@@ -260,7 +264,7 @@ void get_road(void)
   //  zhiruwan();
     get_differ();
     road_type(&real_char);
-    chujie();
+//    chujie();
 //    my_pack_send_phone(12);
 
 
