@@ -93,6 +93,7 @@ void gray_binaryzation(void)   /*灰度二值化*/
         image_data[i/MT9V032_W][i%MT9V032_W] = 0;
       }
     }
+//    DATA_ALL->Pixels=image_data[0];
     mt9v03x_finish_flag = 0;
  Bin_Image_Filter ();
 }
@@ -142,11 +143,10 @@ void cpu0_initialize(void)                      //初始化
         get_clk();
 
 
-//        gtm_pwm_init(Steer_Pin, 50, servoPoint);//664
+        gtm_pwm_init(Steer_Pin, 50, servoPoint);//664
         HDDJPID_init();
         DJPID_init();
         ADC_ALL_init();
-//        icm20602_init();
         icm20602_init_spi();
         gtm_pwm_init( ATOM1_CH7_P02_7,10000,0);
               gtm_pwm_init( ATOM1_CH6_P02_6,10000,0);
@@ -168,10 +168,17 @@ void cpu0_initialize(void)                      //初始化
         CSRDJPID_init();
 //        ips200_init();
 
-        Read_information(&parameter);
+    //    Read_information(&parameter);
         gpio_init(P33_10, GPO, 0, PUSHPULL);
-        pit_interrupt_ms(CCU6_0, PIT_CH1,20);
+        gpio_init(P20_9, GPO, 1, PUSHPULL);
+        gpio_init(P20_8, GPO, 1, PUSHPULL);
+        gpio_init(P21_4, GPO, 0, PUSHPULL);
 
+        Higher_str_speed=350;
+        Higher_ben_speed=260;
+        variable_3=23;
+        my_start_carrr=1;
+              start_car_flag=1;
 //        while(!gpio_get(P33_13)&&!start_car_flag)
 //          {button_opreation();
 //          gtm_pwm_init(Steer_Pin, 50, servoPoint);
@@ -183,15 +190,15 @@ void cpu0_initialize(void)                      //初始化
 
         mt9v03x_init();
 //        gpio_set(P33_10,1);
-
+        SD_MODE_Send_Picture_Init();
 //
         pit_interrupt_ms(CCU6_0, PIT_CH0,5);
-//        pit_interrupt_ms(CCU6_0, PIT_CH1,20);
+        pit_interrupt_ms(CCU6_0, PIT_CH1,20);
+//        buzzer(1);
+
+        gpio_set(P20_9,0);
 
 
-
-
-        SD_MODE_Send_Picture_Init();
 
 
         IfxCpu_emitEvent(&g_cpuSyncEvent);

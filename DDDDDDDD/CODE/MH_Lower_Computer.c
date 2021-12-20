@@ -45,9 +45,10 @@ u8 SD_MODE_Send_Picture_Init(void)
         uart_init(Picture_Send_Uart,Picture_Send_Baud,Pictrue_Send_Uart_TX,Picture_Send_Uart_RX);
         init_flag=1;
     }
-
+//buzzer(1);
     if(SD_Spi_Init()==0)//当其为0时其初始化成功
     {
+//buzzer(1);
         //状态校对部分
         SD_ReadDisk(SD_Receive_Buffer,0,1);
         verify_flag=1;
@@ -55,6 +56,7 @@ u8 SD_MODE_Send_Picture_Init(void)
         {
             if(SD_Receive_Buffer[fcount]!=FH[fcount])//校验失败
             {
+//                buzzer(1);
                 verify_flag=0;
                 break;
             }
@@ -62,14 +64,18 @@ u8 SD_MODE_Send_Picture_Init(void)
 
         if(verify_flag)//校验成功
         {
+
             Frame[0]=SD_Receive_Buffer[5];//存的为低位
             Frame[1]=SD_Receive_Buffer[6];//存的为高位
             Data_ALL_Length_Save=SD_Receive_Buffer[8] << 8|SD_Receive_Buffer[7];//当前存储数据总长
-
+           // buzzer(1);
+            gpio_set(P20_8,0);
             Now_Save_Flag=SD_Receive_Buffer[9];//当前是否有保存的存图
+//            Now_Save_Flag=1;
         }
         else//校验失败，写入校验码和置初始值
         {
+
             //清除buffer
             memset(SD_Send_Buffer,0,512);
             //帧头写入
@@ -128,7 +134,7 @@ void SD_Picture_Save(void)
         sectors_for1_picture=(Data_All_Length+2)/512+(((Data_All_Length+2)%512)>0?1:0);//存储一张图需要多少个扇区，暂存计算递增扇区用
 
         SD_Send_Buffer[9]=1;
-
+//buzzer(1);
         SD_WriteDisk(SD_Send_Buffer,0,1);//存储内容
     }
 
@@ -158,12 +164,19 @@ void SD_Picture_Save(void)
 //打包数据并且存储到SD卡
 void SD_UpLoad_And_Picture_Save(void)
 {
+
     UART_Send_Data_UpLoad(); //装载前帧头
+
     Set_DataToCon();         //装载Data
+
     Set_ParToCon();          //装载Par
+
     Compressed_Data();       //压缩图片
+
 //    uart_putbuff(UART_2,(u8*)(Sent_Data),Data_All_Length);
     SD_Picture_Save();  //SD存储
+//    gpio_set(P20_9,1);
+//    buzzer(0);
 }
 
 //读取SD卡存图并且发送至上位机
@@ -175,8 +188,10 @@ void SD_Read_Send_Picture(void)
     u32 Now_Read=0;//当前读取的计数
 
     picture_flag=0;
+//    Now_Save_Flag=1;
     if(Now_Save_Flag==1)//如果当前有图存
     {
+        buzzer(1);
         //求一下花费的扇区存储状态
         sectors_sum=(Data_ALL_Length_Save+2)/512;
         sectors_u8_left=(Data_ALL_Length_Save+2)%512;

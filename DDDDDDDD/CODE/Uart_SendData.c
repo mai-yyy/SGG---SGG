@@ -53,6 +53,7 @@ void UART_Send_Data(void)
 //8位数据压缩成一位数据
 void Compressed_Data(void)
 {
+//buzzer(1);
     uint8_t H,W;
     uint8_t *P;
     uint8_t *Data_Pixels=Sent_Data->Pixels;
@@ -62,7 +63,7 @@ void Compressed_Data(void)
         struct Byte8_Struct Byte_Bit;
     } BIT;
 
-    P=Data_Pixels[0];//将指针指向当前需要处理的行(二值化图像地址)
+    P=image_data[0];//将指针指向当前需要处理的行(二值化图像地址)
     for(H=0;H<Image_Height;H++)
     {
         for(W=0;W<(Image_Width>>3);W++)

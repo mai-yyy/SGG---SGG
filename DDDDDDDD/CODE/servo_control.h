@@ -8,7 +8,7 @@
 void ServoControlDiffer(int16 nowErr);
 //void zhiruwan();
 
-#define servoPoint 660+variable_3 //762
+#define servoPoint 660+23 //762
 #define servoLeft  servoPoint+111//872
 #define servoRight servoPoint-111//637
 
