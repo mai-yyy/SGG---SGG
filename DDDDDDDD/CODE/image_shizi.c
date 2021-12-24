@@ -138,50 +138,50 @@ else if(getin==1&&(leftline[i]!=0&&rightline[i]<156))
 {
     break;
     }
-  //&&!ku_R&&!qipao_flag&&&&!ku_L  !chuku_flag
+
 
  }
 }
 //ips200_showint16(30,11,right_no_line);
 //           ips200_showint16(50,8,left_no_line);
 
-if(right_no_line<=left_no_line&&left_no_line<=48&&left_no_line!=0)
-{
-    if(image_data[left_no_line][10]&&image_data[left_no_line][30]&&image_data[left_no_line][50]&&image_data[left_no_line][70]&&image_data[left_no_line][90]&&image_data[left_no_line][110]&&image_data[left_no_line][130]&&image_data[left_no_line][150])
-    {
-        if(image_data[left_no_line+1][10]&&image_data[left_no_line+1][30]&&image_data[left_no_line+1][50]&&image_data[left_no_line+1][70]&&image_data[left_no_line+1][90]&&image_data[left_no_line+1][110]&&image_data[left_no_line+1][130]&&image_data[left_no_line+1][150])
-        {
-            if(image_data[left_no_line+2][10]&&image_data[left_no_line+2][30]&&image_data[left_no_line+2][50]&&image_data[left_no_line+2][70]&&image_data[left_no_line+2][90]&&image_data[left_no_line+2][110]&&image_data[left_no_line+2][130]&&image_data[left_no_line+2][150])
-            {
-//                buzzer(1);
-                shizhiflag=1;
-                way=cross_rode;
-            }
-        }
-
-    }
-
-
+//if(right_no_line<=left_no_line&&left_no_line<=48&&left_no_line!=0)
+//{
+//    if(image_data[left_no_line][10]&&image_data[left_no_line][30]&&image_data[left_no_line][50]&&image_data[left_no_line][70]&&image_data[left_no_line][90]&&image_data[left_no_line][110]&&image_data[left_no_line][130]&&image_data[left_no_line][150])
+//    {
+//        if(image_data[left_no_line+1][10]&&image_data[left_no_line+1][30]&&image_data[left_no_line+1][50]&&image_data[left_no_line+1][70]&&image_data[left_no_line+1][90]&&image_data[left_no_line+1][110]&&image_data[left_no_line+1][130]&&image_data[left_no_line+1][150])
+//        {
+//            if(image_data[left_no_line+2][10]&&image_data[left_no_line+2][30]&&image_data[left_no_line+2][50]&&image_data[left_no_line+2][70]&&image_data[left_no_line+2][90]&&image_data[left_no_line+2][110]&&image_data[left_no_line+2][130]&&image_data[left_no_line+2][150])
+//            {
+////                buzzer(1);
+//                shizhiflag=1;
+//                way=cross_rode;
+//            }
+//        }
 //
-}
-else if(right_no_line>=left_no_line&&right_no_line<=48&&right_no_line!=0)
-{
-
-    if(image_data[right_no_line][10]&&image_data[right_no_line][30]&&image_data[right_no_line][50]&&image_data[right_no_line][70]&&image_data[right_no_line][90]&&image_data[right_no_line][110]&&image_data[right_no_line][130]&&image_data[right_no_line][150])
-    {
-        if(image_data[left_no_line+1][10]&&image_data[left_no_line+1][30]&&image_data[left_no_line+1][50]&&image_data[left_no_line+1][70]&&image_data[left_no_line+1][90]&&image_data[left_no_line+1][110]&&image_data[left_no_line+1][130]&&image_data[left_no_line+1][150])
-               {
-                   if(image_data[left_no_line+2][10]&&image_data[left_no_line+2][30]&&image_data[left_no_line+2][50]&&image_data[left_no_line+2][70]&&image_data[left_no_line+2][90]&&image_data[left_no_line+2][110]&&image_data[left_no_line+2][130]&&image_data[left_no_line+2][150])
-                   {
-//                       buzzer(1);
-                       shizhiflag=1;
-                       way=cross_rode;
-                   }
-               }
-
-    }
-    }
-else if(R_L_lose>=10)
+//    }
+//
+//
+////
+//}
+//else if(right_no_line>=left_no_line&&right_no_line<=48&&right_no_line!=0)
+//{
+//
+//    if(image_data[right_no_line][10]&&image_data[right_no_line][30]&&image_data[right_no_line][50]&&image_data[right_no_line][70]&&image_data[right_no_line][90]&&image_data[right_no_line][110]&&image_data[right_no_line][130]&&image_data[right_no_line][150])
+//    {
+//        if(image_data[right_no_line+1][10]&&image_data[right_no_line+1][30]&&image_data[right_no_line+1][50]&&image_data[right_no_line+1][70]&&image_data[right_no_line+1][90]&&image_data[right_no_line+1][110]&&image_data[right_no_line+1][130]&&image_data[right_no_line+1][150])
+//               {
+//                   if(image_data[right_no_line+2][10]&&image_data[right_no_line+2][30]&&image_data[right_no_line+2][50]&&image_data[right_no_line+2][70]&&image_data[right_no_line+2][90]&&image_data[right_no_line+2][110]&&image_data[right_no_line+2][130]&&image_data[right_no_line+2][150])
+//                   {
+////                       buzzer(1);
+//                       shizhiflag=1;
+//                       way=cross_rode;
+//                   }
+//               }
+//
+//    }
+//    }
+ if(R_L_lose>=15)
 { shizhiflag=1;
 way=cross_rode;
 //buzzer(1);

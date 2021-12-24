@@ -20,6 +20,10 @@
 #ifndef _headfile_h
 #define _headfile_h
 
+#define open_sd_ts 1
+#define ips_open 0
+#define Black 0
+#define White 1  //之所以是1而不是255是为了上位机 上位机接收的数据类型是byte型
 #define basic 80
 #define Row 60
 #define Col 160
@@ -44,6 +48,7 @@
 
 
 extern unsigned char  image_data[MT9V032_H][MT9V032_W];
+extern unsigned char  SWJ_data[MT9V032_H][MT9V032_W];
 extern unsigned char  image_data2[LCDH][LCDW];
 extern unsigned char time_10ms_flag;
 

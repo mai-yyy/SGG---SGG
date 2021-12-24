@@ -134,7 +134,7 @@ void SD_Picture_Save(void)
         sectors_for1_picture=(Data_All_Length+2)/512+(((Data_All_Length+2)%512)>0?1:0);//存储一张图需要多少个扇区，暂存计算递增扇区用
 
         SD_Send_Buffer[9]=1;
-//buzzer(1);
+
         SD_WriteDisk(SD_Send_Buffer,0,1);//存储内容
     }
 
@@ -191,7 +191,7 @@ void SD_Read_Send_Picture(void)
 //    Now_Save_Flag=1;
     if(Now_Save_Flag==1)//如果当前有图存
     {
-        buzzer(1);
+//        buzzer(1);
         //求一下花费的扇区存储状态
         sectors_sum=(Data_ALL_Length_Save+2)/512;
         sectors_u8_left=(Data_ALL_Length_Save+2)%512;
@@ -216,6 +216,7 @@ void SD_Read_Send_Picture(void)
         }
         else//其他可以直接处理left部分的值来计算
         {
+
             SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum+1,1);
             if(SD_Receive_Buffer[sectors_u8_left-1]==Frame[1] && SD_Receive_Buffer[sectors_u8_left-2]==Frame[0])picture_flag=1;
         }

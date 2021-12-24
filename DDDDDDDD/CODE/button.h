@@ -39,7 +39,7 @@ extern volatile PAGE_NUM START_PAGE;
 extern struct PARAMGET parameter;
 extern uint32 Higher_str_speed;
 extern uint32 Higher_ben_speed;
-
+extern uint32 DataBuffer[512];
 extern uint32 spkp;
 extern uint32 spki;
 extern uint32 Huandao_speed;
@@ -77,7 +77,7 @@ extern uint8 my_start_carrr;
 //
 //extern uint32 b_c_start;
 //extern uint32 servoPoint;
-
+void InFoRealData();
 void  buton_init();
 void  button_opreation();
 void Read_information(struct PARAMGET *p_param);

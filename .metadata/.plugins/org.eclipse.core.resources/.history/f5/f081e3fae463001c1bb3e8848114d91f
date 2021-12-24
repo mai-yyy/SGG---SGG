@@ -1,0 +1,175 @@
+#ifndef _UART_SENDDATA_H
+#define _UART_SENDDATA_H
+#include "headfile.h"
+#include "MH_Lower_Computer.h"
+#include "MH_SDSPI.h"
+//主函数所需定义
+//Data_Type DATA_ALL;   //传输结构体
+//Data_Type *Sent_Data; //结构体指针
+//uint8_t *P;           //图像指针(貌似不必要)
+//uint8_t Pixels[Image_Width * Image_Height]; //用于存储原始(二值化后)图像
+//先装载 再发送
+#define Image_Width     160//188//图像宽度
+#define Image_Height    60//120//图像高度
+#define DataNum            2//上传数据的个数
+#define Par_Num            1//
+
+#define Image_FitDataLen    (Image_Height*7)                //拟图数据长度 /LS LB LE Ce RS RB RE  /490
+#define Pixels_Length       ((Image_Width*Image_Height)>>3) //存储图像大小，为了减少计算,编译器优化   /1,645
+#define Data_Length         (Pixels_Length+Image_FitDataLen)//数据长度计算,编译器优化 Image_FitDataLen拟图数据长度
+
+#define Buff_Sub                        4  //补偿 防止DMA或者单片机不稳定所导致的数组溢出问题
+#define Ver_Sub                         5  //验证及各种信息/7
+#define ParValue_Length     ((DataNum<<3)+ (Par_Num<<3))    //Data+Par 参数长度             /64
+#define Data_All_Length     (Data_Length+ParValue_Length+Ver_Sub+Buff_Sub) //数据和参数信息总长度,编译器优化
+//2203 2208?
+#define Pardefault    240
+#define Typedefault   UINT
+#define Namedefault   "E_CL"
+
+#if(DataNum)
+#if(DataNum>=1)
+#define    DefaultParValue1             (uint8)endline              //threshold
+#define    DefaultParName1              ((Namedefault<<2)|0x01) //"threshold"
+#endif
+#if(DataNum>=2)
+#define    DefaultParValue2             shizhiflag
+#define    DefaultParName2              "shizhiflag"
+#endif
+#if(DataNum>=3)
+#define    DefaultParValue3             ADC_SubAdd
+#define    DefaultParName3              "ADC_SubAdd"
+#endif
+#if(DataNum>=4)
+#define    DefaultParValue4             Ceju
+#define    DefaultParName4              "Ceju"
+#endif
+#if(DataNum>=5)
+#define    DefaultParValue5            left_wdata
+#define    DefaultParName5             "left_wdata"
+#endif
+#if(DataNum>=6)
+#define    DefaultParValue6            right_wdata
+#define    DefaultParName6            "right_wdata"
+#endif
+#if(DataNum>=7)
+#define    DefaultParValue7            CS_OUT
+#define    DefaultParName7             "CS_OUT"
+#endif
+
+#endif
+
+
+#if(Par_Num)
+#if(Par_Num>=1)
+#define    DefaultFlashValue1            endline//SD_ALL_WT_Count
+#define    DefaultFlashType1             Typedefault
+#endif
+
+#if(Par_Num>=2)
+#define    DefaultFlashValue2            Pardefault
+#define    DefaultFlashType2             Typedefault
+#endif
+
+#if(Par_Num>=3)
+#define    DefaultFlashValue3            Pardefault
+#define    DefaultFlashType3             Typedefault
+#endif
+
+#if(Par_Num>=4)
+#define    DefaultFlashValue4            Pardefault
+#define    DefaultFlashType4             Typedefault
+#endif
+
+#if(Par_Num>=5)
+#define    DefaultFlashValue5            Pardefault
+#define    DefaultFlashType5             Typedefault
+#endif
+
+#if(Par_Num>=6)
+#define    DefaultFlashValue6            Pardefault
+#define    DefaultFlashType6             Typedefault
+#endif
+
+#if(Par_Num>=7)
+#define    DefaultFlashValue7            Pardefault
+#define    DefaultFlashType7             Typedefault
+#endif
+
+
+#endif
+
+//结构体定义们
+//typedef struct
+//{
+//    uint8_t LEnd;
+//    uint8_t REnd;
+//    uint8_t LStart;
+//    uint8_t RStart;
+//    uint8_t LBlack;
+//    uint8_t RBlack;
+//    uint8_t Center;
+//}LCR;   //LeftCenterRight
+
+typedef struct
+{
+    uint8_t Verific[5];
+    uint8_t Pixels_width;
+    uint8_t Pixels_height;
+    uint8_t Coefficient_Num;
+    uint8_t Parameter_Num;
+    uint8_t Data_Con[DataNum*8];
+    uint8_t Par_Con[Par_Num*8];
+    uint8_t Lcr[Image_Height][7];
+    uint8_t Pixels[Pixels_Length];
+
+}Data_Type;
+
+struct Byte8_Struct
+{
+    uint8_t bit1:1;
+    uint8_t bit2:1;
+    uint8_t bit3:1;
+    uint8_t bit4:1;
+    uint8_t bit5:1;
+    uint8_t bit6:1;
+    uint8_t bit7:1;
+    uint8_t bit8:1;
+};
+
+
+extern Data_Type* Sent_Data;
+//Data_Type *Sent_Data=(Data_Type *)&DATA_ALL;
+//Data_Type DATA_ALL;
+//extern struct LCR;
+
+//extern struct Byte8_Struct;
+extern uint16 Engine_CornerLine;//打角行
+void UART_Send_Data(void);          //串口发送
+void Compressed_Data(void);         //8位数据压缩成一位数据
+void UART_Send_Data_UpLoad(void);   //串口发送数据装载
+void Set_ParToCon(void);            //加载Par
+void Set_DataToCon(void);           //加载Data
+
+
+
+
+//uint8_t Verific[5];
+//uint8_t Pixels_width;
+//uint8_t Pixels_height;
+//uint8_t Coefficient_Num;
+//uint8_t Parameter_Num;
+//uint8_t Data_Con[DataNum*8];
+//uint8_t Par_Con[Par_Num*8];
+//LCR Lcr[Image_Height];
+//uint8_t Pixels[Pixels_Length];
+
+
+
+#endif
+
+
+
+
+
+

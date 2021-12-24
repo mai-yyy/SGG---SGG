@@ -207,6 +207,20 @@ float strai[60]={   //正常路线权值   需调
 //
 //      };
 //
+//float weight[60]={
+//        0,0,0,0,0,0,0,0,0,0,              //0-9行，基本用不到
+//
+//        1,1,1,5,5,5,10,10,15,15,              //0-19行，基本用不到
+//
+//         15,20,20,20,20,20,15,15,15,10,            //20-29行
+//
+//         10,10,10,10,5,5,5,5,5,5,              //30-39行
+//
+//         5,1,1,1,1,1,1,0,0,0,            //40-49行
+//
+//         0,0,0,0,0,0,0,0,0,0       //最近十行
+//
+//      };
 float weight[60]={
         0,0,0,0,0,0,0,0,0,0,              //0-9行，基本用不到
 
@@ -221,7 +235,6 @@ float weight[60]={
          0,0,0,0,0,0,0,0,0,0       //最近十行
 
       };
-
 
 //float weight[60]={
 //        0,0,0,0,0,0,0,0,0,0,              //0-9行，基本用不到
@@ -374,7 +387,7 @@ for(uint8 j=0;j<=6;j++)
 {  
   for(uint8 i=25+20*j;i<159;i++)     //先搜右边线   从25列开始搜
   {
-    if(image_data[59][i]&&!image_data[59][i+1])  //白黑跳变
+    if(image_data[59][i]!=Black&&image_data[59][i+1]==Black)  //白黑跳变
     {
       rightline[59]=i;
       break;
@@ -388,7 +401,7 @@ for(uint8 j=0;j<=6;j++)
   
 for(int16 i=rightline[59];i>0;i--)       //从右边线开始搜左边线
   {
-    if(image_data[59][i]&&!image_data[59][i-1])
+    if(image_data[59][i]!=Black&&image_data[59][i-1]==Black)
     {
       leftline[59]=i;
       break;
@@ -403,6 +416,9 @@ for(int16 i=rightline[59];i>0;i--)       //从右边线开始搜左边线
   
 if((rightline[59]-leftline[59])>25)  //判断搜线是否出错，否则需重新搜线   极有可能在右弯、坡道发生
 {
+    midline[59]=(rightline[59]-leftline[59])>>1;
+
+     LastAverageCenter=midline[59];
   break;      //搜线正常   跳出循环
 }
 
@@ -429,31 +445,7 @@ void get_rest_line()
       }
      else if (leftline[i + 1] == 0)   //上一行丢线
           {
-  ld_flag=1;
-              for (int k = 1; k <= 158; k++)
-              {
-                  if (k <= 130)        //争对左弯
-                  {
-                      if (image_data[i + 1][k] == 0&&image_data[i + 1][k-1]!=0 )
-                      {
-  if(k<=15&&(image_data[i][5] != 0||image_data[i][10] != 0||image_data[i][15] != 0||image_data[i][20] != 0)){
-  right_to_left =15;}
-                    else{      right_to_left = k - 15;}
-
-                          if (right_to_left < 1)
-                          {
-                              right_to_left = 1;
-                          }
-                          break;
-                      }
-                  }
-                  else
-                  {
-                      right_to_left = 80+search_add[i];
-                      break;
-                  }
-              }
-              //right_to_left=80+search_add[i];
+         right_to_left=midline[i+1]+30;
           }
     else if(!image_data[i][right_to_left]&&right_to_left<100)      //搜线起始点为黑   往右移
     {
@@ -468,41 +460,7 @@ void get_rest_line()
        }
     }
 
-     if(ld_flag==1)
-     {
-     ld_flag=0;
-     //先验证一下近处有没有丢线
-     if(image_data[i][0]!=0&&image_data[i][2]!=0&&image_data[i][4]!=0)
-     {
 
-                     leftline[i] = 0;
-
-
-     }
-     else{
-
-      for (int16 j = 0; j < right_to_left; j++)
-             {
-                 if (image_data[i][j] == 0 && image_data[i][j + 1] != 0)
-                 {
-                     leftline[i] = j;
-
-
-                     break;
-                 }
-                 else if (j == right_to_left-2)
-                 {
-                     leftline[i] = 0;
-
-
-
-                 }
-             }
-     }
-
-     }
-     else
-     {
              for (int16 j = right_to_left; j > 0; j--)
              {
                  if (image_data[i][j] != 0 && image_data[i][j - 1] == 0)
@@ -520,17 +478,9 @@ void get_rest_line()
 
                  }
              }
-     }
-
-
-
-    }
-
-
 
       //搜右边线
-    for(int8 i=58;i>endline;i--)
-    {
+
       left_to_right=rightline[i+1]-search_add[i];   //边线搜索开始列
     if(left_to_right<0)    //搜索越界
       {
@@ -539,34 +489,7 @@ void get_rest_line()
 
     else if (rightline[i + 1] >= 158)   //上一行丢线   changed
     {
-rd_flag=1;
-        for (int k = 157; k > 0; k--)
-        {
-            if (k >= 30)        //争对右弯
-            {
-                if (image_data[i + 1][k-1] == 0&&image_data[i + 1][k]!=0 )
-                {
-
-if(k>=142&&(image_data[i][155] != 0||image_data[i][145] != 0||image_data[i][150] != 0||image_data[i][140] != 0))
-{
-k=142;
-}
-else{
-                    left_to_right = k + 15;}
-                    if (left_to_right > 158)
-                    {
-                        left_to_right = 158;
-                    }
-                    break;
-                }
-            }
-            else
-            {
-                left_to_right =80-search_add[i];
-                break;
-            }
-        }
-
+        left_to_right=midline[i+1]-30;
     }
 
     else if(!image_data[i][left_to_right]&&left_to_right>60)      //搜线起始点为黑   往右移
@@ -582,46 +505,7 @@ else{
        }
     }
 
-    if(rd_flag==1)
-    {
-    rd_flag=0;
-    if(image_data[i][158] != 0&&image_data[i][157] != 0&&image_data[i][156] != 0 )
-    {
-                    rightline[i] = 158;
-                    current_width[i]=rightline[i]-leftline[i];
-    }
-    else
-    {
-    for (int16 j = 159; j >=left_to_right; j--)
-    {
-
-
-                if (image_data[i][j] == 0 && image_data[i][j - 1] != 0)
-                {
-                    rightline[i] = j;
-
-                    current_width[i]=rightline[i]-leftline[i];
-                    break;
-                }
-
-                else if (j == left_to_right+2)
-                {
-
-                    rightline[i] = 158;
-                    current_width[i]=rightline[i]-leftline[i];
-break;
-                }
-
-
-
-    }
-    }
-
-
-    }
-    else
-    {
-            for (int16 j = left_to_right; j <= 158; j++)
+        for (int16 j = left_to_right; j <= 158; j++)
             {
                 if (image_data[i][j] != BLACK && image_data[i][j + 1] == BLACK)
                 {
@@ -638,10 +522,9 @@ break;
 
                 }
             }
-
-        }
-
-
+midline[i]=(rightline[i]+leftline[i])>>1;
+midline[i]=(int)Middle_Err_Filter(midline[i]);
+ LastAverageCenter=midline[i];
     }
 
 
@@ -2266,7 +2149,7 @@ for(uint8 j=0;j<=20;j++)
 
     if(j<20)
       {
-      if(!image_data[i][8*j]&&!image_data[i-1][8*j])    //同一列连续两行为黑     黑-0    白-1
+      if(image_data[i][8*j]==Black&&image_data[i-1][8*j]==Black)    //同一列连续两行为黑     黑-0    白-1
       {
         hang_end[j]=i;
         break;
@@ -2278,7 +2161,7 @@ for(uint8 j=0;j<=20;j++)
       }
     else
       {
-        if(!image_data[i][159]&&!image_data[i-1][159])    //同一列连续两行为黑    159列
+        if(image_data[i][158]==Black&&image_data[i-1][158]==Black)    //同一列连续两行为黑    159列
       {
         hang_end[j]=i;
         break;
@@ -2293,17 +2176,17 @@ for(uint8 j=0;j<=20;j++)
  }
 
 
-for(uint8 i=0;i<=20;i++)
-{
- if(hang_end[i]<=10&&hang_end[i]!=0)
- {
-     low_endline_count++;
- }
- else if(hang_end[i]==0)
- {
-     zero_endline_count++;
- }
-}
+//for(uint8 i=0;i<=20;i++)
+//{
+// if(hang_end[i]<=10&&hang_end[i]!=0)
+// {
+//     low_endline_count++;
+// }
+// else if(hang_end[i]==0)
+// {
+//     zero_endline_count++;
+// }
+//}
 
 endline_min=hang_end[0];       //查找截止行
 for(uint8 i=1;i<=20;i++)
@@ -2380,12 +2263,12 @@ void optimal_v20_get()     //其实无需Maiy_2_dimensional类型的返回值，直接调用rea
      while ((--X) + 1)
      {
          Y = MT9V032_H - 2;
-         while (Y > (MT9V032_H / 2) && ((255 == image_data[Y][X]) || (255 == image_data[Y + 1][X])))
+         while (Y > (MT9V032_H / 2) && ((image_data[Y][X]!=Black) || ( image_data[Y + 1][X]!=Black)))
          {
              (real_char.mylinest[X])++;
              Y--;
          }
-         while (Y && (255 == image_data[Y][X]))
+         while (Y && (image_data[Y][X]!=Black))
          {
              (real_char.mylinest[X])++;
              Y--;
@@ -2394,18 +2277,6 @@ void optimal_v20_get()     //其实无需Maiy_2_dimensional类型的返回值，直接调用rea
 
 
 
-//     ips200_showstr(0,18,"LPnt1");
-//                                  ips200_showuint8(90,18,real_char.mylinest[5]);
-//                                  ips200_showstr(0,14,"LPnt2");
-//                                  ips200_showuint8(90,14,real_char.mylinest[10]);
-//                                  ips200_showstr(0,15,"LPnt3");
-//                                  ips200_showuint16(90,15,real_char.mylinest[15]);
-//                                  ips200_showstr(0,16,"RPnt1");
-//                                  ips200_showuint16(90,16,real_char.mylinest[5]);
-//                                  ips200_showstr(0,17,"RPnt2");
-//                                  ips200_showuint16(90,17,real_char.mylinest[10]);
-//
-//                                  ips200_showstr(0,11,"RPnt3");
 //                                              ips200_showuint16(90,11,real_char.mylinest[15]);
 
      X = MT9V032_W - 2;
@@ -2623,8 +2494,8 @@ else if(huan_R_flag==3)
 //     end_lose_line=i;
 // }
  //**************************************************************add to
- midline[i]=Middle_Err_Filter(midline[i]);
- LastAverageCenter=midline[i];
+// midline[i]=(int)Middle_Err_Filter(midline[i]);
+// LastAverageCenter=midline[i];
  //*****************************************************************add to
   }
 
@@ -2676,7 +2547,7 @@ dee_R_F=deal_2_way->my_right_OptimalPoint.my_x-deal_2_way->my_final_tOptimalPoin
 float Middle_Err_Filter(float middle_err)
 {
     float Middle_Err_Fltered;
-    Middle_Err_Fltered = middle_err*0.8 + LastAverageCenter*0.2;
+    Middle_Err_Fltered = middle_err*0.8f+ LastAverageCenter*0.2f;
     return Middle_Err_Fltered;
 }
 
@@ -3086,7 +2957,7 @@ void chujie()
    out_flag++;
 
  }
- if(endline>=55&&!sancha_flag_right&&!sancha_flag_left)
+ if(endline>=55)
  {
      out_flag++;
 //     buzzer(1);
@@ -3212,7 +3083,7 @@ void bu_xian()
 {
     float vary;
  int16 leftjump=0,rightjump=0;
-if(shizhiflag)
+if(shizhiflag!=0&&sancha_flag_right==0&&sancha_flag_left==0)
 {
 crossroad_find();
 crossroad_deal();
@@ -3312,59 +3183,20 @@ crossroad_deal();
 
      if(sancha_flag_left||sancha_flag_right)
     {
-        for(uint8 i=58;i>=20;i--)
-            if((leftline[i]-leftline[i-1]>=0&&leftline[i]-leftline[i-2]>=0&&leftline[i]-leftline[i-5]>0&&leftline[i]!=0))
-            {
-                leftjump=leftline[i];
-
-                break;
-            }
-            else if(i==20)
-                leftjump=0;
-            for(uint8 i=58;i>=20;i--)
-            if((rightline[i-1]-rightline[i]>=0&&rightline[i-2]-rightline[i]>=0&&rightline[i-5]-rightline[i]>0&&rightline[i]!=159))
-            {
-                rightjump=rightline[i];
-                    break;
-            }
-            else if(i==20)
-            {
-                rightjump=158;
-            }
+         buzzer(1);
 
     if(qipao_time==1)  //left
     {
-            uint16 topline[160];
-            jump_i1=0;
-            jump_j1=0;
-
-            for(uint16 l=0;l<=159   ;l++)
-            {
-                topline[l]=0;
-            }
-            for(int16 j=leftjump;j<=rightjump;j++)
-            {
-            for(int16 k=59;k>=2;k--)
-            {
-                if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
-                {
-                    topline[j]=k;
-                    if(jump_i1<=topline[j]&&j<=80)
-                    {
-                        jump_i1=topline[j];
-                        jump_j1=j;
-                    }
-                    if(jump_i1<topline[j]&&j>=80)
-                    {
-                        jump_i1=topline[j];
-                        jump_j1=j;
-                    }
-                    break;
-                }
-            }
-            }
 
 
+jump_i1=TriangBlackPoint.my_y;
+jump_j1=TriangBlackPoint.my_x;
+
+if(jump_i1<30)
+        {
+    jump_i1=30;
+    jump_i1=59;
+        }
         vary=(float)(158-jump_j1)/(59-jump_i1);
 
             if(vary<1)
@@ -3388,38 +3220,17 @@ crossroad_deal();
     }
      else if(qipao_time==0)
     {
-        uint16 topline[160];
-            jump_i1=0;
-            jump_j1=158;
-                for(int16 l=0;l<=158;l++)
-            {
-                topline[l]=0;
-            }
-            for (uint16 j=leftjump;j<=rightjump;j++)
-            {
-            for(uint16 k=59;k>=2;k--)
-            {
-                if(image_data[k][j]&&!image_data[k-1][j]&&!image_data[k-2][j])
-                {
-                    topline[j]=k;
-                    if(jump_i1<=topline[j]&&j<=80)
-                    {
-                        jump_i1=topline[j];
-                        jump_j1=j;
-                    }
-                    if(jump_i1<topline[j]&&j>=80)
-                    {
-                        jump_i1=topline[j];
-                        jump_j1=j;
-                    }
-                    break;
-                }
-            }
-            }
+         jump_i1=TriangBlackPoint.my_y;
+         jump_j1=TriangBlackPoint.my_x;
 
         vary=(float)(jump_j1)/(59-jump_i1);
             if(vary<1)
                 vary=1;
+            if(jump_i1<30)
+                    {
+                jump_i1=30;
+                jump_j1=99;
+                    }
         leftline[jump_i1]=jump_j1;
         for(uint8 i=jump_i1;i>=1;i--)
         {
@@ -3441,19 +3252,20 @@ crossroad_deal();
     }
 else if(qipao_flag==1&&qipao_time==0)       //第一次识别起跑线     两次使用
 {
-    buzzer(1);
-    for(uint8 i=58;i<4;i--)
+//    buzzer(1);
+    for(uint8 i=endline+6;i<58;i++)
     {
-        rightline[i]=rightline[i+1]-1;
-        if(rightline[i]<=0)
-        {
-            rightline[i+1]=0;
-        }
-        leftline[i]=leftline[i+1]+1;
-        if(leftline[i]>157)
-        {
-            leftline[i]=157;
-        }
+        rightline[i]=rightline[i-1]+1;
+        if(rightline[i]>157)
+               {
+            rightline[i]=157;
+               }
+        leftline[i]=leftline[i-1]-1;
+        if(leftline[i]<=2)
+               {
+            leftline[i+1]=2;
+               }
+
     }
 }
 

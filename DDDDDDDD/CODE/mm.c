@@ -67,7 +67,7 @@ void JJUD()
           lose_r=0;
           lose_l=0;
           lose_flag=0;
-          gpio_set(P33_10,0);
+//          gpio_set(P33_10,0);
       }
       }
 

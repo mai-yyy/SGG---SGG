@@ -67,9 +67,11 @@ MH      MHstructFastCar = {
 //  DJ_fuzz_par.Fuzz_L_1*0.01 保留精度
 //        {1+DJ_fuzz_par.Fuzz_L_1,1+DJ_fuzz_par.Fuzz_L_2,1+DJ_fuzz_par.Fuzz_L_3,1+DJ_fuzz_par.Fuzz_L_4,1+DJ_fuzz_par.Fuzz_L_5,1+DJ_fuzz_par.Fuzz_L_6,1+DJ_fuzz_par.Fuzz_L_7},   //l
 //                      {1+DJ_fuzz_par.Fuzz_R_1,1+DJ_fuzz_par.Fuzz_R_2,1+DJ_fuzz_par.Fuzz_R_3,1+DJ_fuzz_par.Fuzz_R_4,1+DJ_fuzz_par.Fuzz_R_5,1+DJ_fuzz_par.Fuzz_R_6,1+DJ_fuzz_par.Fuzz_R_7},   //r
-        {1.07,1.11,1.14,1.18,1.21,1.235,1.257},   //l
-                     {1.08,1.11,1.13,1.16,1.18,1.20,1.22},   //r      //修改代码后这一块将不会用上   11.9
+//        {1.07,1.11,1.14,1.18,1.21,1.235,1.257},   //l
+//                     {1.08,1.11,1.13,1.16,1.18,1.20,1.22},   //r      //修改代码后这一块将不会用上   11.9
 
+        {0.97,1.01,1.04,1.08,1.11,1.135,1.157},   //l
+                           {0.98,1.01,1.03,1.06,1.08,1.10,1.12},   //r
 
 //          {5.74,5.99,6.14,6.29,6.38,6.44,6.52},
 //                   {5.74,5.99,6.14,6.29,6.38,6.44,6.52},
@@ -607,7 +609,7 @@ void ServoPDSet(float flag)
    else if(sancha_flag_right||sancha_flag_left)
        {
 
-           servoKp=1.5;
+           servoKp=1.2;
                 servoKd=20;
                   ServoControlDiffer(flag);
        }

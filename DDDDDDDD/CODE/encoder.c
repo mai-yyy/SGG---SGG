@@ -15,7 +15,7 @@ int16 get_speed(void)
     speed = gpt12_get(GPT12_T6) ;     //采集右边编码器脉冲
     gpt12_clear(GPT12_T6);      //计数器清零
 
-    if(gpio_get(Ecoder_Pin2))    //判断采集方向
+    if(gpio_get(Ecoder_Pin2)!=0)    //判断采集方向
     speed = -speed;
     return speed;
  }
@@ -26,7 +26,7 @@ int16 get_speed_L(void)
     int16 speed=0;
     speed = gpt12_get(GPT12_T4) ;     //采集右边编码器脉冲
     gpt12_clear(GPT12_T4);      //计数器清零
-    if(!gpio_get(GPT12_T4EUDA_P00_9))    //判断采集方向
+    if(gpio_get(GPT12_T4EUDA_P00_9)!=0)    //判断采集方向
     speed = -speed;
     return speed;
  }

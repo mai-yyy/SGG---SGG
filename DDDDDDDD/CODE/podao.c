@@ -39,7 +39,7 @@ if(!chuku_flag&&!podao_flag&&podao_time<=1&&!ku_L&&!qipao_flag&&!ku_R&&!huan_L_f
 { 
   if(M_podao_count>=30&&zero_endline_count>=15)
   {
-      buzzer(1);
+//      buzzer(1);
       podao_flag=1;
   }
   
@@ -53,7 +53,7 @@ if(podao_flag==1)
     }
     if(podao_up>=10)
     {
-        buzzer(0);
+//        buzzer(0);
         podao_flag=2;
         podao_up=0;
     }
@@ -63,7 +63,7 @@ if(podao_flag==2)
 {
     if(M_podao_count>=35&&zero_endline_count>=15)
     {
-        buzzer(1);
+//        buzzer(1);
         podao_flag=3;
     }
 }
@@ -75,7 +75,7 @@ if(podao_flag==3)
     }
     if(podao_up>=10)
     {
-        buzzer(0);
+//        buzzer(0);
         podao_flag=0;
         podao_up=0;
         podao_time++;

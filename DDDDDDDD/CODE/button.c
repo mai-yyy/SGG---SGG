@@ -17,6 +17,9 @@ uint8 start_car_flag=0;
 //uint32 Flash1[64]={0};
 volatile PAGE_NUM START_PAGE=Choose_and_no_debug;
 volatile PRESS_STATUE Press_sta=NONE;
+
+uint32 DataBuffer[512]={0};
+uint32 DataTemp[512]={0};
 //volatile PAGE_NUM ips_page;
 struct PARAMGET         //¼Ù±äÁ¿£¬ÕæÈÝÆ÷  (>>__<<)
 {
@@ -1576,8 +1579,13 @@ void Read_information(struct PARAMGET *p_param)
     eeprom_page_program(EEPROM_SECTOR_NUM-1,28, &Higher_ben_speed);
     eeprom_page_program(EEPROM_SECTOR_NUM-1,29, &Huandao_speed);
 
+//for(uint16 i=0;i<512;i++)
+//{
+//    {
+//        eeprom_page_program(EEPROM_SECTOR_NUM-1,500+i, (DataBuffer+i));
+//    }
+//}
 
-    }
     //´ÓflashÀï¶ÁÊý¾Ý´æµ½½á¹¹ÌåÀïÃæÈ¥
     //ÔÙ´Ó½á¹¹ÌåÖÐ¶Á³öÊý¾Ý
     p_param->int01=flash_read(EEPROM_SECTOR_NUM-1,12,uint32);     //¾¡Á¿ÓÃ×îºóÃæµÄÉÈÇø£¬È·±£°²È«,·ñÔò·è¿ñÇåÁã£¬ÂéÁË
@@ -1608,7 +1616,15 @@ void Read_information(struct PARAMGET *p_param)
     p_param->int26=flash_read(EEPROM_SECTOR_NUM-1,26,uint32);
     p_param->int27=flash_read(EEPROM_SECTOR_NUM-1,27,uint32);
     p_param->int28=flash_read(EEPROM_SECTOR_NUM-1,28,uint32);
+
     p_param->int29=flash_read(EEPROM_SECTOR_NUM-1,29,uint32);
+
+//    for(uint8 j=0;j<512;j++)
+//    {
+//        DataTemp[j]=flash_read(EEPROM_SECTOR_NUM-1,500+j,uint32);
+//    }
+
+
 
 
     DJ_fuzz_par.Fuzz_L_1=(p_param->int01);//´Ó½á¹¹ÌåÖÐ¶ÁÊý¾Ý´æµ½ÏàÓ¦µÄ±äÁ¿ÖÐ
@@ -1640,9 +1656,15 @@ void Read_information(struct PARAMGET *p_param)
     Higher_str_speed=(p_param->int27);
     Higher_ben_speed=(p_param->int28);
     Huandao_speed=(p_param->int29);
+
+//    for(uint8 k=0;k<512;k++)
+//        {
+//            DataBuffer[k]=DataTemp[k];
+//        }
+
 }
 
-
+}
 void Write_information(struct PARAMGET *p_param)    //°Ñ½á¹¹ÌåÖÐµÄÊý¾Ý´æµ½flashÀïÃæÈ¥
 {
     eeprom_erase_sector(EEPROM_SECTOR_NUM-1);  //²Á³ýÉÈÇø£¬Èç¹ûÉÈÇøÒÑ¾­ÓÐÊý¾ÝÔò±ØÐë²Á³ýÉÈÇøÖ®ºó²ÅÄÜÔÙ´ÎÐ´ÈëÐÂµÄÊý¾Ý
@@ -1708,3 +1730,19 @@ void Write_information(struct PARAMGET *p_param)    //°Ñ½á¹¹ÌåÖÐµÄÊý¾Ý´æµ½flashÀ
         eeprom_page_program(EEPROM_SECTOR_NUM-1,28, &Higher_ben_speed);
         eeprom_page_program(EEPROM_SECTOR_NUM-1,29, &Huandao_speed);
 }
+
+void InFoRealData()
+{
+    eeprom_erase_sector(EEPROM_SECTOR_NUM-1);  //²Á³ýÉÈÇø£¬Èç¹ûÉÈÇøÒÑ¾­ÓÐÊý¾ÝÔò±ØÐë²Á³ýÉÈÇøÖ®ºó²ÅÄÜÔÙ´ÎÐ´ÈëÐÂµÄÊý¾Ý
+    systick_delay_ms(STM0,10);
+   for(uint8 i=0;i<512;i++)
+   {
+       DataTemp[i]=DataBuffer[i];
+   }
+
+//   for(uint8 j=0;j<512;j++)
+//   {
+//        eeprom_page_program(EEPROM_SECTOR_NUM-1,500+j, &(DataBuffer+j));
+//   }
+}
+

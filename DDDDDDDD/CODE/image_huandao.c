@@ -365,7 +365,7 @@ if(huan_L_flag==5)
     {
         huan_L_flag=6;
 
-buzzer(1);
+//buzzer(1);
     }
 
   /*
@@ -424,7 +424,7 @@ for(uint8 i=59;i>endline;i--)
 if((L_out_count>=59&&L_out_start>=55&&finalrun<=3&&dt_code>12000)||dt_code>12500)//小环11500
     {
   huan_L_flag=0;          //完全出环
-  buzzer(0);
+//  buzzer(0);
   bx_flag_4=0;
   cyccy=0;
   hz_l=0;
@@ -701,7 +701,7 @@ if(huan_R_flag==5)
            if(!Island_flag1&&Right_line_swerve_R<=1)
            {
                huan_R_flag = 6;
-               buzzer(1);
+//               buzzer(1);
 
 //out_flag=33;
            }
@@ -749,7 +749,7 @@ for(uint8 i=59;i>endline+1;i--)
 if((R_out_count>=59&&R_out_start>=55&&finalrun_r<=3&&dt_code>12000)||dt_code>12500)
 //if(finalrun_r<=5)
     {
-    buzzer(0);
+//    buzzer(0);
     bx_flag_4_r=0;
   huan_R_flag=0;          //完全出环  
   hz_r=0;

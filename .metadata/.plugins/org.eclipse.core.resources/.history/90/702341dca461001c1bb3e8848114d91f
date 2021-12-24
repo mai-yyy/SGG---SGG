@@ -1,0 +1,277 @@
+/*
+ * MH_Lower_Computer.c
+ *
+ *  Created on: 2021年2月5日
+ *      Author: MaoHan
+ */
+
+#include "MH_Lower_Computer.h"
+#define u8  uint8_t
+#define u16 uint16_t
+#define u32 uint32_t
+
+
+//***********************************************存储卡模式图存部分和读取发送上位机*********************************************
+u16 Send_Picture_Init_Flag=0;//是否已经完成了图存发送系统的初始化状态，否则是不会启动发送状态的
+
+/*
+SD卡中数据存储结构为:
+
+扇区0:
+分别存储5个字节字符帧头FH[5]+2个字节的结尾标识符+u32(分为u8+u8+u8+u8的四字节)的图片分辨率+1个字节表示当前的值是否图存
+
+扇区x开始存储图像参数，X即取结尾标识符的高字节+1来开始存储图像参数，一帧存储 （分辨率的高×分辨率的宽/8+帧尾2字节）/512字节+（如果相除余数则再+1）的扇区。
+
+比如分辨率为(188*134/8+2)/512=6.15....，则取7个扇区来存储一帧图像
+*/
+#define FH_len 7
+const u8 FH[FH_len]="13245";
+
+u8 Frame[2];//帧结尾标识符，由SD卡读入或者是空SD卡时，其自动置0。frame[0]（即低位）其0值对应的为1扇区开始存储....。
+u8 Now_Save_Flag=0;//当前是否有存储图像
+u16 Data_ALL_Length_Save;//当前所存储的SD卡的数据总长
+
+//初始化图存部分，如果初始化不过可以正常运行车辆，但是无法运行本程序部分
+//初始化成功后，Now_Save_Flag代表SD卡是否已经存储了图像
+//初始化成功后，Frame中会存储对应当前的存图编号
+u8 SD_MODE_Send_Picture_Init(void)
+{
+    static u8 init_flag=0;
+    u8 fcount;//计数用
+    u8 verify_flag;
+    u32 all_length_temp;//缓存一下总长值用
+    if(init_flag==0)
+    {
+        uart_init(Picture_Send_Uart,Picture_Send_Baud,Pictrue_Send_Uart_TX,Picture_Send_Uart_RX);
+        init_flag=1;
+    }
+//buzzer(1);
+    if(SD_Spi_Init()==0)//当其为0时其初始化成功
+    {
+//buzzer(1);
+        //状态校对部分
+        SD_ReadDisk(SD_Receive_Buffer,0,1);
+        verify_flag=1;
+        for(fcount=0;fcount<FH_len;fcount++)
+        {
+            if(SD_Receive_Buffer[fcount]!=FH[fcount])//校验失败
+            {
+//                buzzer(1);
+                verify_flag=0;
+                break;
+            }
+        }
+
+        if(verify_flag)//校验成功
+        {
+
+            Frame[0]=SD_Receive_Buffer[5];//存的为低位
+            Frame[1]=SD_Receive_Buffer[6];//存的为高位
+            Data_ALL_Length_Save=SD_Receive_Buffer[8] << 8|SD_Receive_Buffer[7];//当前存储数据总长
+           // buzzer(1);
+            gpio_set(P20_8,0);
+            Now_Save_Flag=SD_Receive_Buffer[9];//当前是否有保存的存图
+//            Now_Save_Flag=1;
+        }
+        else//校验失败，写入校验码和置初始值
+        {
+
+            //清除buffer
+            memset(SD_Send_Buffer,0,512);
+            //帧头写入
+            for(fcount=0;fcount<FH_len;fcount++)SD_Send_Buffer[fcount]=FH[fcount];
+            //帧尾写入
+            SD_Send_Buffer[5]=0;
+            SD_Send_Buffer[6]=0;
+
+            Frame[0]=0;
+            Frame[1]=0;
+            //数据总长写入
+            all_length_temp=Data_All_Length;
+            SD_Send_Buffer[7]=all_length_temp&0xff;
+            SD_Send_Buffer[8]=(all_length_temp>>8)&0xff;
+
+            //写当前无存图状态
+            SD_Send_Buffer[9]=0;
+            SD_WriteDisk(SD_Send_Buffer,0,1);
+        }
+        Send_Picture_Init_Flag=1;//启动图存
+    }
+    return (u8)(Send_Picture_Init_Flag);
+}
+
+//保存当前图
+//参数:image_pointer指二值化后的图像指针
+//参数:Image_Resolution指MT9V03X_H*MT9V03X_W这样的分辨率
+void SD_Picture_Save(void)
+{
+    static u8 first_flag=0,sectors_for1_picture;//第一次启动flag和多少扇区存储一张图片
+    static u32 Now_Save=0;//当前存图数
+    u8 fcount,sectors_write_count;//计数用
+    u16 temp_frame,all_length_temp,lenth_count,sd_u8_count;//帧尾暂存，总长暂存，数值递增,sd卡位置递增
+
+    if(first_flag==0)//第一次图存要写入0扇区参数
+    {
+        first_flag=1;
+        memset(SD_Send_Buffer,0,512);
+        for(fcount=0;fcount<FH_len;fcount++)SD_Send_Buffer[fcount]=FH[fcount];
+
+        if(Now_Save_Flag==1)
+        {
+            temp_frame=Frame[0]|Frame[1]<<8;
+            temp_frame++;
+            Frame[0]=temp_frame&0xff;
+            Frame[1]=(temp_frame>>8)&0xff;
+        }
+
+        SD_Send_Buffer[5]=Frame[0];//帧尾两值16bit写入
+        SD_Send_Buffer[6]=Frame[1];
+
+        all_length_temp=Data_All_Length;//总长16bit写入
+        SD_Send_Buffer[7]=all_length_temp&0xff;
+        SD_Send_Buffer[8]=(all_length_temp>>8)&0xff;
+
+        sectors_for1_picture=(Data_All_Length+2)/512+(((Data_All_Length+2)%512)>0?1:0);//存储一张图需要多少个扇区，暂存计算递增扇区用
+
+        SD_Send_Buffer[9]=1;
+//buzzer(1);
+        SD_WriteDisk(SD_Send_Buffer,0,1);//存储内容
+    }
+
+    //图存部分
+
+    memset(SD_Send_Buffer,0,512);//清除缓冲区
+    sectors_write_count=0;//扇区计数
+    sd_u8_count=0;//SD字节递增
+    for(lenth_count=0;lenth_count<Data_All_Length+2;lenth_count++)//内容发送计数
+    {
+        if(lenth_count<Data_All_Length)SD_Send_Buffer[sd_u8_count]=*((u8*)Sent_Data+lenth_count);
+        else SD_Send_Buffer[sd_u8_count]=Frame[lenth_count-Data_All_Length];
+
+        if(sd_u8_count<511)sd_u8_count++;
+        else if(sd_u8_count==511)sd_u8_count=0;
+        if((lenth_count+1)%512==0)//如果当前的值已经存储了512，自动替换到下一个扇区
+        {
+            SD_WriteDisk(SD_Send_Buffer,1+Frame[0]+sectors_for1_picture*Now_Save+sectors_write_count,1);//存储内容
+            memset(SD_Send_Buffer,0,512);//清除缓冲区
+            sectors_write_count++;//扇区计数
+        }
+    }
+    if((lenth_count+1)%512!=0)SD_WriteDisk(SD_Send_Buffer,1+Frame[0]+sectors_for1_picture*Now_Save+sectors_write_count,1);//存储内容
+    Now_Save++;//总计数递增
+}
+
+//打包数据并且存储到SD卡
+void SD_UpLoad_And_Picture_Save(void)
+{
+
+    UART_Send_Data_UpLoad(); //装载前帧头
+
+    Set_DataToCon();         //装载Data
+
+    Set_ParToCon();          //装载Par
+
+    Compressed_Data();       //压缩图片
+
+//    uart_putbuff(UART_2,(u8*)(Sent_Data),Data_All_Length);
+    SD_Picture_Save();  //SD存储
+//    gpio_set(P20_9,1);
+//    buzzer(0);
+}
+
+//读取SD卡存图并且发送至上位机
+void SD_Read_Send_Picture(void)
+{
+    u8 picture_flag;//当前图是否为上一次保存下来的图
+    u16 sectors_sum,sectors_u8_left,sectors_read_count;//要花多少扇区存储+额外1个扇区的多少字节
+    u16 sectors_all;
+    u32 Now_Read=0;//当前读取的计数
+
+    picture_flag=0;
+//    Now_Save_Flag=1;
+    if(Now_Save_Flag==1)//如果当前有图存
+    {
+//        buzzer(1);
+        //求一下花费的扇区存储状态
+        sectors_sum=(Data_ALL_Length_Save+2)/512;
+        sectors_u8_left=(Data_ALL_Length_Save+2)%512;
+
+        if(sectors_u8_left>0)sectors_all=sectors_sum+1;
+        else sectors_all=sectors_sum;
+
+        //先读取其帧尾，然后确定是否为当前图存的图，否则不继续发送
+        if(sectors_u8_left==1)//如果其值为1，说明其帧尾已经分布两个扇区，要分布处理
+        {
+            SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum+1,1);
+            if(SD_Receive_Buffer[0]==Frame[1])
+            {
+                SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum,1);
+                if(SD_Receive_Buffer[511]==Frame[0])picture_flag=1;
+            }
+        }
+        else if(sectors_u8_left==0)//如果其值为0，说明其存储在sum扇区的最后两字节
+        {
+            SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum,1);
+            if(SD_Receive_Buffer[510]==Frame[0] && SD_Receive_Buffer[511]==Frame[1])picture_flag=1;
+        }
+        else//其他可以直接处理left部分的值来计算
+        {
+
+            SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum+1,1);
+            if(SD_Receive_Buffer[sectors_u8_left-1]==Frame[1] && SD_Receive_Buffer[sectors_u8_left-2]==Frame[0])picture_flag=1;
+        }
+
+        while(picture_flag)//判断当前图片是否为此次图存的图片，是的话则进行上传操作,否则则退出，传输完成也会退出
+        {
+            //发送当前图片内容(Now_Read为计数)
+            for(sectors_read_count=0;sectors_read_count<(sectors_sum+(sectors_u8_left>0?1:0));sectors_read_count++)//扇区发送
+            {
+                SD_ReadDisk(SD_Receive_Buffer,1+Frame[0]+(sectors_sum+(sectors_u8_left>0?1:0))*Now_Read+sectors_read_count,1);
+                uart_putbuff(Picture_Send_Uart,SD_Receive_Buffer,512);
+            }
+
+            //将flag清零，读取下一个标识位
+            picture_flag=0;
+            Now_Read++;//递增位增加
+
+            //先读取其帧尾，然后确定是否为当前图存的图，否则不继续发送
+            if(sectors_u8_left==1)//如果其值为1，说明其帧尾已经分布两个扇区，要分布处理
+            {
+                SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum+1,1);
+                if(SD_Receive_Buffer[0]==Frame[1])
+                {
+                    SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum,1);
+                    if(SD_Receive_Buffer[511]==Frame[0])picture_flag=1;
+                }
+            }
+            else if(sectors_u8_left==0)//如果其值为0，说明其存储在sum扇区的最后两字节
+            {
+                SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum,1);
+                if(SD_Receive_Buffer[510]==Frame[0] && SD_Receive_Buffer[511]==Frame[1])picture_flag=1;
+            }
+            else//其他可以直接处理left部分的值来计算
+            {
+                SD_ReadDisk(SD_Receive_Buffer,Frame[0]+Now_Read*(sectors_sum+(sectors_u8_left>0?1:0))+sectors_sum+1,1);
+                if(SD_Receive_Buffer[sectors_u8_left-1]==Frame[1] && SD_Receive_Buffer[sectors_u8_left-2]==Frame[0])picture_flag=1;
+            }
+        }
+    }
+}
+
+//************************************************无线实时图传模式上位机************************************************
+//初始化NRF
+//void NRF_MODE_Send_Init(void)
+//{
+//    NRF_Init();
+//}
+//
+////NRF实时图传发送
+//void NRF_UpLoad_And_Picture_Send(void)
+//{
+//    UART_Send_Data_UpLoad(); //装载前帧头
+//    Set_DataToCon();         //装载Data
+//    Set_ParToCon();          //装载Par
+//    Compressed_Data();       //压缩图片
+//
+//    NRF24L01_TxPacket((u8*)Sent_Data,Data_Length);//NRF发送
+//}

@@ -17,6 +17,7 @@ int16 ForkAngleLeft=0;
 int16 ForkAngleRight=0;
 uint8 XieRiCnt=0;
 uint8 XieLiCnt=0;
+uint8 bodSpod=0;
 _Bool XLFlag=0;
 _Bool XRFlag=0;
 uint8 flag22=0;
@@ -601,8 +602,8 @@ stf=0;
   RMaxPoint=GettangoP( RLineSegmentST[0],RLineSegmentEN[0],2);
   TEM_L=LMaxPoint;
   TEM_R=RMaxPoint;
-  ips200_showint16(30,11, TEM_L.my_x);
-                               ips200_showint16(50,8,TEM_R.my_x);
+//  ips200_showint16(30,11, TEM_L.my_x);
+//                               ips200_showint16(50,8,TEM_R.my_x);
 
 //  buzzer(1);
     for(int i=TEM_L.my_y-1;i>0;i--)//防止段上点相同,我也遇见过，不处理会影响补线
@@ -928,15 +929,16 @@ if (fork_road==2)
 
 void ShangCha_thr_law(Maiy_characteristic_point* sc_char)
 {
-    yes=0;
-    point=0;
-    XLFlag=0;
+    dorg_l=0;
+
  IsBottomRightJupm=0;
  IsBottomLeftJupm=0;
 isOnTheCross=0;
 isOnTheSlopeCross=0;
-        if(!sancha_flag_right&&!sancha_flag_left&&!huan_L_flag&&!huan_R_flag&&!shizhiflag&&endline<15)
+//buzzer(1);
+        if(!sancha_flag_right&&!sancha_flag_left&&!huan_L_flag&&!huan_R_flag&&endline<50&&!shizhiflag)
         {
+//buzzer(1);
             for(int16 i=58;i>=20;i--)
             {
             if((leftline[i]-leftline[i-1]>=0&&leftline[i]-leftline[i-2]>=0&&leftline[i]-leftline[i-5]>0&&leftline[i]>=2&&leftline[i-1]>=2&&leftline[i-2]>=2))
@@ -977,8 +979,11 @@ isOnTheSlopeCross=0;
 
 
         }
-
-
+//if(ForkStep==1)
+//{
+//buzzer(1);
+//}
+//                ips200_showuint8(90,14,ForkStep);
         if (ForkStep == 1 &&
            sancha_flag_left == 0 &&
            sancha_flag_right == 0 &&
@@ -986,6 +991,7 @@ isOnTheSlopeCross=0;
            (((rightline[59] - LowRightJump.my_x >=6 )|| (rightline[59] - LowRightJump.my_x >= 0 && rightline[59] <= 140))&& rightline[59] <= 157)))
 
         {
+//            buzzer(1);
             yes=0;
             TriangBlackPoint.my_x=0;
             TriangBlackPoint.my_y=0;
@@ -1022,11 +1028,12 @@ isOnTheSlopeCross=0;
 else if(IsBottomLeftJupm==1&&IsBottomRightJupm==0&&right_all_lose_line>=5)
 
 {
+//    buzzer(1);
     LowRightJump.my_x=158;
     LowRightJump.my_y=59;
 
     memset(TriangRange,0,sizeof(int)*160);
-               for(int16 j=LowLeftJump.my_x;j<=158;j++)
+               for(int16 j=LowLeftJump.my_x+5;j<=150;j++)
          {
                for(int16 k=59;k>=2;k--)
                {
@@ -1052,10 +1059,11 @@ else if(IsBottomLeftJupm==1&&IsBottomRightJupm==0&&right_all_lose_line>=5)
 else if(IsBottomLeftJupm==0&&IsBottomRightJupm==1&&left_all_lose_line>=5)
 
 {
+//    buzzer(1);
     LowLeftJump.my_x=0;
     LowLeftJump.my_y=59;
     memset(TriangRange,0,sizeof(int)*160);
-                   for(int16 j=LowRightJump.my_x;j>=1;j--)
+                   for(int16 j=LowRightJump.my_x;j>=15;j--)
              {
                    for(int16 k=59;k>=2;k--)
                    {
@@ -1084,10 +1092,16 @@ else
 
 }
 
+            ips200_showuint16(90,18,TriangBlackPoint.my_x);
+
+                                          ips200_showuint16(90,19,TriangBlackPoint.my_y);
             ForkAngleLeft=0;
             ForkAngleRight=0;
             OverAngleStep=0;
-            for(int16 i=0;i<23;i++)
+            bodSpod=0;
+            if(TriangBlackPoint.my_x<=140&&TriangBlackPoint.my_x>=20)
+            {
+            for(int16 i=0;i<20;i++)
             {
                 if(TriangRange[TriangBlackPoint.my_x+i]!=0&&TriangRange[TriangBlackPoint.my_x-i]!=0)
                 {
@@ -1108,26 +1122,147 @@ else
                     ForkAngleRight+=(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+i]);
                             }
             }
+            }
+uint8 dir_sc=0;
+float Lincnt=0;
+float Rincnt=0;
+float sc_Lincnt=0;
+float sc_Rincnt=0;
+uint8 sc_sp=0;
+sc_sp=0;
+int lentsc=0;
+lentsc=0;
+ dir_sc=0;
+ Lincnt=0;
+ Rincnt=0;
+if(IsBottomLeftJupm==1&&IsBottomRightJupm==1)
+{
+    if(LowRightJump.my_y<LowLeftJump.my_y)
+    {dir_sc=2;}
+    else
+    {dir_sc=1;}
+}
 
+else if(IsBottomLeftJupm==1&&IsBottomRightJupm==0)
+{
+    dir_sc=1;
+}
+else if(IsBottomRightJupm==1&&IsBottomLeftJupm==0)
+{
+    dir_sc=2;
+}
+if(dir_sc==1)
+{
+    if(LowLeftJump.my_y<49)
+    {
+    Lincnt=(float)((leftline[LowLeftJump.my_y+1]-leftline[LowLeftJump.my_y+10])/10);
+    }
+    else if(LowLeftJump.my_y<57){
+        Lincnt=(float)((leftline[LowLeftJump.my_y+1]-leftline[58])/(58-LowLeftJump.my_y));}
+
+
+    lentsc=0;
+    for(int i=TriangBlackPoint.my_x;i<158;i++)
+    {
+
+        if(image_data[TriangBlackPoint.my_y-5][i]!=Black&&image_data[TriangBlackPoint.my_y-5][i+1]!=Black)
+        {
+            break;
+        }
+        else
+        {
+            lentsc++;
+        }
+    }
+    sc_Lincnt=(float)((lentsc)/5.0f);
+//    ips200_showfloat(90,16,sc_Lincnt,3,3);
+//    ips200_showfloat(90,17,Lincnt,3,3);
+if(fabs(sc_Lincnt-Lincnt)>=4.5)
+{
+    sc_sp=1;
+    }
+
+}
+
+if(dir_sc==2)
+{
+    if(LowRightJump.my_y<45)
+    {
+    Rincnt=(float)(-(rightline[LowRightJump.my_y+1]-rightline[LowRightJump.my_y+10])/10);
+    }
+    else if(LowRightJump.my_y<57){
+        Rincnt=(float)(-(rightline[LowRightJump.my_y+1]-rightline[58])/(58-LowRightJump.my_y));
+    }
+
+
+
+    lentsc=0;
+    for(int i=TriangBlackPoint.my_x;i>1;i--)
+        {
+
+            if(image_data[TriangBlackPoint.my_y-5][i]!=Black&&image_data[TriangBlackPoint.my_y-5][i-1]!=Black)
+            {
+                break;
+            }
+            else
+                   {
+                       lentsc++;
+                   }
+        }
+    sc_Rincnt=(float)((lentsc)/5.0f);
+//    ips200_showfloat(90,16,sc_Rincnt,3,3);
+//       ips200_showfloat(90,17,Rincnt,3,3);
+    if(fabs(sc_Rincnt-Rincnt)>=4.5)
+    {
+        sc_sp=1;
+        }
+
+
+}
+
+
+
+//ips200_showfloat(90,16,sc_sp,3,3);
 
                         Maiy_2_dimensional A={TriangBlackPoint.my_x-5,TriangRange[TriangBlackPoint.my_x-5]};
                         Maiy_2_dimensional C={TriangBlackPoint.my_x+5,TriangRange[TriangBlackPoint.my_x+5]};
                         Triang= Get_Angle( A, TriangBlackPoint, C);
+//                        ips200_showstr(0,10,"Triang");
+                                      ips200_showint16(90,10,Triang);
+//                                      ips200_showstr(0,12,"sc_sp");
+//                                      ips200_showuint16(90,12,sc_sp);
+////                                      ips200_showstr(0,18,"ARight");
+//                                    ips200_showuint16(90,18,ForkAngleLeft);
+//////                                      ips200_showstr(0,19,"Alft");
+//                                ips200_showuint16(90,19,ForkAngleRight);
 
-            if(ForkStep&&TriangBlackPoint.my_y>=15&&TriangBlackPoint.my_y<LowLeftJump.my_y&&Triang>=150)
+            if(ForkStep!=0&&TriangBlackPoint.my_y>=15&&TriangBlackPoint.my_y<LowLeftJump.my_y&&sc_sp!=0)
             {
-            if(TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+3]<=1
-                    &&TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x-3]<=1
-                    &&TriangRange[TriangBlackPoint.my_x+10]<=TriangRange[TriangBlackPoint.my_x]
-                    &&TriangRange[TriangBlackPoint.my_x-10]<=TriangRange[TriangBlackPoint.my_x]
-                    &&TriangBlackPoint.my_y<=40
-                    &&TriangRange[TriangBlackPoint.my_x+12]!=0
-                    &&TriangRange[TriangBlackPoint.my_x-12]!=0
-                    &&(((ForkAngleLeft>=20&&ForkAngleRight<=15)||(ForkAngleLeft<=15&& ForkAngleRight>=20)||(ForkAngleLeft + ForkAngleRight <= 30&&ForkAngleLeft + ForkAngleRight>=10))&&ABS(ForkAngleLeft- ForkAngleRight)<=35)
+//                out_flag=9;
+//                buzzer(1);
+            if(
+//                    TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x+3]<=1
+//                    &&TriangRange[TriangBlackPoint.my_x]-TriangRange[TriangBlackPoint.my_x-3]<=1
+//                    &&TriangRange[TriangBlackPoint.my_x+10]<=TriangRange[TriangBlackPoint.my_x]
+//                    &&TriangRange[TriangBlackPoint.my_x-10]<=TriangRange[TriangBlackPoint.my_x]
+//                    TriangBlackPoint.my_y<=40
+                   Triang>150
+                   &&TriangRange[TriangBlackPoint.my_x+12]!=0
+                  &&TriangRange[TriangBlackPoint.my_x-12]!=0
+                    &&(((ForkAngleLeft>=20&&ForkAngleRight<=20)||(ForkAngleLeft<=20&& ForkAngleRight>=20)||(ForkAngleLeft + ForkAngleRight <= 30&&ForkAngleLeft + ForkAngleRight>=10))&&ABS(ForkAngleLeft- ForkAngleRight)<=35&&ABS(ForkAngleLeft+ForkAngleRight)<=80)
                     )
 
     {
-                dorg_l=1;
+                ForkStep=0;
+              if(qipao_time==0)
+              {
+//               out_flag=9;
+                  sancha_flag_right=2;
+              }
+              else
+              {
+                  sancha_flag_left=2;
+              }
 
               }
             else
@@ -1163,72 +1298,45 @@ else
     }
 
 //if(dorg_l&&sc_char->mylinest[79]<=40)
-        if(dorg_l)
-{
-            flag22=2;
-                            dorg_l=0;
-                            ForkStep=0;
-            if(qipao_time==0)
-            {
-                sancha_flag_right=2;
-            }
-            else
-            {
-                sancha_flag_left=2;
-            }
+//        if(dorg_l)
+//{
+//            flag22=2;
+//                           // dorg_l=0;
+//                            ForkStep=0;
+//            if(qipao_time==0)
+//            {
+//                sancha_flag_right=2;
+//            }
+//            else
+//            {
+//                sancha_flag_left=2;
+//            }
+//
+//
+//
+//
+//}
 
-
-
-
-}
-
-
-            if(sancha_flag_left==2&&qipao_time==1&&ABS(icmdata.Yaw)>=10&&dt_code>=4500)
+            if(sancha_flag_left==2&&qipao_time==1&&dt_code>=4500)
            {
+                //out_flag=99;
           sancha_flag_left=0;
-//          buzzer(0);
+          buzzer(0);
                 sancha_flag_right=0;
 
-                if(sanchacount>0)
-                {
-                    sanchacount=0;
-                }
 
-                sanchacount++;
-
-                if(ShangForkDir==0)
-                    ShangForkDir=2;
-                else if(ShangForkDir==2)
-                {
-                    ShangForkDir=0;
-                }
-                if(sanchacount>=4)
-                    cnt_fache1=1;
 
       }
 
 
 
-            if(sancha_flag_right==2&&qipao_time==0&&ABS(icmdata.Yaw)>=10&&dt_code>=4500)
+            if(sancha_flag_right==2&&qipao_time==0&&dt_code>=4500)
             {
+                buzzer(0);
+              //  out_flag=99;
               sancha_flag_right=0;
                     sancha_flag_left=0;
-                if(ShangForkDir==0)
-                    ShangForkDir=3;
-                    else if(ShangForkDir==3)
-                    {
-                        ShangForkDir=0;
-                    }
-                if(sanchacount>0)
-                               {
-                                   sanchacount=0;
-                               }
-//                 buzzer(0);
 
-                 sanchacount++;
-
-                    if(sanchacount>=4)
-                        cnt_fache1=1;
 
             }
 

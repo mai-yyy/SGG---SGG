@@ -41,6 +41,7 @@ uint8 shouldgo=0;
 void real_hopespeed_count()
 {
 
+
 //    if(s_to_b_1)
 //                                           {
 //
@@ -195,7 +196,7 @@ else
 
 else  if((!type_str||endline>=10)&&ABS(differ)>=20)
     {
-    buzzer(0);
+//    buzzer(0);
     real_hope_speed=(Higher_ben_speed);//
 //        if(realspeed<=130)
 
@@ -230,7 +231,7 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
 //
 //    else{                      //_in_wan
         CS_control(get_djj,Higher_ben_speed);
-        buzzer(0);
+//        buzzer(0);
         r_t_o=1;
                        if(differ<0)
                                               {
@@ -284,7 +285,7 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
                     }
 
                     else{
-                        buzzer(0);
+//                        buzzer(0);
                  real_hope_speed=(Higher_str_speed);//
                                    hopessp=Higher_str_speed;//
                                    Delta_PID(RealSpe,Higher_str_speed);
@@ -294,7 +295,7 @@ else  if((!type_str||endline>=10)&&ABS(differ)>=20)
              else
              {
 //                 r_t_o=1;
-              buzzer(0);
+//              buzzer(0);
               real_hope_speed=(Higher_ben_speed);//
                  CS_control(get_djj,Higher_ben_speed);
                         if(differ<0)
