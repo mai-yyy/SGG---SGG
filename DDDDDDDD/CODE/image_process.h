@@ -28,6 +28,7 @@ extern unsigned char s_to_b_1;
 extern unsigned char s_to_b_2;
 extern uint8 straightFlag;
 extern uint8 bendFlag;
+extern int16 current_width[60];
 extern unsigned char bend_count;
 extern unsigned char differ_C;
 extern float variance;

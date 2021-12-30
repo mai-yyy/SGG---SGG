@@ -226,7 +226,7 @@ void go_motor (int16 PWM_Duty1,int16 PWM_Duty2)
            pDelta_PIDStructrre.ActVal  = Actuall;
            pDelta_PIDStructrre.errr     = pDelta_PIDStructrre.SetVal -pDelta_PIDStructrre.ActVal;
            pDelta_PIDStructrre.Out_add = 68* (pDelta_PIDStructrre.errr-pDelta_PIDStructrre.err_lastt)
-                                        + 2.8f* (pDelta_PIDStructrre.errr);
+                                        + 2.6f* (pDelta_PIDStructrre.errr);
 
 
            pDelta_PIDStructrre.OutVal   += (int16)pDelta_PIDStructrre.Out_add;
@@ -491,7 +491,7 @@ void HDDJPID_init()
            CS_RR.ActVal  = Actuall;
            CS_RR.errr     = CS_RR.SetVal -CS_RR.ActVal;
            CS_RR.Out_add = (68) * (CS_RR.errr-CS_RR.err_lastt)
-                                        + (2.8f)* (CS_RR.errr);
+                                        + (2.60f)* (CS_RR.errr);
 
 
            CS_RR.OutVal   += (int16)CS_RR.Out_add;

@@ -58,7 +58,7 @@ void HUdudeal(uint8 th)
               lcount=(int16)((count_tr+count_tl)/2);
               count_t=lcount;
 
-              ips200_showint16(30,9,result);
+//              ips200_showint16(30,9,result);
               mt9v03x_finish_flag = 0;
              // ips200_showint16(30,8,zz);
      }
@@ -160,6 +160,8 @@ void cpu0_initialize(void)                      //初始化
         DJPID_init();
         ADC_ALL_init();
         icm20602_init_spi();
+
+        //systick_delay_ms(STM0,3000);
         gtm_pwm_init( ATOM1_CH7_P02_7,10000,0);
               gtm_pwm_init( ATOM1_CH6_P02_6,10000,0);
               gtm_pwm_init( ATOM1_CH4_P02_4,10000,0);
@@ -176,6 +178,7 @@ void cpu0_initialize(void)                      //初始化
         Boma_init();
         buton_init();
         InitMH();
+
         CSLDJPID_init();
         CSRDJPID_init();
 //        memset( DataTemp,0,sizeof(uint32)*512);//小车死前的遗言
@@ -186,15 +189,22 @@ void cpu0_initialize(void)                      //初始化
         gpio_init(P20_8, GPO, 1, PUSHPULL);
         gpio_init(P21_4, GPO, 0, PUSHPULL);
 
-        Higher_str_speed=280;
+        Higher_str_speed=350;
         Higher_ben_speed=280;
         //variable_3=23;
         my_start_carrr=1;
               start_car_flag=1;
-        while(!gpio_get(P33_13)&&!start_car_flag)
-          {button_opreation();
-         // gtm_pwm_init(Steer_Pin, 50, servoPoint);
-          }
+        ips200_init();
+//        while(!gpio_get(P33_13)&&!start_car_flag)
+//          {
+//            button_opreation();
+//
+//          }
+//        while(gpio_get(P33_13)&&!start_car_flag)
+//                  {
+//                    button_opreation();
+//
+//                  }
              Write_information(&parameter);
 
       //  gpio_init(P20_9, GPO, 0, PUSHPULL);
@@ -203,9 +213,9 @@ void cpu0_initialize(void)                      //初始化
         mt9v03x_init();
 //        gpio_set(P33_10,1);
 
-       // SD_MODE_Send_Picture_Init();
+     //   SD_MODE_Send_Picture_Init();
 
-ips200_init();
+
       //  buzzer(1);//卡没有卡，考完验证一下
                 //  systick_delay_ms(STM0,3000);
                 //  buzzer(0);
@@ -250,11 +260,10 @@ void get_road(void)
  //   podao_find();
 //    chuku();
 
-   // get_td();
-//    huandao_find();
+
     qipao_find();
-//    huan_L_flag=6;
-    Double_no_line();
+
+   // Double_no_line();
       Huandao_Sec_Low();
 //     FlowerPoint();
 //     GlobalAnglePoint();
@@ -264,22 +273,13 @@ void get_road(void)
 
      ShangCha_thr_law(&real_char);
 
-
+     Double_no_line(&real_char);
 //     trianglePointCross();
-//    huan_L_entr_count();
+
    // crossroad_find();
 //     test_chalu(&real_char);
-//     chalu();
-//     if(deb_delt_p)
-//     {
-//     ShangCha_thr_law(&real_char);
-//     }
-//     if(debug_speed>0&&once_blu==0)
-//     {
-//         once_blu=1;
-//         sancha_flag_right=2;
-//                            sancha_flag_left=2;
-//     }
+
+
 
     bu_xian();
 //    ALL_fill(&real_char);
@@ -304,9 +304,9 @@ void get_road(void)
 
 void showips()
 {
-//    oled_disp_image(&real_char);
+    oled_disp_image(&real_char);
 
-       ips200_displayimage032(mt9v03x_image[0], MT9V03X_W, MT9V03X_H);
+//       ips200_displayimage032(mt9v03x_image[0], MT9V03X_W, MT9V03X_H);
                ips200_showstr(0,10,"differ");
                ips200_showint16(90,10,differ);
                ips200_showstr(0,12,"endline");

@@ -36,18 +36,19 @@ InitMH();
 //            }
             get_road();
 
-           // ips200_showint16(50,8,OverAngleStep);
+//            ips200_showint16(50,8,OverAngleStep);
 //              ips200_showint16(30,11,ForkAngleLeft);
         if(!gpio_get(P33_12))
         {
-//            goto SD;
+           // goto SD;
 //            oled_disp_image(&real_char);
+            showips();
         }
 
         if(gpio_get(P33_12)){
 
-//            ips200_displayimage032(mt9v03x_image[0], MT9V03X_W, MT9V03X_H);
-          //  SD_UpLoad_And_Picture_Save();
+
+            //SD_UpLoad_And_Picture_Save();
 //            oled_disp_image(&real_char);
 
 
@@ -62,7 +63,7 @@ SD:
 if(!gpio_get(P33_12))
 {
 //    buzzer(0);
-//SD_Read_Send_Picture();
+SD_Read_Send_Picture();
 //buzzer(1);//卡没有卡，考完验证一下
 }
 }

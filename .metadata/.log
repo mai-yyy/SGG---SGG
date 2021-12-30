@@ -7240,3 +7240,30 @@ java.lang.IllegalArgumentException: Argument cannot be null
 	at org.eclipse.equinox.launcher.Main.invokeFramework(Main.java:661)
 	at org.eclipse.equinox.launcher.Main.basicRun(Main.java:597)
 	at org.eclipse.equinox.launcher.Main.run(Main.java:1476)
+
+!ENTRY org.eclipse.core.jobs 4 2 2021-12-24 22:07:03.325
+!MESSAGE An internal error occurred during: "Clean Project".
+!STACK 0
+java.lang.IllegalArgumentException: Attempted to endRule: null, does not match most recent begin: R/.  See log for trace information if rule tracing is enabled.
+	at org.eclipse.core.runtime.Assert.isLegal(Assert.java:66)
+	at org.eclipse.core.internal.jobs.ThreadJob.illegalPop(ThreadJob.java:119)
+	at org.eclipse.core.internal.jobs.ThreadJob.pop(ThreadJob.java:369)
+	at org.eclipse.core.internal.jobs.ImplicitJobs.end(ImplicitJobs.java:118)
+	at org.eclipse.core.internal.jobs.JobManager.endRule(JobManager.java:696)
+	at org.eclipse.core.internal.resources.WorkManager.checkOut(WorkManager.java:170)
+	at org.eclipse.core.internal.resources.Workspace.endOperation(Workspace.java:1514)
+	at org.eclipse.core.internal.resources.InternalWorkspaceJob.run(InternalWorkspaceJob.java:49)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:63)
+
+!ENTRY org.eclipse.core.jobs 4 1 2021-12-24 22:07:03.327
+!MESSAGE Worker thread ended job: Clean Project(24176), but still holds rule: ThreadJob(Clean Project(24176),[R/])
+!SESSION 2021-12-24 22:08:08.750 -----------------------------------------------
+eclipse.buildId=1.2.2
+java.version=11.0.2
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=zh_CN
+Framework arguments:  -perspective com.infineon.aurix.buildmanager.perspective.c
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 -perspective com.infineon.aurix.buildmanager.perspective.c
+
+!ENTRY org.eclipse.core.resources 2 10035 2021-12-24 22:08:13.069
+!MESSAGE The workspace exited with unsaved changes in the previous session; refreshing workspace to recover changes.

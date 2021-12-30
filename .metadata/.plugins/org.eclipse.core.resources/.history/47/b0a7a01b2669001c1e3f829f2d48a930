@@ -1,0 +1,1110 @@
+#include "image_shizi.h"
+//十字难于上青天
+int16 L_cross_entry=0;
+int16 L_crossroad=0;
+int16 R_cross_entry=0;
+int16 R_crossroad=0;
+int16 R_L_lose=0;
+uint8 shizhiflag=0;
+int16 RR_cro_point_fir=58;
+int16 L_cro_point_fir=58;
+int16 lwi=0;
+int16 left_no_line=0;
+int16 right_no_line=0;
+int16 left_all_lose_line=0;
+int16 right_all_lose_line=0;
+int16 start_lose_l=0;
+int16 start_lose_r=0;
+int16 YStartFixPointCross = 0;
+int16 YPonitLeft = 0;
+int16 YPointRight = 0;
+int16 StepLonth =0;
+//**********************
+Maiy_2_dimensional MidJump={0,0};
+uint8 IsMidJump=0;
+int16 JumpLenth=0;
+int16 ReSearchRow=0;
+uint8 DLK =0;
+uint8 DRK = 0;
+float SlopeCross=0.0;
+uint8 IsSlopeCross=0;
+uint8 DirSearch=0;
+uint8 IsFixRow = 0;
+  Maiy_2_dimensional LeftFixRow = {0,0};
+  Maiy_2_dimensional RightFixRow ={0,0};
+void PreWhitePoint()
+{
+    uint16 Pointnum=0;
+ int j=0;
+ int i=0;
+ for(j=3;j<=13;j++)
+    {
+        for(i=1;i<=158;i++)
+        {
+        if(image_data[j][i])
+        {
+            Pointnum++;
+        }
+        }
+    }
+ if(Pointnum>1000)
+ {
+     shizhiflag=1;
+//    buzzer(1);
+ }
+ //ips200_showint16(50,8,Pointnum);
+ if(endline>3)
+  {
+      shizhiflag=0;
+//      buzzer(0);
+  }
+}
+
+
+
+
+
+
+
+
+void  Double_no_line(Maiy_characteristic_point *shizhi_char)
+{
+    uint8_t getin = 0;
+               uint8_t getin_l = 1;
+               uint8_t getin_r = 1;
+               uint8_t DirSearch = 0;
+                DLK = 0;
+                DRK = 0;
+                SlopeCross = 0;
+                IsSlopeCross = 0;
+               JumpLenth = 0;
+               ReSearchRow = 0;
+               R_L_lose = 0;//双边丢线数
+               right_no_line = 0;  //右边丢边最小行
+               left_no_line = 0; //左边丢边最小行
+               start_lose_l = 0;//左边开始丢边的行数
+               start_lose_r = 0;//左边开始丢边的行数
+               IsMidJump = 0;
+
+    if (huan_L_flag == 0 && huan_R_flag == 0 && sancha_flag_left == 0 && sancha_flag_right == 0)//优先级低于三叉
+             {
+
+                 for (int i =BOTTOM-1; i > endline+4; i--)
+                 {
+                     if (ABS(midline[i] - midline[i - 1]) > 8 && i > endline + 8 && IsMidJump != 1)
+                     {
+                         MidJump.my_x = midline[i];
+                         MidJump.my_y = i;
+                         IsMidJump = 1;
+                         if (MidJump.my_x < 79)
+                         { MidJump.my_x = MidJump.my_x + 2; }
+                         else
+                         {
+                             MidJump.my_x = MidJump.my_x - 2;
+                         }
+                         break;
+                     }
+
+                     else if (((leftline[i] - leftline[i - 1] > 0 && (rightline[i - 1] >= 156 || rightline[i] - rightline[i - 1] < 0)))
+                          && i > endline + 4 && IsMidJump != 1)
+                     {
+                         MidJump.my_x = midline[i];
+                         MidJump.my_y = i;
+                         IsMidJump = 1;
+                         if (MidJump.my_x < 79)
+                         { MidJump.my_x = MidJump.my_x + 2; }
+                         else
+                         {
+                             MidJump.my_x = MidJump.my_x - 2;
+                         }
+                         break;
+                     }
+                     else if (((rightline[i] - rightline[i - 1] < 0 && (leftline[i - 1] <= 2 || leftline[i] - leftline[i - 1] > 0)))
+                         && i > endline + 4 && IsMidJump != 1)
+                     {
+                         MidJump.my_x = midline[i];
+                         MidJump.my_y = i;
+                         IsMidJump = 1;
+                         if (MidJump.my_x < 79)
+                         { MidJump.my_x = MidJump.my_x + 2; }
+                         else
+                         {
+                             MidJump.my_x = MidJump.my_x - 2;
+                         }
+                         break;
+                     }
+
+                     else {
+
+                     }
+
+                     if (IsMidJump != 0)
+                     {
+                         break;
+
+                     }
+
+
+                 }
+                 JumpLenth=0;
+
+
+
+                 if (IsMidJump != 0)
+                 {
+
+                     for (int j = MidJump.my_y; j > endline; j--)
+                     {
+                         if (j == endline + 3)
+                         {
+                             ReSearchRow =(endline + 3);
+                             break;
+                         }
+                         else if (image_data[j][MidJump.my_x] != Black && image_data[j - 1][MidJump.my_x] == Black)
+                         {
+                             ReSearchRow =j;
+                             break;
+                         }
+                         else {
+                             JumpLenth++;
+                         }
+                     }
+
+
+
+                 }
+
+
+
+//                 ips200_showint16(50,8,midline[59]);
+                // ips200_showint16(30,11,MidJump.my_y);
+                 if (MidJump.my_y>10&& JumpLenth>10&&endline<12&& MidJump.my_y<=58)
+                 {
+//                     buzzer(1);
+                     DLK = 1;
+                     DRK = 1;
+
+                         SlopeCross = (float)((float)MidJump.my_x - (float)midline[1]) / (float)MidJump.my_y;
+
+
+                     if (fabs(SlopeCross) > 0.8f)
+                     { IsSlopeCross = 1; }
+                     else { IsSlopeCross = 0; }
+
+                     if (MidJump.my_x - midline[1] < 0)
+                 {
+                     DirSearch = 1;//向左 <<=
+                         MidJump.my_x = shizhi_char->my_left_LOptimalPoint.my_x;
+                     }
+                 else
+                 {
+                     DirSearch = 2;
+                         MidJump.my_x = shizhi_char->my_right_OptimalPoint.my_x;
+                     }
+                 }
+
+                 ReSearchRow = (int16)(endline-8);
+                              if (IsSlopeCross == 0)
+                              {
+                                  IsFixRow = 0;
+                                  if (DirSearch == 2)
+                                  {
+                                      while (IsFixRow == 0)
+                                      {
+                                          for (int k = shizhi_char->my_final_tOptimalPoint.my_x; k < 157; k++)
+                                          {
+                                              if (image_data[ReSearchRow][k] != Black && image_data[ReSearchRow][k + 1] == Black)
+                                              {
+                                                  rightline[ReSearchRow] = k;
+                                                  break;
+                                              }
+                                              else if (k == 156)
+                                              {
+                                                  rightline[ReSearchRow] = 156;
+                                                  break;
+                                              }
+                                          }
+                                          if (rightline[ReSearchRow] >= 156)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else if (image_data[ReSearchRow + 1][rightline[ReSearchRow] + 1] == Black)
+                                          {
+                                              IsFixRow = 1;
+                                              RightFixRow.my_x = rightline[ReSearchRow];
+                                              RightFixRow.my_y = ReSearchRow;
+                                          }
+                                          else {
+                                              --ReSearchRow;
+                                          }
+                                      }
+
+                                      IsFixRow = 0;
+
+                                      while (IsFixRow == 0)
+                                      {
+                                          for (int k = rightline[ReSearchRow]; k > 1; k--)
+                                          {
+                                              if (image_data[ReSearchRow][k] != Black && image_data[ReSearchRow][k - 1] == Black)
+                                              {
+                                                  leftline[ReSearchRow] = k;
+                                                  break;
+                                              }
+                                              else if (k == 2)
+                                              {
+                                                  leftline[ReSearchRow] = 2;
+                                                  break;
+                                              }
+                                          }
+
+                                          if (leftline[ReSearchRow] <= 2)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else if (image_data[ReSearchRow + 1][leftline[ReSearchRow] - 1] == Black)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else {
+                                              --ReSearchRow;
+                                          }
+                                      }
+                                  }
+                                  else
+                                  {
+                                      IsFixRow = 0;
+
+                                      while (IsFixRow == 0)
+                                      {
+                                          for (int k = shizhi_char->my_final_tOptimalPoint.my_x; k > 1; k--)
+                                          {
+                                              if (image_data[ReSearchRow][k] != Black && image_data[ReSearchRow][k - 1] == Black)
+                                              {
+                                                  leftline[ReSearchRow] = k;
+                                                  break;
+                                              }
+                                              else if (k == 2)
+                                              {
+                                                  leftline[ReSearchRow] = 2;
+                                                  break;
+                                              }
+                                          }
+
+                                          if (leftline[ReSearchRow] <= 2)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else if (image_data[ReSearchRow + 1][leftline[ReSearchRow] - 1] == Black)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else
+                                          {
+                                              --ReSearchRow;
+                                          }
+
+                                      }
+                                      IsFixRow = 0;
+                                      while (IsFixRow == 0)
+                                      {
+                                          for (int k = leftline[ReSearchRow]; k < 157; k++)
+                                          {
+                                              if (image_data[ReSearchRow][k] != Black && image_data[ReSearchRow][k + 1] == Black)
+                                              {
+                                                  rightline[ReSearchRow] = k;
+                                                  break;
+                                              }
+                                              else if (k == 156)
+                                              {
+                                                  rightline[ReSearchRow] = 156;
+                                                  break;
+                                              }
+                                          }
+                                          if (rightline[ReSearchRow] >= 156)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else if (image_data[ReSearchRow + 1][rightline[ReSearchRow] + 1] == Black)
+                                          {
+                                              IsFixRow = 1;
+                                              RightFixRow.my_x = rightline[ReSearchRow];
+                                              RightFixRow.my_y = ReSearchRow;
+                                          }
+                                          else
+                                          {
+                                              --ReSearchRow;
+                                          }
+                                      }
+
+                                  }
+
+                              }
+                              if (IsSlopeCross == 1)
+                              {
+                                 ReSearchRow = (int16)(ReSearchRow +2);
+
+                                  if (DirSearch == 1)
+                                  {
+                                      IsFixRow = 0;
+                                      while (IsFixRow == 0)
+                                      {
+                                          for (int k = shizhi_char->my_final_tOptimalPoint.my_x; k > 1; k--)
+                                          {
+                                              if (image_data[ReSearchRow][k] != Black && image_data[ReSearchRow][k - 1] == Black)
+                                              {
+                                                  leftline[ReSearchRow] = k;
+                                                  break;
+                                              }
+                                              else if (k == 2)
+                                              {
+                                                  leftline[ReSearchRow] = 2;
+                                                  break;
+                                              }
+                                          }
+
+                                          if (leftline[ReSearchRow] <= 2)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else if (image_data[ReSearchRow + 1][leftline[ReSearchRow] - 1] == Black)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else
+                                          {
+                                              --ReSearchRow;
+                                          }
+
+                                      }
+                                      IsFixRow = 0;
+                                      while (IsFixRow == 0)
+                                      {
+                                          for (int k = leftline[ReSearchRow]; k < 157; k++)
+                                          {
+                                              if (image_data[ReSearchRow][k] != Black && image_data[ReSearchRow][k + 1] == Black)
+                                              {
+                                                  rightline[ReSearchRow] = k;
+                                                  break;
+                                              }
+                                              else if (k == 156)
+                                              {
+                                                  rightline[ReSearchRow] = 156;
+                                                  break;
+                                              }
+                                          }
+                                          if (rightline[ReSearchRow] >= 156)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else if (image_data[ReSearchRow + 1][rightline[ReSearchRow] + 1] == Black)
+                                          {
+                                              IsFixRow = 1;
+                                              RightFixRow.my_x = rightline[ReSearchRow];
+                                              RightFixRow.my_y = ReSearchRow;
+                                          }
+                                          else
+                                          {
+                                              --ReSearchRow;
+                                          }
+                                      }
+                                  }
+                                  else
+                                  {
+                                      IsFixRow = 0;
+                                      while (IsFixRow == 0)
+                                      {
+                                          for (int k = shizhi_char->my_final_tOptimalPoint.my_x; k < 157; k++)
+                                          {
+                                              if (image_data[ReSearchRow][k] != Black && image_data[ReSearchRow][k + 1] == Black)
+                                              {
+                                                  rightline[ReSearchRow] = k;
+                                                  break;
+                                              }
+                                              else if (k == 156)
+                                              {
+                                                  rightline[ReSearchRow] = 156;
+                                                  break;
+                                              }
+                                          }
+                                          if (rightline[ReSearchRow] >= 156)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else if (image_data[ReSearchRow + 1][rightline[ReSearchRow] + 1] == Black)
+                                          {
+                                              IsFixRow = 1;
+                                              RightFixRow.my_x = rightline[ReSearchRow];
+                                              RightFixRow.my_y = ReSearchRow;
+                                          }
+                                          else
+                                          {
+                                              --ReSearchRow;
+                                          }
+                                      }
+
+                                      IsFixRow = 0;
+
+                                      while (IsFixRow == 0)
+                                      {
+                                          for (int k = rightline[ReSearchRow]; k > 1; k--)
+                                          {
+                                              if (image_data[ReSearchRow][k] != Black && image_data[ReSearchRow][k - 1] == Black)
+                                              {
+                                                  leftline[ReSearchRow] = k;
+                                                  break;
+                                              }
+                                              else if (k == 2)
+                                              {
+                                                  leftline[ReSearchRow] = 2;
+                                                  break;
+                                              }
+                                          }
+
+                                          if (leftline[ReSearchRow] <= 2)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else if (image_data[ReSearchRow + 1][leftline[ReSearchRow] - 1] == Black)
+                                          {
+                                              IsFixRow = 1;
+                                          }
+                                          else
+                                          {
+                                              --ReSearchRow;
+                                          }
+                                      }
+
+                                  }
+                              }
+                 if (DLK != 0)
+                 {
+
+                      if(leftline[59]>79)
+                     {
+                         Straight_Thru(1,58, leftline[ReSearchRow], ReSearchRow, 0, ReSearchRow, 58);
+                     }
+                     else if ((leftline[MidJump.my_y] <= 2) || (leftline[1] <= 2 || leftline[4] <= 2 || leftline[7] <= 2))
+                     {
+                         Straight_Thru(leftline[58], 58, leftline[ReSearchRow], ReSearchRow, 0, ReSearchRow, 58);
+                     }
+                     else
+                     {
+                        Straight_Thru(leftline[MidJump.my_y + 2], MidJump.my_y + 2, leftline[ReSearchRow], ReSearchRow, 0, MidJump.my_y + 2, ReSearchRow);
+                     }
+                 }
+                 if (DRK != 0)
+                 {
+
+
+                      if(rightline[59]<79)
+                     {
+                        Straight_Thru(157, 58, rightline[ReSearchRow], ReSearchRow, 1, ReSearchRow, 58);
+                     }
+                    else if ((rightline[MidJump.my_y] >= 156) || (rightline[1] >= 156 || rightline[7] >= 156 || rightline[4] > 156))
+                     {
+                       Straight_Thru(rightline[58],58, rightline[ReSearchRow], ReSearchRow, 1, ReSearchRow, 58);
+                     }
+                     else
+                     {
+                        Straight_Thru(rightline[MidJump.my_y + 2], MidJump.my_y + 2, rightline[ReSearchRow], ReSearchRow, 1, MidJump.my_y + 2, ReSearchRow);
+                     }
+                 }
+
+             }
+
+
+}
+void  crossroad_find()
+{
+//左斜
+    uint8 ldget=0;
+    uint8 luget=0;
+    uint8 rdget=0;
+       uint8 ruget=0;
+    uint8 l_end_bot=0;
+    uint8 r_end_bot=0;
+
+       l_end_bot=0;
+       r_end_bot=0;
+    if(start_lose_l>=50)  //防止越界
+    {
+        L_cro_point_fir=58;
+           L_cross_entry=left_no_line-1;
+           l_end_bot=1;
+    }
+    if(start_lose_l<50)
+    {
+        L_cro_point_fir=start_lose_l+1;
+                   L_cross_entry=left_no_line-1;
+                   l_end_bot=0;
+    }
+    if(start_lose_r>=50)    //防止越界
+      {
+        RR_cro_point_fir=58;
+        R_cross_entry=right_no_line-1;
+        r_end_bot=1;
+      }
+      if(start_lose_r<50)
+      {
+          RR_cro_point_fir=start_lose_r+1;
+          R_cross_entry=right_no_line-1;
+          r_end_bot=0;
+      }
+      R_crossroad=0;
+    L_crossroad=0;
+    //左下拐点   first point    60（底部）  ->  0
+     ldget=0;
+        luget=0;
+        rdget=0;
+           ruget=0;
+
+    if(!l_end_bot)                              //下拐点在开始丢线的上下附近
+    {
+     for(uint8 i=start_lose_l;i>start_lose_l-5;i--)
+      {
+         if(leftline[i-2]==0&&leftline[i-1]==0&&leftline[i]!=0&&(leftline[i+1]-leftline[i+3])>7&&(leftline[i+1]-leftline[i+2])>1&&leftline[i-2]==0)
+      // if(leftline[i]-leftline[i+3]>20&&leftline[i]!=0)
+         {
+          L_crossroad+=1;
+          L_cro_point_fir=i;
+          ldget=1;
+         break;
+       }
+  if(i>=left_no_line)
+  {break;}
+     }
+    }
+     if(!ldget&&!l_end_bot)
+     {
+         for(uint8 i=start_lose_l;i<start_lose_l+5;i++)
+              {
+             if(leftline[i-2]==0&&leftline[i-1]==0&&(leftline[i+1]-leftline[i+3])>7&&(leftline[i+1]-leftline[i+2])>1&&leftline[i-2]==0)
+
+              // if(leftline[i]-leftline[i+3]>20&&leftline[i]!=0)
+                 {
+                  L_crossroad+=1;
+                  L_cro_point_fir=i;
+                  ldget=1;
+                 break;
+               }
+          if(i>=55)
+          {break;}
+             }
+
+
+    }
+
+   //左上拐点                    //上拐点在结束丢线的上下附近
+for(uint8 i=left_no_line;i<=left_no_line+5;i++)
+ {
+ if(leftline[i+2]<=3&&leftline[i+3]<=3&&(leftline[i]-leftline[i+2])>=8&&(leftline[i-1]-leftline[i])>=0&&(leftline[i-1]-leftline[i])<15&& leftline[i+2]<12&&leftline[i+3]<7)
+ // if(leftline[i]-leftline[i+3]>20&&leftline[i]!=0)
+    {
+
+    L_cross_entry=i;//注释后方便验证
+    L_crossroad+=1;
+    luget=1;
+    break;
+  }
+if(i>=40)  //防止边线消失出现的bug
+{
+    break;
+    }
+ }
+if(!luget)
+{
+    for(uint8 i=left_no_line;i>=left_no_line-5;i--)
+     {
+     if(leftline[i+2]<=3&&leftline[i+3]<=3&&leftline[i]!=0&&(leftline[i]-leftline[i+2])>=8&&(leftline[i-1]-leftline[i])>=0&&(leftline[i-1]-leftline[i])<15&& leftline[i+2]<12&&leftline[i+3]<7)
+     // if(leftline[i]-leftline[i+3]>20&&leftline[i]!=0)
+        {
+
+        L_cross_entry=i;//注释后方便验证
+        L_crossroad+=1;
+        luget=1;
+        break;
+      }
+    if(i<=endline)
+    {
+        break;
+        }
+}
+ }
+
+//右斜
+
+//右下拐点
+for(lwi=start_lose_r;lwi>=start_lose_r-5;lwi--)
+ {
+  if(rightline[lwi+1]<=155&&rightline[lwi]!=158&&((rightline[lwi-2]-rightline[lwi])>3)&&((rightline[lwi]-rightline[lwi+2])<3&&rightline[lwi-2]>145&&rightline[lwi-3]>150))
+    {
+      RR_cro_point_fir=lwi;
+    ++R_crossroad;
+    rdget=1;
+    break;
+    }
+  if(lwi<=right_no_line)
+    {
+        break;
+    }
+ }
+if(!rdget)
+{for(lwi=start_lose_r;lwi<=start_lose_r+5;lwi++)
+{
+    if(rightline[lwi+1]<=155&&rightline[lwi]!=158&&((rightline[lwi-2]-rightline[lwi])>3)&&((rightline[lwi]-rightline[lwi+2])<3&&rightline[lwi-2]>145&&rightline[lwi-3]>150))
+   {
+     RR_cro_point_fir=lwi;
+   ++R_crossroad;
+   rdget=1;
+   break;
+   }
+ if(lwi>=55)
+   {
+       break;
+   }
+}}
+//右上拐点
+for(uint8 i=right_no_line;i<=right_no_line+5;i++)
+ {
+  if(rightline[i]!=158&&(rightline[i+2]-rightline[i])>=0&&(rightline[i]-rightline[i-2])>=0&&rightline[i+3]>145&&rightline[i+4]>153)
+ // if(rightline[i+3]-rightline[i]>20&&rightline[i]-rightline[i-2]<10&&rightline[i]<151)
+    {
+      R_crossroad=((R_crossroad==0) ?  1:2);
+    R_cross_entry=i;
+    ruget=1;
+    break;
+    }
+ if(i>=40)
+ {
+     break;}
+ }
+if(!ruget)
+{
+    for(uint8 i=right_no_line;i>=right_no_line-5;i--)
+     {
+      if(rightline[i]!=158&&(rightline[i+2]-rightline[i])>=0&&(rightline[i]-rightline[i-2])>=0&&rightline[i+3]>145&&rightline[i+4]>153)
+     // if(rightline[i+3]-rightline[i]>20&&rightline[i]-rightline[i-2]<10&&rightline[i]<151)
+        {
+          R_crossroad=((R_crossroad==0) ?  1:2);
+        R_cross_entry=i;
+        ruget=1;
+        break;
+        }
+     if(i<=endline)
+     {
+         break;}
+     }
+}
+}
+
+void  crossroad_deal()                                 //
+{
+    //buzzer(0);
+    uint16 delt_x=0;
+    uint16 delt_y=0;
+    uint16 point_eve=0;
+if( shizhiflag&&!huan_L_flag&&!huan_R_flag)
+{
+
+//   if(R_crossroad==2&&L_crossroad==2)
+//   {
+       //左边两点
+       //buzzer(1);
+//    ips200_showint16(30,11,L_cross_entry);
+//              ips200_showint16(50,8,L_cro_point_fir);
+
+    while(leftline[L_cross_entry]==0&&L_cross_entry>endline)
+    {
+
+        L_cross_entry--;              //纠正上拐点
+
+    }
+
+
+
+       delt_x=leftline[L_cross_entry]-leftline[L_cro_point_fir];
+
+       delt_y=L_cro_point_fir-L_cross_entry;  //why reverse is that keeping zhengshu
+       point_eve=(delt_x/delt_y);
+       if(L_cro_point_fir>=55||delt_x==0)
+                 point_eve=1;
+//       if(point_eve<1)
+//       {point_eve=1;}
+//       ips200_showint16(30,2,delt_x);
+//       ips200_showint16(50,12,delt_y);
+       for(uint8 i=L_cross_entry;i<L_cro_point_fir;i++)
+        {
+
+          leftline[i]=leftline[i-1]-point_eve;
+                 if(leftline[i]<=leftline[L_cro_point_fir])
+          {
+          leftline[i]=leftline[L_cro_point_fir];
+          }
+        }
+    //右边
+
+       while(leftline[R_cross_entry]>=157&&R_cross_entry>endline)
+          {
+
+              R_cross_entry--;    //纠正上拐点
+
+          }
+//          while(leftline[RR_cro_point_fir]>=157&&RR_cro_point_fir<=58)
+//             {
+//
+//              RR_cro_point_fir++;
+//
+//             }
+       delt_x=rightline[RR_cro_point_fir]-rightline[R_cross_entry];
+             delt_y=RR_cro_point_fir-R_cross_entry;  //why reverse is that keeping zhengshu
+             point_eve=(int)(delt_x/delt_y);
+             if(RR_cro_point_fir>=55||delt_x==0)
+             point_eve=1;
+             for(uint8 i=R_cross_entry;i<RR_cro_point_fir;i++)
+              {
+                 rightline[i]=rightline[i-1]+point_eve;
+                   if(rightline[i]>=rightline[RR_cro_point_fir])
+                   {
+                   rightline[i]=rightline[RR_cro_point_fir];
+                   }
+              }
+//   }
+//   else if((R_crossroad==1&&L_crossroad==2)||(R_crossroad==2&&L_crossroad==1))  //三点斜率斜入十字
+//{
+//     //  buzzer(1);
+//       if(L_crossroad==2)
+//       {
+//        //   buzzer(0);
+//           delt_x=leftline[L_cross_entry]-leftline[L_cro_point_fir];
+//                 delt_y=L_cro_point_fir-L_cross_entry;  //why reverse is that keeping zhengshu
+//                 point_eve=(int)(delt_x/delt_y);
+////                 if(point_eve<1)
+////                 {point_eve=1;}
+//                // ips200_showint16(30,2,point_eve);
+//                 for(uint8 i=L_cross_entry+1;i<L_cro_point_fir;i++)
+//                  {
+//
+//                    leftline[i]=leftline[i-1]-point_eve;
+//                           if(leftline[i]<=leftline[L_cro_point_fir])
+//                    {
+//                    leftline[i]=leftline[L_cro_point_fir];
+//                    }
+//                  }
+//
+//                 for(uint8 i=R_cross_entry+1;i<=59;i++)
+//                  {
+//                    rightline[i]=rightline[i-1]+1;
+//                    if(rightline[i]>158)
+//                    {
+//                    rightline[i]=158;
+//                    }
+//                  }
+//                  R_crossroad=0;
+//
+//       }
+//       else if(R_crossroad==2)
+//       {
+//         //  buzzer(1);
+//           delt_x=rightline[RR_cro_point_fir]-rightline[R_cross_entry];
+//                      delt_y=RR_cro_point_fir-R_cross_entry;  //why reverse is that keeping zhengshu
+//                      point_eve=(int)(delt_x/delt_y);
+////                      if(point_eve<1)
+////                           {point_eve=1;}
+//                      for(uint8 i=R_cross_entry+1;i<RR_cro_point_fir;i++)
+//                       {
+//                          rightline[i]=rightline[i-1]+point_eve;
+//                            if(rightline[i]>=rightline[RR_cro_point_fir])
+//                            {
+//                            rightline[i]=rightline[RR_cro_point_fir];
+//                            }
+//                       }
+//                      for(uint8 i=L_cross_entry+1;i<=59;i++)
+//                       {
+//                         leftline[i]=leftline[i-1]-1;
+//                         if(leftline[i]<0)
+//                         {
+//                         leftline[i]=0;
+//                         }
+//                       }
+//       }
+//       else
+//       {
+//        //   buzzer(0);
+//
+//       }
+//
+//
+//}
+//
+//   else if(R_crossroad==1&&L_crossroad==1)//两点斜率中入十字
+//{
+//   //    buzzer(1);
+//  for(uint8 i=L_cross_entry+1;i<=59;i++)
+//  {
+//    leftline[i]=leftline[i-1]-1;
+//    if(leftline[i]<0)
+//    {
+//    leftline[i]=0;
+//    }
+//  }
+//if(shizhiflag&&!huan_L_flag&&!huan_R_flag)
+//{
+//  for(uint8 i=R_cross_entry+1;i<=59;i++)
+//  {
+//    rightline[i]=rightline[i-1]+1;
+//    if(rightline[i]>158)
+//    {
+//    rightline[i]=158;
+//    }
+//  }
+////  R_crossroad=0;
+//}
+//
+//
+//}
+//   else
+//   {
+//   //    buzzer(0);
+//   }
+}
+}
+
+
+void cross_fight(Maiy_characteristic_point* cross_fake)
+{
+
+}
+
+
+//later
+
+void trianglePointCross()
+{
+
+
+    if (((IsBottomLeftJupm == 1 && IsBottomRightJupm == 0) || (IsBottomLeftJupm == 0 && IsBottomRightJupm == 1)) && sancha_flag_right == 0 && sancha_flag_left == 0)  //斜入
+{
+
+    StepLonth = 0;
+int FormSize=2;
+        if (((IsBottomLeftJupm == 1 && IsBottomRightJupm == 0) || (IsBottomLeftJupm == 0 && IsBottomRightJupm == 1)) && sancha_flag_right == 0 && sancha_flag_left == 0)  //斜入
+        {
+            YPonitLeft = 0;
+            if (IsBottomLeftJupm == 1 && IsBottomRightJupm == 0)
+            {
+                FormSize = 2;
+                for (int i = LowLeftJump.my_y; i > 2; i--)
+                {
+                    if (image_data[i][LowLeftJump.my_x] != 0 && image_data[i - 1][LowLeftJump.my_x] == 0)
+                    {
+                        TriangBlackPoint.my_y = i - 1;
+                        TriangBlackPoint.my_x = LowLeftJump.my_x;
+                        break;
+                    }
+
+                }
+
+                YStartFixPointCross = TriangBlackPoint.my_y - FormSize;
+                for (int i = TriangBlackPoint.my_x; i < 156; i++)
+                {
+                    if (image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i + 1] != 0)
+                    {
+                        YPonitLeft = i + 1;
+
+                    }
+                    if (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i + 1]== 0)
+                                       {
+                                           YPointRight = i + 1;
+                                           break;
+                                       }
+                    if ((image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i + 1] == 0) || (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i + 1] != 0))
+                    {
+
+                        StepLonth++;
+                    }
+
+                    if (StepLonth >= 60)
+                    {
+                        IsBottomLeftJupm = 0;
+                        IsBottomRightJupm = 0;
+                        break;
+                    }
+
+                }
+
+            }
+            if (IsBottomLeftJupm == 0 && IsBottomRightJupm == 1)
+            {
+
+                FormSize = 2;
+
+                for (int i = LowRightJump.my_y - 3; i > 2; i--)
+                {
+                    if (image_data[i][LowRightJump.my_y] != 0
+                        && image_data[i - 1][LowRightJump.my_y] == 0)
+                    {
+                        yes = i + 1;
+                        TriangBlackPoint.my_y = i - 1;
+                        TriangBlackPoint.my_y = LowRightJump.my_x;
+                        break;
+                    }
+
+                }
+
+                YStartFixPointCross = TriangBlackPoint.my_y - FormSize;
+                for (int i = TriangBlackPoint.my_x; i > 1; i--)
+                {
+                    if (image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i - 1] != 0)
+                    {
+                        YPonitLeft = i + 1;
+
+                    }
+                    if ((image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i - 1] == 0) || (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i - 1] != 0))
+                    {
+
+                        StepLonth++;
+                    }
+                    if (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i - 1] == 0)
+                                        {
+                                            YPonitLeft = i + 1;
+                                            break;
+                                        }
+
+                    if (StepLonth >= 60)
+                    {
+                        IsBottomLeftJupm = 0;
+                        IsBottomRightJupm = 0;
+                        break;
+                    }
+
+                }
+
+
+
+
+            }
+
+
+
+
+            if (YPonitLeft > 2 && YPointRight < 157)
+            {
+                if (IsBottomLeftJupm == 1 && IsBottomRightJupm == 0)
+                {
+
+                    Straight_Thru(LowRightJump.my_x,LowRightJump.my_y, YPointRight, YStartFixPointCross, 1, YStartFixPointCross, LowRightJump.my_y);
+                    Straight_Thru(LowLeftJump.my_x,LowLeftJump.my_y, YPonitLeft, YStartFixPointCross, 0, YStartFixPointCross, LowLeftJump.my_y);
+                    buzzer(1);
+                }
+
+
+                if (IsBottomLeftJupm == 0 && IsBottomRightJupm == 1)
+                {
+
+                    Straight_Thru(LowRightJump.my_x,LowRightJump.my_y, YPointRight, YStartFixPointCross, 1, YStartFixPointCross, LowRightJump.my_y);
+                                        Straight_Thru(LowLeftJump.my_x,LowLeftJump.my_y, YPonitLeft, YStartFixPointCross, 0, YStartFixPointCross, LowLeftJump.my_y);
+                                        buzzer(1);
+                }
+
+            }
+
+
+
+
+        }
+
+
+
+
+}
+
+else if(IsBottomLeftJupm == 1 && IsBottomRightJupm == 1 && sancha_flag_right == 0 && sancha_flag_left == 0 && TriangBlackPoint.my_x< 140 && TriangBlackPoint.my_x>20)
+{
+
+    YStartFixPointCross = 0;
+       YPonitLeft = 0;
+       YPointRight = 0;
+       int FormSize = 3;//该变量影响补线的线对近处或远处的信任;
+       //开始十字
+
+       if (IsBottomLeftJupm == 1 && IsBottomRightJupm == 1 && sancha_flag_right == 0 && sancha_flag_left == 0 && TriangBlackPoint.my_x < 140 && TriangBlackPoint.my_x>20)
+       {
+           if (LowLeftJump.my_y <= LowRightJump.my_y)
+           {
+               FormSize = LowRightJump.my_y- LowLeftJump.my_y;
+           }
+           else
+           {
+               FormSize = -(LowRightJump.my_y- LowLeftJump.my_y);
+           }
+
+           if (FormSize <= 3)
+           {
+               FormSize = 3;
+           }
+           if (FormSize >= 7)
+           {
+               FormSize = 7;
+           }
+
+           YStartFixPointCross = TriangBlackPoint.my_y - FormSize;
+           //判断一波趋势
+           if (TriangBlackPoint.my_x - LowLeftJump.my_x <= LowRightJump.my_x - TriangBlackPoint.my_x)   //左偏
+           {
+               for (int i = TriangBlackPoint.my_x; i < 156; i++)
+               {
+                   if (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i + 1] == 0)
+                   {
+                       YPointRight = i - 1;
+                       break;
+                   }
+                   if (image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i + 1] != 0)
+                   {
+                       YPonitLeft = i + 1;
+
+                   }
+               }
+           }
+           else
+           {
+
+               for (int i = TriangBlackPoint.my_x + 1; i > 3; i--)
+               {
+                   if (image_data[YStartFixPointCross][i] != 0 && image_data[YStartFixPointCross][i - 1] == 0)
+                   {
+                       YPonitLeft = i - 1;
+                       break;
+                   }
+                   if (image_data[YStartFixPointCross][i] == 0 && image_data[YStartFixPointCross][i - 1] != 0)
+                   {
+                       YPointRight = i + 1;
+                   }
+               }
+
+           }
+
+           //show
+
+           if (YPonitLeft > 2 && YPointRight < 157)
+           {
+       Straight_Thru(LowLeftJump.my_x,LowLeftJump.my_y, YPonitLeft, YStartFixPointCross, 0, YStartFixPointCross, LowLeftJump.my_y);
+       Straight_Thru(LowRightJump.my_x,LowRightJump.my_y, YPointRight, YStartFixPointCross, 1, YStartFixPointCross, LowRightJump.my_y);
+       buzzer(1);
+           }
+
+       }
+
+
+
+    }
+    else
+    {
+
+        buzzer(0);
+    }
+}
+
+
+
+
+

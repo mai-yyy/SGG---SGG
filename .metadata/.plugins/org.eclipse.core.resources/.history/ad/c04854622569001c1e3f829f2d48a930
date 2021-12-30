@@ -1,0 +1,35 @@
+#include "headfile.h"
+
+extern int16 L_cross_entry;
+extern int16 L_crossroad;
+extern int16 R_cross_entry;
+extern int16 R_crossroad;
+extern int16 R_L_lose;
+extern uint8 shizhiflag;
+extern int16 left_no_line;
+extern int16 start_lose_l;
+extern int16 start_lose_r;
+extern int16 right_no_line;
+extern int16 RR_cro_point_fir;
+extern int16 L_cro_point_fir;
+extern int16 left_no_line;
+extern int16 right_no_line;
+extern int16 left_all_lose_line;
+extern int16 right_all_lose_line;
+extern Maiy_2_dimensional MidJump;
+extern uint8 IsMidJump;
+extern int16 JumpLenth;
+extern int16 ReSearchRow;
+extern uint8 DLK;
+extern uint8 DRK;
+extern float SlopeCross;
+extern uint8 IsSlopeCross;
+extern uint8 DirSearch;
+extern uint8_t IsFixRow;
+extern  Maiy_2_dimensional LeftFixRow;
+extern Maiy_2_dimensional RightFixRow ;
+void  crossroad_find();
+void crossroad_deal();
+void PreWhitePoint();
+void crosstest1();
+void  Double_no_line(Maiy_characteristic_point *shizhi_char);

@@ -1063,7 +1063,7 @@ else if(IsBottomLeftJupm==0&&IsBottomRightJupm==1&&left_all_lose_line>=5)
     LowLeftJump.my_x=0;
     LowLeftJump.my_y=59;
     memset(TriangRange,0,sizeof(int)*160);
-                   for(int16 j=LowRightJump.my_x;j>=15;j--)
+                   for(int16 j=LowRightJump.my_x;j>=10;j--)
              {
                    for(int16 k=59;k>=2;k--)
                    {
@@ -1092,16 +1092,16 @@ else
 
 }
 
-            ips200_showuint16(90,18,TriangBlackPoint.my_x);
-
-                                          ips200_showuint16(90,19,TriangBlackPoint.my_y);
+//            ips200_showuint16(90,18,TriangBlackPoint.my_x);
+//
+//                                          ips200_showuint16(90,19,TriangBlackPoint.my_y);
             ForkAngleLeft=0;
             ForkAngleRight=0;
             OverAngleStep=0;
             bodSpod=0;
             if(TriangBlackPoint.my_x<=140&&TriangBlackPoint.my_x>=20)
             {
-            for(int16 i=0;i<20;i++)
+            for(int16 i=0;i<23;i++)
             {
                 if(TriangRange[TriangBlackPoint.my_x+i]!=0&&TriangRange[TriangBlackPoint.my_x-i]!=0)
                 {
@@ -1155,10 +1155,10 @@ if(dir_sc==1)
 {
     if(LowLeftJump.my_y<49)
     {
-    Lincnt=(float)((leftline[LowLeftJump.my_y+1]-leftline[LowLeftJump.my_y+10])/10);
+    Lincnt=(float)(((float)leftline[LowLeftJump.my_y+1]-(float)leftline[LowLeftJump.my_y+10])/10.0f);
     }
     else if(LowLeftJump.my_y<57){
-        Lincnt=(float)((leftline[LowLeftJump.my_y+1]-leftline[58])/(58-LowLeftJump.my_y));}
+        Lincnt=(float)(((float)leftline[LowLeftJump.my_y+1]-(float)leftline[58])/(float)(58-LowLeftJump.my_y));}
 
 
     lentsc=0;
@@ -1175,9 +1175,8 @@ if(dir_sc==1)
         }
     }
     sc_Lincnt=(float)((lentsc)/5.0f);
-//    ips200_showfloat(90,16,sc_Lincnt,3,3);
-//    ips200_showfloat(90,17,Lincnt,3,3);
-if(fabs(sc_Lincnt-Lincnt)>=4.5)
+
+if(fabs(sc_Lincnt-Lincnt)>=5.5)
 {
     sc_sp=1;
     }
@@ -1188,10 +1187,10 @@ if(dir_sc==2)
 {
     if(LowRightJump.my_y<45)
     {
-    Rincnt=(float)(-(rightline[LowRightJump.my_y+1]-rightline[LowRightJump.my_y+10])/10);
+    Rincnt=(float)(-((float)rightline[LowRightJump.my_y+1]-(float)rightline[LowRightJump.my_y+10])/10.0f);
     }
     else if(LowRightJump.my_y<57){
-        Rincnt=(float)(-(rightline[LowRightJump.my_y+1]-rightline[58])/(58-LowRightJump.my_y));
+        Rincnt=(float)(-((float)rightline[LowRightJump.my_y+1]-(float)rightline[58])/(float)(58-LowRightJump.my_y));
     }
 
 
@@ -1210,9 +1209,8 @@ if(dir_sc==2)
                    }
         }
     sc_Rincnt=(float)((lentsc)/5.0f);
-//    ips200_showfloat(90,16,sc_Rincnt,3,3);
-//       ips200_showfloat(90,17,Rincnt,3,3);
-    if(fabs(sc_Rincnt-Rincnt)>=4.5)
+
+    if(fabs(sc_Rincnt-Rincnt)>=5.5)
     {
         sc_sp=1;
         }
@@ -1224,11 +1222,11 @@ if(dir_sc==2)
 
 //ips200_showfloat(90,16,sc_sp,3,3);
 
-                        Maiy_2_dimensional A={TriangBlackPoint.my_x-5,TriangRange[TriangBlackPoint.my_x-5]};
-                        Maiy_2_dimensional C={TriangBlackPoint.my_x+5,TriangRange[TriangBlackPoint.my_x+5]};
-                        Triang= Get_Angle( A, TriangBlackPoint, C);
+//                        Maiy_2_dimensional A={TriangBlackPoint.my_x-5,TriangRange[TriangBlackPoint.my_x-5]};
+//                        Maiy_2_dimensional C={TriangBlackPoint.my_x+5,TriangRange[TriangBlackPoint.my_x+5]};
+//                        Triang= Get_Angle( A, TriangBlackPoint, C);
 //                        ips200_showstr(0,10,"Triang");
-                                      ips200_showint16(90,10,Triang);
+//                                      ips200_showint16(90,10,Triang);
 //                                      ips200_showstr(0,12,"sc_sp");
 //                                      ips200_showuint16(90,12,sc_sp);
 ////                                      ips200_showstr(0,18,"ARight");
@@ -1246,10 +1244,10 @@ if(dir_sc==2)
 //                    &&TriangRange[TriangBlackPoint.my_x+10]<=TriangRange[TriangBlackPoint.my_x]
 //                    &&TriangRange[TriangBlackPoint.my_x-10]<=TriangRange[TriangBlackPoint.my_x]
 //                    TriangBlackPoint.my_y<=40
-                   Triang>150
-                   &&TriangRange[TriangBlackPoint.my_x+12]!=0
-                  &&TriangRange[TriangBlackPoint.my_x-12]!=0
-                    &&(((ForkAngleLeft>=20&&ForkAngleRight<=20)||(ForkAngleLeft<=20&& ForkAngleRight>=20)||(ForkAngleLeft + ForkAngleRight <= 30&&ForkAngleLeft + ForkAngleRight>=10))&&ABS(ForkAngleLeft- ForkAngleRight)<=35&&ABS(ForkAngleLeft+ForkAngleRight)<=80)
+//                   Triang>155
+//                   &&TriangRange[TriangBlackPoint.my_x+12]!=0
+//                  &&TriangRange[TriangBlackPoint.my_x-12]!=0
+                    (((ForkAngleLeft>=20&&ForkAngleRight<=15)||(ForkAngleLeft<=15&& ForkAngleRight>=20)||(ForkAngleLeft + ForkAngleRight <= 30&&ForkAngleLeft + ForkAngleRight>=10))&&ABS(ForkAngleLeft- ForkAngleRight)<=35&&ABS(ForkAngleLeft+ForkAngleRight)<=60)
                     )
 
     {
